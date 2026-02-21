@@ -27,8 +27,8 @@ const getSafeEnv = (key: string, fallback: string): string => {
   return fallback;
 };
 
-const supabaseUrl = getSafeEnv('VITE_SUPABASE_URL', 'https://uaxwrnjlttlohwcgwabx.supabase.co');
-const supabaseAnonKey = getSafeEnv('VITE_SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVheHdybmpsdHRsb2h3Y2d3YWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNDU1ODQsImV4cCI6MjA4MDgyMTU4NH0.5IZwhbHWTUthEr7UebWg5Fd4RY8krxvJG93CztnQnJc');
+const supabaseUrl = getSafeEnv('VITE_SUPABASE_URL', 'https://tlbsnkrknvdquduaacnp.supabase.co');
+const supabaseAnonKey = getSafeEnv('VITE_SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsYnNua3JrbnZkcXVkdWFhY25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY2OTgsImV4cCI6MjA4NzIzMjY5OH0.QU888pAj_Qhum5Xq0jJCt1-9Lpx--lgsSSdR_aNx7zc');
 
 // Initialize the Singleton Client with error handling
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
