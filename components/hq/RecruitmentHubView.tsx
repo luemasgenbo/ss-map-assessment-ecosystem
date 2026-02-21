@@ -309,25 +309,9 @@ export default function RecruitmentHubView({ registry }: { registry: SchoolRegis
       {/* CONTENT AREA WITH SCALE */}
       <div className="flex-1 overflow-auto p-8" style={{ fontSize: `${fontScale}rem` }}>
         
-        {/* BRANDING HEADER - ALWAYS VISIBLE IN ALL REPORTS FOR ACADEMY PARTICULARS */}
-        <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-gray-100 text-slate-900 mb-12 max-w-7xl mx-auto">
-            <ReportBrandingHeader 
-              settings={hqSettings} 
-              onSettingChange={(k, v) => setHqSettings({...hqSettings, [k]: v})} 
-              reportTitle={activeTab === 'INSTITUTIONS' ? 'FORWARDING MASTER AUDIT' : activeTab === 'CLAIMS' ? 'CLAIMS DISBURSEMENT LEDGER' : 'RECRUITMENT MATRIX SHARD'}
-              subtitle="UNITED BAYLOR ACADEMY CENTRAL HUB"
-              isLandscape={true}
-              readOnly={false}
-            />
-        </div>
-
         {activeTab === 'ENLISTMENT' && (
           <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-end px-4 gap-6">
-                <div className="space-y-1">
-                  <h2 className="text-3xl font-black uppercase text-white tracking-tight leading-none">Recruitment Matrix</h2>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Official External Enlistment Node</p>
-                </div>
+            <div className="flex justify-end px-4 mb-4">
                 <input type="text" placeholder="Filter specialists..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} className="bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-xs font-bold text-white outline-none w-full md:w-80 focus:ring-4 focus:ring-blue-500/10 transition-all uppercase" />
             </div>
 

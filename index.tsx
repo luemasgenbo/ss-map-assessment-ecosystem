@@ -66,6 +66,15 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+// Suppress Recharts defaultProps deprecation warnings
+const originalConsoleError = console.error;
+console.error = (...args: any[]) => {
+  if (typeof args[0] === 'string' && args[0].includes('defaultProps will be removed from function components')) {
+    return;
+  }
+  originalConsoleError(...args);
+};
+
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>

@@ -130,6 +130,10 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
 
   useEffect(() => { fetchHQData(); }, []);
 
+  useEffect(() => {
+    handleNavScroll();
+  }, [view, sidebarWidth]);
+
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isResizing) {
       const newWidth = Math.max(260, Math.min(600, e.clientX));
@@ -137,9 +141,18 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
     }
     if (isDraggingSlider && sliderRailRef.current && navScrollRef.current) {
       const rail = sliderRailRef.current.getBoundingClientRect();
-      const relativeY = Math.max(0, Math.min(rail.height, e.clientY - rail.top));
-      const percent = relativeY / rail.height;
-      navScrollRef.current.scrollTop = percent * (navScrollRef.current.scrollHeight - navScrollRef.current.clientHeight);
+      const scrollableHeight = navScrollRef.current.scrollHeight - navScrollRef.current.clientHeight;
+      
+      if (scrollableHeight > 0) {
+        // Calculate percentage based on mouse position relative to rail height
+        // We subtract half the thumb height (50px) to center the drag if possible, 
+        // but for a "jump" rail, mapping direct is often better.
+        // Let's stick to direct mapping but ensure it covers the full 0-1 range.
+        const mouseY = e.clientY - rail.top;
+        const percent = Math.max(0, Math.min(1, mouseY / rail.height));
+        
+        navScrollRef.current.scrollTop = percent * scrollableHeight;
+      }
     }
   }, [isResizing, isDraggingSlider]);
 
@@ -162,7 +175,8 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
   const handleNavScroll = () => {
     if (navScrollRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = navScrollRef.current;
-      setScrollPercent(scrollTop / (scrollHeight - clientHeight));
+      const range = scrollHeight - clientHeight;
+      setScrollPercent(range > 0 ? scrollTop / range : 0);
     }
   };
 
@@ -208,7 +222,7 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex overflow-hidden relative">
+    <div className={`min-h-screen bg-slate-50 text-slate-900 font-sans flex overflow-hidden relative ${isDraggingSlider ? 'cursor-grabbing select-none' : ''}`}>
       
       {/* HOVER TRIGGER ZONE */}
       <div 
@@ -245,7 +259,7 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
            <nav 
              ref={navScrollRef}
              onScroll={handleNavScroll}
-             className="flex-1 overflow-y-auto p-8 space-y-10 no-scrollbar scroll-smooth"
+             className={`flex-1 overflow-y-auto p-8 pr-16 space-y-10 no-scrollbar ${isDraggingSlider ? 'scroll-auto' : 'scroll-smooth'} relative z-10`}
            >
               {sidebarConfig.map(cat => (
                 <div key={cat.category} className="space-y-4">
@@ -269,15 +283,32 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
               ))}
            </nav>
 
-           {/* VERTICAL SLIDER RAIL (Moved back to right with offset for resize handle) */}
+           {/* SIMPLIFIED VERTICAL SLIDER RAIL (Width 2) */}
            <div 
              ref={sliderRailRef}
-             onMouseDown={() => setIsDraggingSlider(true)}
-             className="w-3 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer relative group shrink-0 border-l border-white/5 z-20 mr-2"
+             onMouseDown={(e) => {
+               e.preventDefault();
+               e.stopPropagation();
+               setIsDraggingSlider(true);
+               if (sliderRailRef.current && navScrollRef.current) {
+                 const rail = sliderRailRef.current.getBoundingClientRect();
+                 const mouseY = e.clientY - rail.top;
+                 const percent = Math.max(0, Math.min(1, mouseY / rail.height));
+                 const scrollableHeight = navScrollRef.current.scrollHeight - navScrollRef.current.clientHeight;
+                 if (scrollableHeight > 0) {
+                   navScrollRef.current.scrollTop = percent * scrollableHeight;
+                 }
+               }
+             }}
+             className="absolute right-4 top-8 bottom-8 w-[2px] bg-white/10 cursor-pointer z-[100] group"
            >
               <div 
-                style={{ top: `${scrollPercent * 100}%` }}
-                className="absolute left-0 right-0 h-20 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] transition-all group-hover:bg-blue-400"
+                style={{ 
+                  top: `${scrollPercent * 100}%`,
+                  height: '60px',
+                  transform: `translateY(-${scrollPercent * 100}%)`
+                }}
+                className="absolute left-[-1px] right-[-1px] bg-blue-500 rounded-full shadow-[0_0_15px_rgba(37,99,235,1)] transition-colors group-hover:bg-blue-400"
               />
            </div>
         </div>
@@ -342,7 +373,7 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
             </div>
          </header>
 
-         <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+         <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50 no-scrollbar">
             <div className="max-w-7xl mx-auto">
                {view === 'dashboard' && <NetworkDashboard registry={registry} />}
                {view === 'registry' && <RegistryView registry={registry} searchTerm="" setSearchTerm={()=>{}} onRemoteView={onRemoteView} onUpdateRegistry={setRegistry} onLogAction={handleLogAction} />}
@@ -381,6 +412,22 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
         }
         .custom-horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #3b82f6;
+        }
+
+        .custom-vertical-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-vertical-scrollbar::-webkit-scrollbar-track {
+          background: rgba(241, 245, 249, 1);
+          border-radius: 20px;
+        }
+        .custom-vertical-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 20px;
+          border: 2px solid rgba(241, 245, 249, 1);
+        }
+        .custom-vertical-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
         }
       `}} />
     </div>
