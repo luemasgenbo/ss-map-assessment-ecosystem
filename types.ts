@@ -157,6 +157,9 @@ export interface StudentData {
   attendance: number;
   conductRemark?: string;
   ghanaianLanguage?: string;
+  specialMockPreference?: string;
+  practiceFee?: number;
+  practiceTokenIds?: string[];
   paymentStatus?: 'PAID' | 'UNPAID';
   indexNumber?: string;
   uniqueCode?: string; // Added for 6-digit PIN storage
@@ -360,6 +363,9 @@ export interface ForwardingData {
   schoolName: string;
   feedback: string;
   pupilLanguages: Record<number, string>;
+  pupilSpecialMockPreferences: Record<number, string>;
+  pupilPracticeFees: Record<number, number>;
+  pupilPracticeTokens: Record<number, string[]>;
   pupilPayments: Record<number, boolean>;
   bulkPayment?: PaymentParticulars;
   facilitatorRecommendations: Record<string, 'EXAMINER' | 'INVIGILATOR'>;

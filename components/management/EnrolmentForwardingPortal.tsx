@@ -98,6 +98,9 @@ const EnrolmentForwardingPortal: React.FC<EnrolmentForwardingPortalProps> = ({ s
         schoolName: settings.schoolName,
         feedback: feedback,
         pupilLanguages: students.reduce((acc, s) => ({ ...acc, [s.id]: s.ghanaianLanguage || schoolLanguage }), {}),
+        pupilSpecialMockPreferences: students.reduce((acc, s) => ({ ...acc, [s.id]: s.specialMockPreference || 'STANDARD' }), {}),
+        pupilPracticeFees: students.reduce((acc, s) => ({ ...acc, [s.id]: s.practiceFee || 0 }), {}),
+        pupilPracticeTokens: students.reduce((acc, s) => ({ ...acc, [s.id]: s.practiceTokenIds || [] }), {}),
         pupilPayments: students.reduce((acc, s) => ({ ...acc, [s.id]: true }), {}),
         bulkPayment: paymentInfo,
         facilitatorRecommendations: {},
@@ -307,7 +310,7 @@ const EnrolmentForwardingPortal: React.FC<EnrolmentForwardingPortalProps> = ({ s
                             </select>
                         </div>
                         <p className="text-[9px] text-slate-500 font-bold uppercase leading-relaxed italic">
-                            * Pupils with specific settings in the 'Pupils' tab will override this choice.
+                            * Pupils with specific settings in the matrix below will override this choice.
                         </p>
                       </div>
                   </div>
@@ -329,11 +332,109 @@ const EnrolmentForwardingPortal: React.FC<EnrolmentForwardingPortalProps> = ({ s
                         <div className="space-y-1">
                             <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Handshake Type</label>
                             <select value={paymentType} onChange={e=>setPaymentType(e.target.value as any)} className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-xs font-black text-blue-400 outline-none">
-                              <option value="BULK">BULK (FULL ROLL)</option>
-                              <option value="INDIVIDUAL">PARTIAL / INDIVIDUAL</option>
+                              <option value="BULK">BULK (SCHOOL PAY)</option>
+                              <option value="INDIVIDUAL">INDIVIDUAL (PUPIL PAY)</option>
                             </select>
                         </div>
                       </div>
+                      {paymentType === 'INDIVIDUAL' && (
+                        <div className="pt-4 border-t border-slate-800">
+                          <button 
+                            onClick={() => {
+                              const total = students.reduce((sum, s) => sum + (s.practiceFee || 0), 0);
+                              setTotalAmount(total.toString());
+                            }}
+                            className="text-[9px] font-black text-blue-400 uppercase tracking-widest hover:text-white transition-colors"
+                          >
+                            Calculate Total from Pupil Matrix
+                          </button>
+                        </div>
+                      )}
+                  </div>
+                </div>
+
+                {/* PUPIL PREFERENCE MATRIX */}
+                <div className="bg-slate-950/50 rounded-[3rem] border border-slate-800 overflow-hidden">
+                  <div className="p-8 border-b border-slate-800 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <h4 className="text-xs font-black text-white uppercase tracking-widest">Pupil Preference & Practice Matrix</h4>
+                    </div>
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                      {students.length} Pupils in Roster
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-900/50">
+                          <th className="px-6 py-4 text-[8px] font-black text-slate-500 uppercase tracking-widest">Pupil Name</th>
+                          <th className="px-6 py-4 text-[8px] font-black text-slate-500 uppercase tracking-widest">GH Language</th>
+                          <th className="px-6 py-4 text-[8px] font-black text-slate-500 uppercase tracking-widest">Special Mock Pref</th>
+                          <th className="px-6 py-4 text-[8px] font-black text-slate-500 uppercase tracking-widest">Practice Fee (GHS)</th>
+                          <th className="px-6 py-4 text-[8px] font-black text-slate-500 uppercase tracking-widest">Token IDs (Comma Sep)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {students.map((student) => (
+                          <tr key={student.id} className="hover:bg-slate-900/30 transition-colors">
+                            <td className="px-6 py-4">
+                              <p className="text-[10px] font-black text-white uppercase">{student.name}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                              <select 
+                                value={student.ghanaianLanguage || schoolLanguage}
+                                onChange={(e) => {
+                                  const updated = students.map(s => s.id === student.id ? { ...s, ghanaianLanguage: e.target.value } : s);
+                                  setStudents(updated);
+                                }}
+                                className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-[10px] font-bold text-blue-400 outline-none w-full"
+                              >
+                                {GH_LANGS.map(l => <option key={l} value={l}>{l}</option>)}
+                              </select>
+                            </td>
+                            <td className="px-6 py-4">
+                              <input 
+                                type="text"
+                                value={student.specialMockPreference || ''}
+                                onChange={(e) => {
+                                  const updated = students.map(s => s.id === student.id ? { ...s, specialMockPreference: e.target.value.toUpperCase() } : s);
+                                  setStudents(updated);
+                                }}
+                                className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-[10px] font-bold text-white outline-none w-full"
+                                placeholder="E.G. CORE ONLY"
+                              />
+                            </td>
+                            <td className="px-6 py-4">
+                              <input 
+                                type="number"
+                                value={student.practiceFee || ''}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value) || 0;
+                                  const updated = students.map(s => s.id === student.id ? { ...s, practiceFee: val } : s);
+                                  setStudents(updated);
+                                }}
+                                className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-[10px] font-bold text-white outline-none w-full"
+                                placeholder="0.00"
+                              />
+                            </td>
+                            <td className="px-6 py-4">
+                              <input 
+                                type="text"
+                                value={student.practiceTokenIds?.join(', ') || ''}
+                                onChange={(e) => {
+                                  const tokens = e.target.value.split(',').map(t => t.trim()).filter(t => t !== '');
+                                  const updated = students.map(s => s.id === student.id ? { ...s, practiceTokenIds: tokens } : s);
+                                  setStudents(updated);
+                                }}
+                                className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-[10px] font-bold text-white outline-none w-full"
+                                placeholder="TKN-1, TKN-2"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
