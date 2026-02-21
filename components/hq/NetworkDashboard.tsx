@@ -8,11 +8,12 @@ import {
 
 interface NetworkDashboardProps {
   registry: SchoolRegistryEntry[];
+  onExit: () => void;
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-const NetworkDashboard: React.FC<NetworkDashboardProps> = ({ registry }) => {
+const NetworkDashboard: React.FC<NetworkDashboardProps> = ({ registry, onExit }) => {
   const [networkStats, setNetworkStats] = useState({
     totalStudents: 0,
     totalStaff: 0,
@@ -76,6 +77,21 @@ const NetworkDashboard: React.FC<NetworkDashboardProps> = ({ registry }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+      {/* Dashboard Header with Exit */}
+      <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] shadow-xl border border-gray-100">
+        <div>
+          <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tighter">Network Overview</h2>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Real-time Node Analytics</p>
+        </div>
+        <button 
+          onClick={onExit}
+          className="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all active:scale-95 flex items-center gap-2"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Exit System
+        </button>
+      </div>
+
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[

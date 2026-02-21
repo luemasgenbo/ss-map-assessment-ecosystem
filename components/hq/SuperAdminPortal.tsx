@@ -329,7 +329,7 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
               />
            </div>
            <button onClick={onExit} className="w-full bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all border border-red-900/20 shadow-lg active:scale-95">
-              Deactivate Node
+              EXIT MASTER COMMAND
            </button>
         </div>
 
@@ -375,7 +375,7 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
 
          <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50 no-scrollbar">
             <div className="max-w-7xl mx-auto">
-               {view === 'dashboard' && <NetworkDashboard registry={registry} />}
+               {view === 'dashboard' && <NetworkDashboard registry={registry} onExit={onExit} />}
                {view === 'registry' && <RegistryView registry={registry} searchTerm="" setSearchTerm={()=>{}} onRemoteView={onRemoteView} onUpdateRegistry={setRegistry} onLogAction={handleLogAction} />}
                {view === 'recruitment' && <RecruitmentHubView registry={registry} onLogAction={handleLogAction} />}
                {view === 'serialization' && <SerializationHubView registry={registry} onLogAction={handleLogAction} />}
