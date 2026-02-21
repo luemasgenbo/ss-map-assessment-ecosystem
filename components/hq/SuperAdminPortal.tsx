@@ -38,6 +38,7 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
   const [view, setView] = useState<HQViewID>('dashboard');
   const [isSyncing, setIsSyncing] = useState(true);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isResizing, setIsResizing] = useState(false);
   const navScrollRef = useRef<HTMLDivElement>(null);
@@ -212,23 +213,32 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
       {/* HOVER TRIGGER ZONE */}
       <div 
         onMouseEnter={() => setIsSidebarVisible(true)}
-        className="fixed left-0 top-0 bottom-0 w-4 z-[60] cursor-e-resize"
+        className={`fixed left-0 top-0 bottom-0 w-4 z-[60] cursor-e-resize ${(isSidebarVisible || isPinned) ? 'pointer-events-none' : ''}`}
       />
 
       {/* SIDEBAR */}
       <aside 
-        onMouseLeave={() => !isResizing && !isDraggingSlider && setIsSidebarVisible(false)}
-        style={{ width: isSidebarVisible ? sidebarWidth : 0 }}
-        className={`bg-slate-950 text-white flex flex-col shadow-[20px_0_60px_rgba(0,0,0,0.5)] z-50 relative overflow-hidden ${isSidebarVisible ? 'opacity-100' : 'opacity-0'} ${isResizing ? '' : 'transition-all duration-500 ease-in-out'}`}
+        onMouseLeave={() => !isResizing && !isDraggingSlider && !isPinned && setIsSidebarVisible(false)}
+        style={{ width: (isSidebarVisible || isPinned) ? sidebarWidth : 0 }}
+        className={`bg-slate-950 text-white flex flex-col shadow-[20px_0_60px_rgba(0,0,0,0.5)] z-50 relative overflow-hidden ${(isSidebarVisible || isPinned) ? 'opacity-100' : 'opacity-0'} ${isResizing ? '' : 'transition-all duration-500 ease-in-out'}`}
       >
-        <div className="p-8 flex items-center gap-4 border-b border-white/5 bg-slate-900 shrink-0">
-           <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shrink-0 shadow-2xl shadow-blue-500/20">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <div className="p-8 flex items-center justify-between border-b border-white/5 bg-slate-900 shrink-0">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shrink-0 shadow-2xl shadow-blue-500/20">
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              </div>
+              <div className="animate-in fade-in slide-in-from-left-4 duration-700">
+                 <h2 className="text-lg font-black uppercase tracking-tighter leading-none">Network HQ</h2>
+                 <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.4em] mt-1">Master Command</p>
+              </div>
            </div>
-           <div className="animate-in fade-in slide-in-from-left-4 duration-700">
-              <h2 className="text-lg font-black uppercase tracking-tighter leading-none">Network HQ</h2>
-              <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.4em] mt-1">Master Command</p>
-           </div>
+           <button 
+             onClick={() => setIsPinned(!isPinned)}
+             className={`p-2 rounded-xl transition-all ${isPinned ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-500 hover:text-white'}`}
+             title={isPinned ? "Unpin Sidebar" : "Pin Sidebar"}
+           >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v8m0 0l-4-4m4 4l4-4M5 12h14M12 22v-8m0 0l-4 4m4-4l4 4"/></svg>
+           </button>
         </div>
 
         <div className="flex-1 flex overflow-hidden relative">
@@ -259,20 +269,34 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
               ))}
            </nav>
 
-           {/* VERTICAL SLIDER RAIL */}
+           {/* VERTICAL SLIDER RAIL (Moved back to right with offset for resize handle) */}
            <div 
              ref={sliderRailRef}
              onMouseDown={() => setIsDraggingSlider(true)}
-             className="w-1.5 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer relative group shrink-0"
+             className="w-3 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer relative group shrink-0 border-l border-white/5 z-20 mr-2"
            >
               <div 
                 style={{ top: `${scrollPercent * 100}%` }}
-                className="absolute left-0 right-0 h-12 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all group-hover:bg-blue-400"
+                className="absolute left-0 right-0 h-20 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] transition-all group-hover:bg-blue-400"
               />
            </div>
         </div>
 
-        <div className="p-8 border-t border-white/5 space-y-4 shrink-0 bg-slate-950">
+        <div className="p-8 border-t border-white/5 space-y-8 shrink-0 bg-slate-950">
+           <div className="space-y-4 bg-white/5 p-5 rounded-3xl border border-white/5">
+              <div className="flex justify-between items-center px-1">
+                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Panel Width Adjuster</span>
+                 <span className="text-[8px] font-black text-blue-400 font-mono">{sidebarWidth}PX</span>
+              </div>
+              <input 
+                type="range" 
+                min="260" 
+                max="600" 
+                value={sidebarWidth} 
+                onChange={(e) => setSidebarWidth(parseInt(e.target.value))}
+                className="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-blue-600"
+              />
+           </div>
            <button onClick={onExit} className="w-full bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all border border-red-900/20 shadow-lg active:scale-95">
               Deactivate Node
            </button>
@@ -281,8 +305,10 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
         {/* RESIZE HANDLE */}
         <div 
           onMouseDown={() => setIsResizing(true)}
-          className="absolute right-0 top-0 bottom-0 w-1.5 cursor-e-resize hover:bg-blue-500/30 transition-colors z-50"
-        />
+          className={`absolute right-0 top-0 bottom-0 w-2 cursor-e-resize hover:bg-blue-500/50 transition-all z-50 flex items-center justify-center group ${isResizing ? 'bg-blue-600' : ''}`}
+        >
+           <div className="w-0.5 h-12 bg-white/20 rounded-full group-hover:bg-white/60 transition-colors" />
+        </div>
       </aside>
 
       {/* MAIN CONTENT */}
@@ -339,6 +365,23 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
       <style dangerouslySetInnerHTML={{ __html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .custom-horizontal-scrollbar::-webkit-scrollbar {
+          height: 10px;
+        }
+        .custom-horizontal-scrollbar::-webkit-scrollbar-track {
+          background: rgba(15, 23, 42, 0.5);
+          border-radius: 20px;
+          margin: 0 40px;
+        }
+        .custom-horizontal-scrollbar::-webkit-scrollbar-thumb {
+          background: #2563eb;
+          border-radius: 20px;
+          border: 2px solid rgba(15, 23, 42, 1);
+        }
+        .custom-horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #3b82f6;
+        }
       `}} />
     </div>
   );

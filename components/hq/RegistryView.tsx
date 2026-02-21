@@ -130,7 +130,7 @@ const RegistryView: React.FC<RegistryViewProps> = ({ registry, searchTerm, setSe
                   <input type="text" placeholder="Search registry shards..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-3 text-xs font-bold text-white outline-none" />
                </div>
             </div>
-            <div ref={scrollRef} className="bg-slate-900/50 border border-slate-800 rounded-[3rem] overflow-x-auto shadow-2xl no-scrollbar scroll-smooth">
+            <div ref={scrollRef} className="bg-slate-900/50 border border-slate-800 rounded-[3rem] overflow-x-auto shadow-2xl scroll-smooth custom-horizontal-scrollbar">
                <table className="w-full text-left border-collapse min-w-[1200px]">
                   <thead className="bg-slate-950 text-slate-500 uppercase text-[8px] font-black tracking-[0.3em] sticky top-0 z-10 border-b border-slate-800 h-20">
                      <tr>
