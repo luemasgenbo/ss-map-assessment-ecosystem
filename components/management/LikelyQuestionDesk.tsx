@@ -119,7 +119,7 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
     };
 
     try {
-      const { error: relError } = await supabase.from('uba_questions').insert({
+      const insertData: any = {
         external_id: questionId,
         hub_id: settings.schoolNumber,
         facilitator_email: targetFacilitatorEmail,
@@ -138,11 +138,23 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
         answer_scheme: finalAnswerScheme,
         weight: formData.weight,
         diagram_url: formData.diagramUrl,
-        ghanaian_language_tag: formData.ghanaianLanguageTag,
         status: 'PENDING'
-      });
+      };
 
-      if (relError) throw relError;
+      // Only include ghanaian_language_tag if it's provided to avoid errors on older schemas
+      // However, the user explicitly wants this column, so we should try to include it.
+      if (formData.ghanaianLanguageTag) {
+        insertData.ghanaian_language_tag = formData.ghanaianLanguageTag;
+      }
+
+      const { error: relError } = await supabase.from('uba_questions').insert(insertData);
+
+      if (relError) {
+        if (relError.message.includes("ghanaian_language_tag")) {
+          throw new Error("DATABASE SCHEMA MISMATCH: The 'ghanaian_language_tag' column is missing in your Supabase 'uba_questions' table. Please add this column (Type: TEXT) in your Supabase Dashboard to enable Ghanaian Language tagging.");
+        }
+        throw relError;
+      }
 
       await supabase.from('uba_transaction_ledger').insert({
           identity_email: targetFacilitatorEmail,
@@ -183,6 +195,19 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-20 font-sans">
+      <div className="bg-blue-950 p-10 rounded-[3.5rem] text-white flex flex-col md:flex-row justify-between items-center gap-8 shadow-2xl border border-white/10">
+         <div className="space-y-2 text-center md:text-left">
+            <h2 className="text-3xl font-black uppercase tracking-tighter leading-none">Question Developer Hub</h2>
+            <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">Global HQ Matrix Forwarding Terminal</p>
+         </div>
+         <div className="flex gap-4">
+            <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex flex-col items-center">
+               <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest mb-1">Network Status</span>
+               <span className="text-xs font-black text-emerald-400 uppercase">Handshake Active</span>
+            </div>
+         </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
          <form onSubmit={handleSubmit} className="lg:col-span-7 bg-white p-10 rounded-[3.5rem] border border-gray-100 shadow-xl space-y-8">
             

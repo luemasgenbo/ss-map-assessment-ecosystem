@@ -80,7 +80,7 @@ const ManagementDesk: React.FC<ManagementDeskProps> = ({
           )}
           {activeTab === 'specialMocks' && <SpecialMockExams settings={settings} />}
           {activeTab === 'questionsBank' && <SubjectQuestionsBank activeFacilitator={activeFacilitator?.email ? facilitators[activeFacilitator.email] : null} subjects={subjects} settings={settings} />}
-          {activeTab === 'likelyQuestions' && <LikelyQuestionDesk activeFacilitator={activeFacilitator?.email ? facilitators[activeFacilitator.email] : null} subjects={subjects} facilitators={facilitators} settings={settings} />}
+          {activeTab === 'likelyQuestions' && <LikelyQuestionDesk activeFacilitator={activeFacilitator?.email ? facilitators[activeFacilitator.email] : null} subjects={subjects} facilitators={facilitators} settings={settings} isAdmin={!isFacilitator} />}
           {activeTab === 'school' && <AcademyIdentityPortal settings={settings} onSettingChange={onSettingChange} onSave={() => onSave()} />}
           {activeTab === 'pupils' && <PupilSBAPortal students={students} setStudents={setStudents} settings={settings} subjects={subjects} onSave={onSave} />}
           {activeTab === 'facilitators' && <FacilitatorPortal subjects={subjects} facilitators={facilitators} setFacilitators={setFacilitators} settings={settings} onSave={onSave} />}
