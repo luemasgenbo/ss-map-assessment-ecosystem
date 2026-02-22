@@ -57,6 +57,7 @@ const SubjectQuestionsBank: React.FC<SubjectQuestionsBankProps> = ({ activeFacil
           blooms: q.blooms_level as any,
           parts: [],
           diagramUrl: q.diagram_url || '',
+          ghanaianLanguageTag: q.ghanaian_language_tag,
           facilitatorName: q.facilitator_email || 'NETWORK_SHARD'
         }));
         setMasterBank(mappedQs);

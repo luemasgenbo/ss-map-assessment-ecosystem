@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS public.uba_questions (
     answer_scheme TEXT,             
     weight INTEGER DEFAULT 1,
     diagram_url TEXT,
+    ghanaian_language_tag TEXT,
     status TEXT DEFAULT 'PENDING',  
     usage_count INTEGER DEFAULT 0,
     wrong_count INTEGER DEFAULT 0,
