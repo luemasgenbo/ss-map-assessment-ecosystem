@@ -13,7 +13,8 @@ interface PupilSBAPortalProps {
 
 const PupilSBAPortal: React.FC<PupilSBAPortalProps> = ({ students, setStudents, settings, subjects, onSave }) => {
   const [formData, setFormData] = useState({ 
-    name: '', gender: 'M', guardianName: '', parentContact: '', parentEmail: '' 
+    name: '', gender: 'M', guardianName: '', parentContact: '', parentEmail: '',
+    ghanaianLanguage: 'TWI (ASANTE)', practiceFee: 0, paymentToken: ''
   });
   
   const [isEnrolling, setIsEnrolling] = useState(false);
@@ -121,7 +122,10 @@ const PupilSBAPortal: React.FC<PupilSBAPortalProps> = ({ students, setStudents, 
         const updatedPupil = { 
           ...student, name: formData.name.toUpperCase(), gender: formData.gender, 
           parentName: formData.guardianName.toUpperCase(), parentContact: formData.parentContact, 
-          parentEmail: formData.parentEmail.toLowerCase()
+          parentEmail: formData.parentEmail.toLowerCase(),
+          ghanaianLanguage: formData.ghanaianLanguage,
+          practiceFee: formData.practiceFee,
+          practiceTokenIds: formData.paymentToken ? [formData.paymentToken.toUpperCase()] : student.practiceTokenIds
         };
         const nextStudents = students.map(s => s.id === editingId ? updatedPupil : s);
         setStudents(nextStudents);
@@ -134,13 +138,19 @@ const PupilSBAPortal: React.FC<PupilSBAPortalProps> = ({ students, setStudents, 
           id: nextSeq, indexNumber: studentId, uniqueCode: accessPin, name: formData.name.toUpperCase().trim(),
           gender: formData.gender, email: formData.parentEmail?.toLowerCase().trim() || `${studentId}@uba.internal`,
           parentName: formData.guardianName.toUpperCase().trim(), parentContact: formData.parentContact.trim(),
-          parentEmail: formData.parentEmail?.toLowerCase().trim(), attendance: 0, scores: {}, sbaScores: {}, examSubScores: {}, mockData: {}
+          parentEmail: formData.parentEmail?.toLowerCase().trim(), attendance: 0, scores: {}, sbaScores: {}, examSubScores: {}, mockData: {},
+          ghanaianLanguage: formData.ghanaianLanguage,
+          practiceFee: formData.practiceFee,
+          practiceTokenIds: formData.paymentToken ? [formData.paymentToken.toUpperCase()] : []
         };
         const nextStudents = [...students, newPupil];
         setStudents(nextStudents);
         await onSave({ students: nextStudents });
       }
-      setFormData({ name: '', gender: 'M', guardianName: '', parentContact: '', parentEmail: '' });
+      setFormData({ 
+        name: '', gender: 'M', guardianName: '', parentContact: '', parentEmail: '',
+        ghanaianLanguage: 'TWI (ASANTE)', practiceFee: 0, paymentToken: ''
+      });
       setEditingId(null);
     } catch (err: any) { 
       alert("Matrix Fault: " + err.message); 
@@ -235,16 +245,45 @@ const PupilSBAPortal: React.FC<PupilSBAPortalProps> = ({ students, setStudents, 
       <section className="bg-white p-10 rounded-[3.5rem] border border-gray-100 shadow-2xl relative overflow-hidden">
         <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-8">{editingId ? 'Modulate Candidate Identity' : 'Individual Enrollment'}</h3>
         <form onSubmit={handleAddOrUpdateStudent} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <input type="text" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black uppercase" placeholder="PUPIL FULL IDENTITY" required />
-          <select value={formData.gender} onChange={e=>setFormData({...formData, gender: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black"><option value="M">MALE</option><option value="F">FEMALE</option></select>
-          <input type="text" value={formData.guardianName} onChange={e=>setFormData({...formData, guardianName: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black uppercase" placeholder="Guardian Full Name" />
-          <input type="text" value={formData.parentContact} onChange={e=>setFormData({...formData, parentContact: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black" placeholder="PHONE CONTACT" />
-          <input type="email" value={formData.parentEmail} onChange={e=>setFormData({...formData, parentEmail: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black md:col-span-2" placeholder="Notification Email" />
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Identity</label>
+            <input type="text" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black uppercase" placeholder="PUPIL FULL IDENTITY" required />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Gender</label>
+            <select value={formData.gender} onChange={e=>setFormData({...formData, gender: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black"><option value="M">MALE</option><option value="F">FEMALE</option></select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Guardian Name</label>
+            <input type="text" value={formData.guardianName} onChange={e=>setFormData({...formData, guardianName: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black uppercase" placeholder="Guardian Full Name" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone Contact</label>
+            <input type="text" value={formData.parentContact} onChange={e=>setFormData({...formData, parentContact: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black" placeholder="PHONE CONTACT" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Notification Email</label>
+            <input type="email" value={formData.parentEmail} onChange={e=>setFormData({...formData, parentEmail: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black" placeholder="Notification Email" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Ghanaian Language</label>
+            <select value={formData.ghanaianLanguage} onChange={e=>setFormData({...formData, ghanaianLanguage: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black">
+              {["TWI (AKUAPEM)", "TWI (ASANTE)", "FANTE", "GA", "EWE", "DANGME", "NZEMA", "KASEM", "GONJA"].map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Practice Fee (GHS)</label>
+            <input type="number" value={formData.practiceFee} onChange={e=>setFormData({...formData, practiceFee: parseFloat(e.target.value) || 0})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black" placeholder="0.00" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-2">Payment Token / ID</label>
+            <input type="text" value={formData.paymentToken} onChange={e=>setFormData({...formData, paymentToken: e.target.value.toUpperCase()})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black" placeholder="TKN-XXXXX" />
+          </div>
           <div className="lg:col-span-3 pt-4 flex gap-4">
              <button type="submit" disabled={isEnrolling} className={`flex-1 ${editingId ? 'bg-indigo-600' : 'bg-blue-900'} text-white py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest shadow-2xl transition-all`}>
                 {isEnrolling ? "Syncing Identity..." : editingId ? "Update Identity" : "Enroll & Synchronize"}
              </button>
-             {editingId && <button type="button" onClick={() => {setEditingId(null); setFormData({name:'',gender:'M',guardianName:'',parentContact:'',parentEmail:''});}} className="px-10 bg-slate-100 text-slate-500 rounded-3xl font-black text-[11px] uppercase">Cancel</button>}
+             {editingId && <button type="button" onClick={() => {setEditingId(null); setFormData({name:'',gender:'M',guardianName:'',parentContact:'',parentEmail:'', ghanaianLanguage: 'TWI (ASANTE)', practiceFee: 0, paymentToken: ''});}} className="px-10 bg-slate-100 text-slate-500 rounded-3xl font-black text-[11px] uppercase">Cancel</button>}
           </div>
         </form>
       </section>
@@ -271,12 +310,14 @@ const PupilSBAPortal: React.FC<PupilSBAPortalProps> = ({ students, setStudents, 
                              <div className="flex flex-wrap items-center gap-3">
                                 <span className="text-[8px] font-black text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded tracking-widest">{s.indexNumber}</span>
                                 <span className="text-[8px] font-black text-emerald-600 uppercase bg-emerald-50 px-2 py-0.5 rounded tracking-widest">PIN: {s.uniqueCode}</span>
+                                <span className="text-[8px] font-black text-indigo-600 uppercase bg-indigo-50 px-2 py-0.5 rounded tracking-widest">{s.ghanaianLanguage}</span>
+                                {s.practiceFee ? <span className="text-[8px] font-black text-amber-600 uppercase bg-amber-50 px-2 py-0.5 rounded tracking-widest">Fee: GHS {s.practiceFee}</span> : null}
                              </div>
                           </div>
                        </div>
                        
-                       <div className="flex flex-wrap gap-2 justify-center">
-                          <button onClick={() => { setEditingId(s.id); setFormData({ name: s.name, gender: s.gender === 'F' ? 'F' : 'M', guardianName: s.parentName || '', parentContact: s.parentContact || '', parentEmail: s.parentEmail || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="bg-gray-50 text-slate-500 px-5 py-2.5 rounded-xl font-black text-[9px] uppercase border border-gray-200 hover:bg-white transition-all">Edit</button>
+                           <div className="flex flex-wrap gap-2 justify-center">
+                              <button onClick={() => { setEditingId(s.id); setFormData({ name: s.name, gender: s.gender === 'F' ? 'F' : 'M', guardianName: s.parentName || '', parentContact: s.parentContact || '', parentEmail: s.parentEmail || '', ghanaianLanguage: s.ghanaianLanguage || 'TWI (ASANTE)', practiceFee: s.practiceFee || 0, paymentToken: s.practiceTokenIds?.[0] || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="bg-gray-50 text-slate-500 px-5 py-2.5 rounded-xl font-black text-[9px] uppercase border border-gray-200 hover:bg-white transition-all">Edit</button>
                           <button onClick={() => setActiveSbaId(isOpen ? null : s.id)} className={`px-5 py-2.5 rounded-xl font-black text-[9px] uppercase transition-all shadow-md ${isOpen ? 'bg-blue-900 text-white' : 'bg-indigo-50 text-indigo-600'}`}>SBA Ledger</button>
                           <button onClick={() => handleDownloadPupilPack(s)} className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[9px] uppercase shadow-lg hover:bg-black transition-all flex items-center gap-2">
                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
