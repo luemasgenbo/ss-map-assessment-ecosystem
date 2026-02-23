@@ -134,7 +134,13 @@ const QuestionRegistryView: React.FC = () => {
         })
         .eq('id', editingId);
 
-      if (error) throw error;
+      if (error) {
+        const msg = error.message;
+        if (msg.includes("answer_diagram_url") || msg.includes("is_structured") || msg.includes("section")) {
+           alert("DATABASE SCHEMA MISMATCH: Some new columns (answer_diagram_url, is_structured, section) are missing in your Supabase table. Please add them to enable full functionality.");
+        }
+        throw error;
+      }
       setQuestions(prev => prev.map(q => q.id === editingId ? { ...q, ...editFormData, answer_scheme: finalAnswerScheme, ghanaian_language_tag: editFormData.ghanaianLanguageTag } : q));
       setEditingId(null);
       alert("MATRIX SHARD MODULATED: Relational registry updated.");

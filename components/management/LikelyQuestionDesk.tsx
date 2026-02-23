@@ -160,8 +160,18 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
       const { error: relError } = await supabase.from('uba_questions').insert(insertData);
 
       if (relError) {
-        if (relError.message.includes("ghanaian_language_tag")) {
-          throw new Error("DATABASE SCHEMA MISMATCH: The 'ghanaian_language_tag' column is missing in your Supabase 'uba_questions' table. Please add this column (Type: TEXT) in your Supabase Dashboard to enable Ghanaian Language tagging.");
+        const msg = relError.message;
+        if (msg.includes("ghanaian_language_tag")) {
+          throw new Error("DATABASE SCHEMA MISMATCH: The 'ghanaian_language_tag' column is missing. Please add it (Type: TEXT) in Supabase.");
+        }
+        if (msg.includes("answer_diagram_url")) {
+          throw new Error("DATABASE SCHEMA MISMATCH: The 'answer_diagram_url' column is missing. Please add it (Type: TEXT) in Supabase.");
+        }
+        if (msg.includes("is_structured")) {
+          throw new Error("DATABASE SCHEMA MISMATCH: The 'is_structured' column is missing. Please add it (Type: BOOLEAN, Default: TRUE) in Supabase.");
+        }
+        if (msg.includes("section")) {
+          throw new Error("DATABASE SCHEMA MISMATCH: The 'section' column is missing. Please add it (Type: TEXT) in Supabase.");
         }
         throw relError;
       }
