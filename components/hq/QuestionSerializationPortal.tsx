@@ -21,6 +21,10 @@ interface IngestionItem {
   answerScheme: string;
   weight: number;
   blooms: string;
+  diagramUrl?: string;
+  answerDiagramUrl?: string;
+  isStructured?: boolean;
+  section?: 'A' | 'B';
   ghanaianLanguageTag?: string;
 }
 
@@ -93,8 +97,25 @@ const QuestionSerializationPortal: React.FC<{ registry: SchoolRegistryEntry[] }>
 
       const generateShuffledVariant = (v: 'A' | 'B' | 'C' | 'D' | 'E'): QuestionPack => {
          const shuffle = (arr: any[]) => [...arr].sort(() => Math.random() - 0.5);
-         const objs = ingestionList.filter(i => i.type === 'OBJECTIVE').map(i => ({ ...i, originalIndex: 0, parts: [] } as unknown as MasterQuestion));
-         const theories = ingestionList.filter(i => i.type === 'THEORY').map(i => ({ ...i, originalIndex: 0, parts: [] } as unknown as MasterQuestion));
+         const objs = ingestionList.filter(i => i.type === 'OBJECTIVE').map(i => ({ 
+           ...i, 
+           originalIndex: 0, 
+           parts: [],
+           isStructured: i.isStructured ?? true,
+           section: i.section,
+           answerDiagramUrl: i.answerDiagramUrl,
+           diagramUrl: i.diagramUrl
+         } as unknown as MasterQuestion));
+         
+         const theories = ingestionList.filter(i => i.type === 'THEORY').map(i => ({ 
+           ...i, 
+           originalIndex: 0, 
+           parts: [],
+           isStructured: i.isStructured ?? true,
+           section: i.section,
+           answerDiagramUrl: i.answerDiagramUrl,
+           diagramUrl: i.diagramUrl
+         } as unknown as MasterQuestion));
 
          return {
            variant: v,

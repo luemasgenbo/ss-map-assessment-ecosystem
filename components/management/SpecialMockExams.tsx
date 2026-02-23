@@ -79,7 +79,12 @@ const SpecialMockExams: React.FC<SpecialMockExamsProps> = ({ settings }) => {
       const shardId = `special_mock_shard_${hubId}_${subKey}`;
 
       // Combine all variants into a unified randomized practice pool for pupils
-      const allQs: MasterQuestion[] = [...exam.packs.A.objectives, ...exam.packs.A.theory];
+      const allQs: MasterQuestion[] = [
+        ...exam.packs.A.objectives, ...exam.packs.A.theory,
+        ...exam.packs.B.objectives, ...exam.packs.B.theory,
+        ...exam.packs.C.objectives, ...exam.packs.C.theory,
+        ...exam.packs.D.objectives, ...exam.packs.D.theory,
+      ];
 
       await supabase.from('uba_instructional_shards').upsert({
         id: shardId,

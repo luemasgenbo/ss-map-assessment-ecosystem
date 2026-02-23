@@ -64,6 +64,14 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
         } else {
            setIdentityShard(ident as IdentityShard);
         }
+      } else {
+        // Auto-initialize identity if missing
+        const newIdent = { monetary_balance: 0, daily_usage_count: 0, last_limit_reset: new Date().toISOString() };
+        await supabase.from('uba_identities').insert({
+          node_id: studentIdStr,
+          ...newIdent
+        });
+        setIdentityShard(newIdent);
       }
 
       const { data: hist } = await supabase
@@ -110,31 +118,49 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
   };
 
   const handleObjectiveSelect = async (qId: string, opt: string) => {
-    if (submittedQs[qId] || isPaused) return;
-    if (!identityShard) return;
+    if (isPaused) return;
+    
+    // If already selected this exact option, do nothing
+    if (answers[qId] === opt) return;
 
-    const isFree = (identityShard.monetary_balance || 0) <= 0;
-    if (isFree && (identityShard.daily_usage_count || 0) >= 40) {
-       return alert("24-HOUR QUOTA EXCEEDED.");
-    }
-
+    const isFirstSelection = !answers[qId];
+    
     setAnswers(prev => ({ ...prev, [qId]: opt }));
     setSubmittedQs(prev => ({ ...prev, [qId]: true }));
     
     const q = activeSet?.questions.find(x => x.id === qId);
-    if (q && opt === q.correctKey) setSessionScore(prev => prev + 1);
+    
+    // Update score logic: if it was correct before and now it's not, decrement. If it's now correct, increment.
+    if (q) {
+      const wasCorrect = answers[qId] === q.correctKey;
+      const isNowCorrect = opt === q.correctKey;
+      
+      if (wasCorrect && !isNowCorrect) setSessionScore(prev => Math.max(0, prev - 1));
+      else if (!wasCorrect && isNowCorrect) setSessionScore(prev => prev + 1);
+    }
 
-    try {
-      if (isFree) {
-        const nextCount = (identityShard.daily_usage_count || 0) + 1;
-        await supabase.from('uba_identities').update({ daily_usage_count: nextCount }).eq('node_id', studentId.toString());
-        setIdentityShard({ ...identityShard, daily_usage_count: nextCount });
-      } else {
-        const nextBal = Math.max(0, (identityShard.monetary_balance || 0) - 0.05);
-        await supabase.from('uba_identities').update({ monetary_balance: nextBal }).eq('node_id', studentId.toString());
-        setIdentityShard({ ...identityShard, monetary_balance: nextBal });
+    // Metering logic - only charge on first selection
+    if (isFirstSelection && identityShard) {
+      const isFree = (identityShard.monetary_balance || 0) <= 0;
+      if (isFree && (identityShard.daily_usage_count || 0) >= 40) {
+         // Rollback selection if quota exceeded
+         setAnswers(prev => { const n = {...prev}; delete n[qId]; return n; });
+         setSubmittedQs(prev => { const n = {...prev}; delete n[qId]; return n; });
+         return alert("24-HOUR QUOTA EXCEEDED.");
       }
-    } catch (e) { console.error("Metering Failure"); }
+
+      try {
+        if (isFree) {
+          const nextCount = (identityShard.daily_usage_count || 0) + 1;
+          await supabase.from('uba_identities').update({ daily_usage_count: nextCount }).eq('node_id', studentId.toString());
+          setIdentityShard({ ...identityShard, daily_usage_count: nextCount });
+        } else {
+          const nextBal = Math.max(0, (identityShard.monetary_balance || 0) - 0.05);
+          await supabase.from('uba_identities').update({ monetary_balance: nextBal }).eq('node_id', studentId.toString());
+          setIdentityShard({ ...identityShard, monetary_balance: nextBal });
+        }
+      } catch (e) { console.error("Metering Failure"); }
+    }
   };
 
   const handleFinalizeSession = useCallback(async (auto = false) => {
@@ -309,11 +335,19 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
                            </div>
                            <div className="space-y-0.5">
                               <span className="text-[8px] font-black uppercase text-blue-600 tracking-[0.3em] block leading-none">Cognitive Node</span>
-                              <h5 className="text-[8px] font-black uppercase text-slate-400 tracking-widest">{q.strand} — {q.blooms}</h5>
+                              <h5 className="text-[8px] font-black uppercase text-slate-400 tracking-widest">
+                                {q.strand} — {q.blooms}
+                                {(q as any).section && ` — SECTION ${(q as any).section}`}
+                              </h5>
                            </div>
                         </div>
                         
                         <div className="space-y-6">
+                           {q.diagramUrl && (
+                              <div className="bg-slate-50 border border-gray-100 rounded-2xl p-4 flex justify-center overflow-hidden">
+                                 <img src={q.diagramUrl} alt="Question Illustration" className="max-h-[300px] object-contain rounded-xl" referrerPolicy="no-referrer" />
+                              </div>
+                           )}
                            <h3 className="text-sm md:text-base font-black text-slate-900 uppercase leading-relaxed tracking-tight border-l-[6px] border-blue-900 pl-6">
                               {q.questionText}
                            </h3>
@@ -326,7 +360,7 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
                                     return (
                                        <button 
                                           key={opt} 
-                                          disabled={hasSubmitted || isPaused} 
+                                          disabled={isPaused} 
                                           onClick={() => handleObjectiveSelect(q.id, opt)} 
                                           className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 text-left group/opt relative overflow-hidden ${isSelected ? 'bg-blue-900 border-blue-900 text-white shadow-xl scale-[1.02]' : 'bg-slate-50/50 border-gray-100 text-slate-700 hover:border-blue-300 hover:bg-white'}`}
                                        >
