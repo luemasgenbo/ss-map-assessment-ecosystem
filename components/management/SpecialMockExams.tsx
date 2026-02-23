@@ -84,6 +84,7 @@ const SpecialMockExams: React.FC<SpecialMockExamsProps> = ({ settings }) => {
         ...exam.packs.B.objectives, ...exam.packs.B.theory,
         ...exam.packs.C.objectives, ...exam.packs.C.theory,
         ...exam.packs.D.objectives, ...exam.packs.D.theory,
+        ...exam.packs.E.objectives, ...exam.packs.E.theory,
       ];
 
       await supabase.from('uba_instructional_shards').upsert({
@@ -107,7 +108,7 @@ const SpecialMockExams: React.FC<SpecialMockExamsProps> = ({ settings }) => {
     }
   };
 
-  const handleDownloadVariant = (exam: LocalSerializedExam, variant: 'A' | 'B' | 'C' | 'D') => {
+  const handleDownloadVariant = (exam: LocalSerializedExam, variant: 'A' | 'B' | 'C' | 'D' | 'E') => {
     const pack = exam.packs[variant];
     let text = `UNITED BAYLOR ACADEMY - ${exam.subject.toUpperCase()}\n`;
     text += `SERIES: ${exam.mockSeries} | VARIANT: ${variant}\n`;
@@ -210,8 +211,8 @@ const SpecialMockExams: React.FC<SpecialMockExamsProps> = ({ settings }) => {
                         <h4 className="text-2xl font-black text-slate-900 uppercase leading-tight">{exam.subject}</h4>
                         <p className="text-[8px] font-bold text-emerald-600 uppercase">Accepted: {new Date(exam.acceptedDate || '').toLocaleString()}</p>
                     </div>
-                    <div className="grid grid-cols-4 gap-2">
-                        {['A', 'B', 'C', 'D'].map(v => (
+                    <div className="grid grid-cols-5 gap-2">
+                        {['A', 'B', 'C', 'D', 'E'].map(v => (
                           <button key={v} onClick={() => handleDownloadVariant(exam, v as any)} className="bg-slate-50 hover:bg-blue-900 hover:text-white p-4 rounded-2xl flex flex-col items-center gap-1 transition-all border border-gray-100">
                               <span className="text-xs font-black">{v}</span>
                               <span className="text-[6px] font-bold uppercase opacity-50">Extract</span>
