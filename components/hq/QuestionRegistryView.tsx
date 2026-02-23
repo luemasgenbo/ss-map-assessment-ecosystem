@@ -25,6 +25,9 @@ interface HQQuestionRecord extends MasterQuestion {
   wrong_count: number;
   created_at: string;
   diagram_url: string;
+  answer_diagram_url?: string;
+  is_structured: boolean;
+  section?: 'A' | 'B';
   ghanaian_language_tag?: string;
 }
 
@@ -39,6 +42,7 @@ const QuestionRegistryView: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isPushing, setIsPushing] = useState(false);
   const [viewTheoryAns, setViewTheoryAns] = useState<string | null>(null);
+  const [showStructured, setShowStructured] = useState(true);
 
   // Multiplier Rates
   const RATE_OBJ = 0.01;
@@ -91,7 +95,10 @@ const QuestionRegistryView: React.FC = () => {
       optionC: opts[2] || '',
       optionD: opts[3] || '',
       answerScheme: q.type === 'THEORY' ? q.answer_scheme : '',
-      ghanaianLanguageTag: q.ghanaian_language_tag || ''
+      ghanaianLanguageTag: q.ghanaian_language_tag || '',
+      is_structured: q.is_structured ?? true,
+      section: q.section || 'A',
+      answer_diagram_url: q.answer_diagram_url || ''
     });
   };
 
@@ -120,6 +127,9 @@ const QuestionRegistryView: React.FC = () => {
           indicator_code: editFormData.indicator_code?.toUpperCase(),
           indicator_text: editFormData.indicator_text?.toUpperCase(),
           diagram_url: editFormData.diagram_url,
+          answer_diagram_url: editFormData.answer_diagram_url,
+          is_structured: editFormData.is_structured,
+          section: editFormData.section,
           ghanaian_language_tag: editFormData.ghanaianLanguageTag
         })
         .eq('id', editingId);
@@ -211,9 +221,11 @@ const QuestionRegistryView: React.FC = () => {
       const matchWeight = !filters.weight || q.weight.toString() === filters.weight;
       const matchSearch = !filters.searchTerm || q.question_text.toLowerCase().includes(filters.searchTerm.toLowerCase()) || (q.facilitator_email || "").toLowerCase().includes(filters.searchTerm.toLowerCase()) || (q.ghanaian_language_tag || "").toLowerCase().includes(filters.searchTerm.toLowerCase());
       
-      return matchSub && matchType && matchStrand && matchSubStrand && matchIndicator && matchWeight && matchSearch;
+      const matchStructure = q.is_structured === showStructured;
+
+      return matchSub && matchType && matchStrand && matchSubStrand && matchIndicator && matchWeight && matchSearch && matchStructure;
     });
-  }, [questions, filters]);
+  }, [questions, filters, showStructured]);
 
   const uniqueSubjects = ['ALL', ...Array.from(new Set(questions.map(q => q.subject)))];
 
@@ -249,7 +261,15 @@ const QuestionRegistryView: React.FC = () => {
                       <input type="text" value={editFormData.instruction || ''} onChange={e=>setEditFormData({...editFormData, instruction: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900" />
                    </div>
                  </div>
+
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="space-y-1">
+                       <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Structure Type</label>
+                       <select value={editFormData.is_structured ? 'true' : 'false'} onChange={e=>setEditFormData({...editFormData, is_structured: e.target.value === 'true'})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900">
+                          <option value="true">STRUCTURED</option>
+                          <option value="false">NONE STRUCTURED</option>
+                       </select>
+                    </div>
                     <div className="space-y-1">
                        <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Modality</label>
                        <select value={editFormData.type} onChange={e=>setEditFormData({...editFormData, type: e.target.value as any})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900">
@@ -258,21 +278,68 @@ const QuestionRegistryView: React.FC = () => {
                        </select>
                     </div>
                     <div className="space-y-1">
-                       <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Cognitive Scale</label>
-                       <select value={editFormData.blooms_level} onChange={e=>setEditFormData({...editFormData, blooms_level: e.target.value as any})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900">
-                          {BLOOMS.map(b => <option key={b} value={b}>{b}</option>)}
+                       <label className="text-[8px] font-black text-slate-500 uppercase ml-2">{editFormData.type === 'THEORY' && !editFormData.is_structured ? 'Theory Section' : 'Cognitive Scale'}</label>
+                       {editFormData.type === 'THEORY' && !editFormData.is_structured ? (
+                          <select value={editFormData.section} onChange={e=>setEditFormData({...editFormData, section: e.target.value as any})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900">
+                             <option value="A">SECTION A</option>
+                             <option value="B">SECTION B</option>
+                          </select>
+                       ) : (
+                          <select value={editFormData.blooms_level} onChange={e=>setEditFormData({...editFormData, blooms_level: e.target.value as any})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900">
+                             {BLOOMS.map(b => <option key={b} value={b}>{b}</option>)}
+                          </select>
+                       )}
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="space-y-1">
+                       <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Weight Magnitude</label>
+                       <input type="number" value={editFormData.weight} onChange={e=>setEditFormData({...editFormData, weight: parseInt(e.target.value)||1})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900" />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Illustration Shard URL</label>
+                       <input type="text" value={editFormData.diagram_url || ''} onChange={e=>setEditFormData({...editFormData, diagram_url: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/IMAGE" />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Answer/Rubric Illustration URL</label>
+                       <input type="text" value={editFormData.answer_diagram_url || ''} onChange={e=>setEditFormData({...editFormData, answer_diagram_url: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/RUBRIC" />
+                    </div>
+                 </div>
+
+                 {editFormData.is_structured ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                       <div className="space-y-4">
+                          <div className="flex gap-2">
+                             <input type="text" placeholder="S-CODE" value={editFormData.strand_code} onChange={e=>setEditFormData({...editFormData, strand_code: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                             <input type="text" placeholder="STRAND" value={editFormData.strand} onChange={e=>setEditFormData({...editFormData, strand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                          </div>
+                          <div className="flex gap-2">
+                             <input type="text" placeholder="SS-CODE" value={editFormData.sub_strand_code} onChange={e=>setEditFormData({...editFormData, sub_strand_code: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                             <input type="text" placeholder="SUB-STRAND" value={editFormData.sub_strand} onChange={e=>setEditFormData({...editFormData, sub_strand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                          </div>
+                          <div className="flex gap-2">
+                             <input type="text" placeholder="I-CODE" value={editFormData.indicator_code} onChange={e=>setEditFormData({...editFormData, indicator_code: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                             <input type="text" placeholder="INDICATOR" value={editFormData.indicator_text} onChange={e=>setEditFormData({...editFormData, indicator_text: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                          </div>
+                       </div>
+                    </div>
+                 ) : (
+                    <div className="bg-amber-50 border border-amber-100 p-6 rounded-3xl">
+                       <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest">None Structured Mode</p>
+                       <p className="text-[7px] text-amber-600 font-bold uppercase mt-1">Strand/Indicator mapping is disabled for this shard.</p>
+                    </div>
+                 )}
+
+                 {editFormData.subject === "Ghana Language (Twi)" && (
+                    <div className="space-y-1">
+                       <label className="text-[8px] font-black text-emerald-600 uppercase ml-2">Ghanaian Language Tag</label>
+                       <select value={editFormData.ghanaianLanguageTag} onChange={e=>setEditFormData({...editFormData, ghanaianLanguageTag: e.target.value})} className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-emerald-900">
+                          <option value="">SELECT DIALECT...</option>
+                          {GH_LANGS.map(l => <option key={l} value={l}>{l}</option>)}
                        </select>
                     </div>
-                    {editFormData.subject === "Ghana Language (Twi)" && (
-                       <div className="space-y-1">
-                          <label className="text-[8px] font-black text-emerald-600 uppercase ml-2">Ghanaian Language Tag</label>
-                          <select value={editFormData.ghanaianLanguageTag} onChange={e=>setEditFormData({...editFormData, ghanaianLanguageTag: e.target.value})} className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-emerald-900">
-                             <option value="">SELECT DIALECT...</option>
-                             {GH_LANGS.map(l => <option key={l} value={l}>{l}</option>)}
-                          </select>
-                       </div>
-                    )}
-                 </div>
+                 )}
 
                  <div className="space-y-1">
                     <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Main Question Statement</label>
@@ -302,32 +369,12 @@ const QuestionRegistryView: React.FC = () => {
                     </div>
                  )}
 
-                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                    <div className="space-y-4">
-                       <div className="flex gap-2">
-                          <input type="text" placeholder="S-CODE" value={editFormData.strand_code} onChange={e=>setEditFormData({...editFormData, strand_code: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                          <input type="text" placeholder="STRAND" value={editFormData.strand} onChange={e=>setEditFormData({...editFormData, strand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                       </div>
-                       <div className="flex gap-2">
-                          <input type="text" placeholder="SS-CODE" value={editFormData.sub_strand_code} onChange={e=>setEditFormData({...editFormData, sub_strand_code: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                          <input type="text" placeholder="SUB-STRAND" value={editFormData.sub_strand} onChange={e=>setEditFormData({...editFormData, sub_strand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                       </div>
-                       <div className="flex gap-2">
-                          <input type="text" placeholder="I-CODE" value={editFormData.indicator_code} onChange={e=>setEditFormData({...editFormData, indicator_code: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                          <input type="text" placeholder="INDICATOR" value={editFormData.indicator_text} onChange={e=>setEditFormData({...editFormData, indicator_text: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                       </div>
+                 {editFormData.type === 'THEORY' && (
+                    <div className="space-y-1">
+                       <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Answer Scheme / Rubric</label>
+                       <textarea value={editFormData.answerScheme} onChange={e=>setEditFormData({...editFormData, answerScheme: e.target.value.toUpperCase()})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 uppercase" rows={6} />
                     </div>
-                    <div className="md:col-span-2 space-y-4">
-                       <div className="space-y-1">
-                          <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Illustration Shard URL</label>
-                          <input type="text" value={editFormData.diagram_url || ''} onChange={e=>setEditFormData({...editFormData, diagram_url: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/IMAGE" />
-                       </div>
-                       <div className="space-y-1">
-                          <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Weight Magnitude</label>
-                          <input type="number" value={editFormData.weight} onChange={e=>setEditFormData({...editFormData, weight: parseInt(e.target.value)||1})} className="w-24 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-lg text-blue-900 font-black" />
-                       </div>
-                    </div>
-                 </div>
+                 )}
               </div>
 
               <div className="p-8 border-t border-gray-100 flex justify-end gap-4">
@@ -363,7 +410,24 @@ const QuestionRegistryView: React.FC = () => {
          </div>
 
          {/* Filter UI Matrix */}
-         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            <div className="space-y-1">
+               <label className="text-[7px] font-black text-slate-500 uppercase tracking-widest block ml-1">Structure</label>
+               <div className="flex bg-slate-900 border border-slate-800 p-0.5 rounded-lg">
+                  <button 
+                    onClick={() => setShowStructured(true)}
+                    className={`flex-1 py-1.5 rounded text-[8px] font-black uppercase transition-all ${showStructured ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-400'}`}
+                  >
+                     Structured
+                  </button>
+                  <button 
+                    onClick={() => setShowStructured(false)}
+                    className={`flex-1 py-1.5 rounded text-[8px] font-black uppercase transition-all ${!showStructured ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-400'}`}
+                  >
+                     None
+                  </button>
+               </div>
+            </div>
             <div className="space-y-1">
                <label className="text-[7px] font-black text-slate-500 uppercase tracking-widest block ml-1">Subject</label>
                <select value={filters.subject} onChange={e=>setFilters({...filters, subject: e.target.value})} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-[9px] font-black text-white outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">

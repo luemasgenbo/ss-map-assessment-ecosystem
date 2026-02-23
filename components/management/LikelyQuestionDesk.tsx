@@ -41,7 +41,10 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
     diagramUrl: '',
     weight: 1, 
     blooms: 'Knowledge' as BloomsScale,
-    ghanaianLanguageTag: ''
+    ghanaianLanguageTag: '',
+    isStructured: true,
+    section: 'A' as 'A' | 'B',
+    answerDiagramUrl: ''
   });
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -139,6 +142,9 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
         answer_scheme: finalAnswerScheme,
         weight: formData.weight,
         diagram_url: formData.diagramUrl,
+        answer_diagram_url: formData.answerDiagramUrl,
+        is_structured: formData.isStructured,
+        section: formData.type === 'THEORY' ? formData.section : null,
         status: 'PENDING'
       };
 
@@ -212,6 +218,23 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
          <form onSubmit={handleSubmit} className="lg:col-span-7 bg-white p-10 rounded-[3.5rem] border border-gray-100 shadow-xl space-y-8">
             
+            <div className="flex bg-slate-100 p-1.5 rounded-2xl">
+               <button 
+                 type="button"
+                 onClick={() => setFormData({...formData, isStructured: true})}
+                 className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.isStructured ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+               >
+                  Structured
+               </button>
+               <button 
+                 type="button"
+                 onClick={() => setFormData({...formData, isStructured: false})}
+                 className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!formData.isStructured ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+               >
+                  None Structured
+               </button>
+            </div>
+
             {(isAdmin || !activeFacilitator) && (
               <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-3xl space-y-3">
                  <h4 className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Instructional Attribution</h4>
@@ -244,10 +267,17 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                    </select>
                 </div>
                 <div className="space-y-1">
-                   <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Cognitive Scale</label>
-                   <select value={formData.blooms} onChange={e=>setFormData({...formData, blooms: e.target.value as any})} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase">
-                      {BLOOMS.map(b => <option key={b} value={b}>{b}</option>)}
-                   </select>
+                   <label className="text-[8px] font-black text-slate-400 uppercase ml-2">{formData.type === 'THEORY' && !formData.isStructured ? 'Theory Section' : 'Cognitive Scale'}</label>
+                   {formData.type === 'THEORY' && !formData.isStructured ? (
+                      <select value={formData.section} onChange={e=>setFormData({...formData, section: e.target.value as any})} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase">
+                         <option value="A">SECTION A</option>
+                         <option value="B">SECTION B</option>
+                      </select>
+                   ) : (
+                      <select value={formData.blooms} onChange={e=>setFormData({...formData, blooms: e.target.value as any})} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase">
+                         {BLOOMS.map(b => <option key={b} value={b}>{b}</option>)}
+                      </select>
+                   )}
                 </div>
             </div>
 
@@ -311,24 +341,37 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
             )}
 
             <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-4">
-                  <div className="flex gap-2">
-                     <input type="text" placeholder="S-CODE" value={formData.strandCode} onChange={e=>setFormData({...formData, strandCode: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                     <input type="text" placeholder="STRAND" value={formData.strand} onChange={e=>setFormData({...formData, strand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+               {formData.isStructured ? (
+                  <div className="space-y-4">
+                     <div className="flex gap-2">
+                        <input type="text" placeholder="S-CODE" value={formData.strandCode} onChange={e=>setFormData({...formData, strandCode: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                        <input type="text" placeholder="STRAND" value={formData.strand} onChange={e=>setFormData({...formData, strand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                     </div>
+                     <div className="flex gap-2">
+                        <input type="text" placeholder="SS-CODE" value={formData.subStrandCode} onChange={e=>setFormData({...formData, subStrandCode: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                        <input type="text" placeholder="SUB-STRAND" value={formData.subStrand} onChange={e=>setFormData({...formData, subStrand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                     </div>
+                     <div className="flex gap-2">
+                        <input type="text" placeholder="I-CODE" value={formData.indicatorCode} onChange={e=>setFormData({...formData, indicatorCode: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                        <input type="text" placeholder="INDICATOR" value={formData.indicator} onChange={e=>setFormData({...formData, indicator: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+                     </div>
                   </div>
-                  <div className="flex gap-2">
-                     <input type="text" placeholder="SS-CODE" value={formData.subStrandCode} onChange={e=>setFormData({...formData, subStrandCode: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                     <input type="text" placeholder="SUB-STRAND" value={formData.subStrand} onChange={e=>setFormData({...formData, subStrand: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
+               ) : (
+                  <div className="space-y-4">
+                     <div className="bg-amber-50 border border-amber-100 p-6 rounded-3xl">
+                        <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest">None Structured Mode</p>
+                        <p className="text-[7px] text-amber-600 font-bold uppercase mt-1 leading-relaxed">Curriculum mapping (Strands/Indicators) is bypassed for this item.</p>
+                     </div>
                   </div>
-                  <div className="flex gap-2">
-                     <input type="text" placeholder="I-CODE" value={formData.indicatorCode} onChange={e=>setFormData({...formData, indicatorCode: e.target.value.toUpperCase()})} className="w-20 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                     <input type="text" placeholder="INDICATOR" value={formData.indicator} onChange={e=>setFormData({...formData, indicator: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
-                  </div>
-               </div>
+               )}
                <div className="space-y-4">
                   <div className="space-y-1">
-                     <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Illustration Shard URL</label>
+                     <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Question Illustration URL</label>
                      <input type="text" value={formData.diagramUrl} onChange={e=>setFormData({...formData, diagramUrl: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/IMAGE" />
+                  </div>
+                  <div className="space-y-1">
+                     <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Answer/Rubric Illustration URL</label>
+                     <input type="text" value={formData.answerDiagramUrl} onChange={e=>setFormData({...formData, answerDiagramUrl: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/RUBRIC-IMAGE" />
                   </div>
                   <div className="space-y-1">
                      <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Weight Magnitude</label>
@@ -353,7 +396,8 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                      <div className="flex justify-between items-start">
                         <div className="space-y-1 flex-1">
                            <div className="flex flex-wrap items-center gap-2 mb-1">
-                              <span className="text-[7px] font-black text-blue-400 uppercase tracking-widest">{q.strandCode || 'STRAND'}</span>
+                              <span className="text-[7px] font-black text-blue-400 uppercase tracking-widest">{q.isStructured ? (q.strandCode || 'STRAND') : 'NONE STRUCTURED'}</span>
+                              {q.section && <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded">SECTION {q.section}</span>}
                               {q.ghanaianLanguageTag && <span className="text-[7px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">TAG: {q.ghanaianLanguageTag}</span>}
                            </div>
                            <p className="text-[11px] font-bold text-slate-300 uppercase leading-relaxed line-clamp-3">"{q.questionText}"</p>

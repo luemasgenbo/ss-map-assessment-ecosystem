@@ -439,6 +439,9 @@ export interface MasterQuestion {
   blooms: BloomsScale;
   parts: QuestionSubPart[];
   diagramUrl?: string;
+  answerDiagramUrl?: string;
+  isStructured?: boolean;
+  section?: 'A' | 'B';
   isTraded?: boolean;
   rating?: number; 
   usageCount?: number;
