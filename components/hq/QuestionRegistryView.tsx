@@ -187,6 +187,9 @@ const QuestionRegistryView: React.FC = () => {
           answerScheme: q.answer_scheme,
           weight: q.weight,
           blooms: q.blooms_level,
+          isStructured: q.is_structured ?? true,
+          section: q.section,
+          answerDiagramUrl: q.answer_diagram_url,
           ghanaianLanguageTag: q.ghanaian_language_tag
       }));
 
@@ -221,7 +224,7 @@ const QuestionRegistryView: React.FC = () => {
       const matchWeight = !filters.weight || q.weight.toString() === filters.weight;
       const matchSearch = !filters.searchTerm || q.question_text.toLowerCase().includes(filters.searchTerm.toLowerCase()) || (q.facilitator_email || "").toLowerCase().includes(filters.searchTerm.toLowerCase()) || (q.ghanaian_language_tag || "").toLowerCase().includes(filters.searchTerm.toLowerCase());
       
-      const matchStructure = q.is_structured === showStructured;
+      const matchStructure = (q.is_structured ?? true) === showStructured;
 
       return matchSub && matchType && matchStrand && matchSubStrand && matchIndicator && matchWeight && matchSearch && matchStructure;
     });

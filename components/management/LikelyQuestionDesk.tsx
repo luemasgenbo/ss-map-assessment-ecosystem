@@ -84,6 +84,9 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
              blooms: q.blooms_level as any,
              parts: [],
              diagramUrl: q.diagram_url,
+             answerDiagramUrl: q.answer_diagram_url,
+             isStructured: q.is_structured ?? true,
+             section: q.section,
              ghanaianLanguageTag: q.ghanaian_language_tag
           }));
           setQuestions(mapped);
