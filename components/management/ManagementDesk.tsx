@@ -48,13 +48,13 @@ const ManagementDesk: React.FC<ManagementDeskProps> = ({
   isFacilitator, activeFacilitator, loggedInUser
 }) => {
   const [activeTab, setActiveTab] = React.useState<ManagementTabType>(() => {
-    const stored = localStorage.getItem('uba_mgmt_active_tab');
+    const stored = sessionStorage.getItem('uba_mgmt_active_tab');
     if (stored) return stored as ManagementTabType;
     return isFacilitator ? 'facilitatorDesk' : 'scoreEntry';
   });
 
   React.useEffect(() => {
-    localStorage.setItem('uba_mgmt_active_tab', activeTab);
+    sessionStorage.setItem('uba_mgmt_active_tab', activeTab);
   }, [activeTab]);
 
   return (

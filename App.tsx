@@ -73,13 +73,13 @@ const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [viewMode, setViewMode] = useState<'home' | 'master' | 'reports' | 'management' | 'series' | 'pupil_hub'>(
-    (localStorage.getItem('uba_active_view') as any) || 'home'
+    (sessionStorage.getItem('uba_active_view') as any) || 'home'
   );
   const [reportSearchTerm, setReportSearchTerm] = useState('');
   
-  const [currentHubId, setCurrentHubId] = useState<string | null>(localStorage.getItem('uba_active_hub_id'));
-  const [activeRole, setActiveRole] = useState<string | null>(localStorage.getItem('uba_active_role'));
-  const [isSuperAdmin, setIsSuperAdmin] = useState(localStorage.getItem('uba_is_super_admin') === 'true');
+  const [currentHubId, setCurrentHubId] = useState<string | null>(sessionStorage.getItem('uba_active_hub_id'));
+  const [activeRole, setActiveRole] = useState<string | null>(sessionStorage.getItem('uba_active_role'));
+  const [isSuperAdmin, setIsSuperAdmin] = useState(sessionStorage.getItem('uba_is_super_admin') === 'true');
   
   const [loggedInUser, setLoggedInUser] = useState<{ name: string; nodeId: string; role: string; email?: string; subject?: string } | null>(null);
   const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
@@ -92,11 +92,11 @@ const App: React.FC = () => {
   }, [settings, students, facilitators]);
 
   useEffect(() => {
-    if (viewMode) localStorage.setItem('uba_active_view', viewMode);
+    if (viewMode) sessionStorage.setItem('uba_active_view', viewMode);
   }, [viewMode]);
 
   useEffect(() => {
-    localStorage.setItem('uba_is_super_admin', isSuperAdmin.toString());
+    sessionStorage.setItem('uba_is_super_admin', isSuperAdmin.toString());
   }, [isSuperAdmin]);
 
   const syncCloudShards = useCallback(async (hubId: string) => {
@@ -134,8 +134,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const initializeSystem = async () => {
-      const storedUserContext = localStorage.getItem('uba_user_context');
-      const storedHubId = localStorage.getItem('uba_active_hub_id');
+      const storedUserContext = sessionStorage.getItem('uba_user_context');
+      const storedHubId = sessionStorage.getItem('uba_active_hub_id');
       
       if (storedUserContext && storedHubId) {
         try {
@@ -150,12 +150,12 @@ const App: React.FC = () => {
               setViewMode('pupil_hub');
             } else {
               // For other roles, if the stored view is pupil_hub, reset to home
-              const storedView = localStorage.getItem('uba_active_view');
+              const storedView = sessionStorage.getItem('uba_active_view');
               if (storedView === 'pupil_hub') setViewMode('home');
             }
           }
         } catch (e) {
-          localStorage.clear();
+          sessionStorage.clear();
         }
       }
       setIsInitializing(false);
@@ -264,15 +264,15 @@ const App: React.FC = () => {
       const nextSettings = { ...settings, demoWindowClosed: true };
       await handleSaveAll({ settings: nextSettings });
     }
-    localStorage.clear();
+    sessionStorage.clear();
     window.location.reload(); 
   };
 
   const handleLoginTransition = async (hubId: string, user: any) => {
-    localStorage.setItem('uba_active_hub_id', hubId);
-    localStorage.setItem('uba_active_role', user.role);
-    localStorage.setItem('uba_user_context', JSON.stringify(user));
-    localStorage.setItem('uba_is_super_admin', (user.role === 'super_admin').toString());
+    sessionStorage.setItem('uba_active_hub_id', hubId);
+    sessionStorage.setItem('uba_active_role', user.role);
+    sessionStorage.setItem('uba_user_context', JSON.stringify(user));
+    sessionStorage.setItem('uba_is_super_admin', (user.role === 'super_admin').toString());
     
     await syncCloudShards(hubId);
     setCurrentHubId(hubId);
@@ -281,10 +281,10 @@ const App: React.FC = () => {
     
     if (user.role === 'pupil') {
       setViewMode('pupil_hub');
-      localStorage.setItem('uba_active_view', 'pupil_hub');
+      sessionStorage.setItem('uba_active_view', 'pupil_hub');
     } else {
       setViewMode('home');
-      localStorage.setItem('uba_active_view', 'home');
+      sessionStorage.setItem('uba_active_view', 'home');
     }
   };
 
