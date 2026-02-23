@@ -38,6 +38,7 @@ const QuestionRegistryView: React.FC = () => {
   const [editFormData, setEditFormData] = useState<any>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isPushing, setIsPushing] = useState(false);
+  const [viewTheoryAns, setViewTheoryAns] = useState<string | null>(null);
 
   // Multiplier Rates
   const RATE_OBJ = 0.01;
@@ -104,6 +105,8 @@ const QuestionRegistryView: React.FC = () => {
       const { error } = await supabase
         .from('uba_questions')
         .update({
+          subject: editFormData.subject,
+          instruction: editFormData.instruction,
           type: editFormData.type,
           blooms_level: editFormData.blooms_level,
           question_text: editFormData.question_text.toUpperCase(),
@@ -234,6 +237,18 @@ const QuestionRegistryView: React.FC = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-1">
+                      <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Target Subject</label>
+                      <select value={editFormData.subject} onChange={e=>setEditFormData({...editFormData, subject: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900">
+                         {uniqueSubjects.filter(s => s !== 'ALL').map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                   </div>
+                   <div className="space-y-1">
+                      <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Instruction</label>
+                      <input type="text" value={editFormData.instruction || ''} onChange={e=>setEditFormData({...editFormData, instruction: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-900" />
+                   </div>
+                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="space-y-1">
                        <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Modality</label>
@@ -427,7 +442,12 @@ const QuestionRegistryView: React.FC = () => {
                                 <span className="text-[7px] font-black text-blue-500 uppercase tracking-widest"><span className="text-slate-600 mr-1">STRAND:</span>{q.strand_code || q.strand}</span>
                                 <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest"><span className="text-slate-600 mr-1">SUB:</span>{q.sub_strand_code || q.sub_strand}</span>
                                 <span className="text-[7px] font-black text-emerald-400 uppercase tracking-widest"><span className="text-slate-600 mr-1">IND:</span>{q.indicator_code}</span>
-                                <span className="text-[7px] font-black text-orange-400 uppercase tracking-widest"><span className="text-slate-600 mr-1">ANS:</span>{q.correct_key}</span>
+                                <span className="text-[7px] font-black text-orange-400 uppercase tracking-widest">
+                                   <span className="text-slate-600 mr-1">ANS:</span>
+                                   {q.type === 'OBJECTIVE' ? q.correct_key : (
+                                      <button onClick={() => setViewTheoryAns(q.answer_scheme)} className="underline hover:text-orange-300">VIEW RUBRIC</button>
+                                   )}
+                                </span>
                              </div>
                           </div>
                        </td>
@@ -481,6 +501,26 @@ const QuestionRegistryView: React.FC = () => {
          </div>
          <p className="italic text-slate-800">SS-MAP HQ INTELLIGENCE TERMINAL v10.2</p>
       </footer>
+
+      {/* Theory Answer Popout */}
+      {viewTheoryAns && (
+        <div className="fixed inset-0 z-[700] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
+              <h3 className="text-xl font-black uppercase tracking-tight">Theory Rubric Shard</h3>
+              <button onClick={() => setViewTheoryAns(null)} className="text-slate-400 hover:text-white">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className="p-10">
+              <div className="bg-slate-50 border border-gray-100 rounded-3xl p-8 min-h-[200px] max-h-[400px] overflow-y-auto no-scrollbar">
+                <p className="text-sm font-bold text-slate-700 uppercase leading-relaxed whitespace-pre-wrap">{viewTheoryAns}</p>
+              </div>
+              <button onClick={() => setViewTheoryAns(null)} className="w-full mt-8 bg-blue-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">Close Shard</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

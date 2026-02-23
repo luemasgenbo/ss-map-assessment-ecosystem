@@ -45,6 +45,7 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
   });
 
   const [isSyncing, setIsSyncing] = useState(false);
+  const [viewTheoryAns, setViewTheoryAns] = useState<string | null>(null);
 
   useEffect(() => {
     const sub = activeFacilitator?.subject || activeFacilitator?.taughtSubject;
@@ -272,6 +273,11 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                <textarea value={formData.questionText} onChange={e=>setFormData({...formData, questionText: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-2xl p-6 text-sm font-bold text-slate-700 min-h-[100px] uppercase focus:ring-8 focus:ring-blue-500/5 outline-none transition-all" required placeholder="WHICH COMBINATION OF COMPONENTS REPRESENT THE MOST LOGICAL ANALYSIS..." />
             </div>
 
+            <div className="space-y-1">
+               <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Instruction (Optional)</label>
+               <input type="text" value={formData.instruction} onChange={e=>setFormData({...formData, instruction: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-6 py-4 text-xs font-bold text-slate-700 uppercase outline-none" placeholder="E.G. ATTEMPT ALL QUESTIONS" />
+            </div>
+
             {formData.type === 'OBJECTIVE' ? (
               <div className="space-y-4 bg-blue-50/30 p-8 rounded-[2.5rem] border border-blue-100">
                 <h4 className="text-[9px] font-black text-blue-900 uppercase tracking-widest mb-2">Alternative Statements (Required)</h4>
@@ -319,9 +325,15 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                      <input type="text" placeholder="INDICATOR" value={formData.indicator} onChange={e=>setFormData({...formData, indicator: e.target.value.toUpperCase()})} className="flex-1 bg-slate-50 border border-gray-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase" />
                   </div>
                </div>
-               <div className="space-y-1">
-                  <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Illustration Shard URL</label>
-                  <input type="text" value={formData.diagramUrl} onChange={e=>setFormData({...formData, diagramUrl: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/IMAGE" />
+               <div className="space-y-4">
+                  <div className="space-y-1">
+                     <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Illustration Shard URL</label>
+                     <input type="text" value={formData.diagramUrl} onChange={e=>setFormData({...formData, diagramUrl: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-mono font-black" placeholder="HTTPS://DATA.CLOUD/IMAGE" />
+                  </div>
+                  <div className="space-y-1">
+                     <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Weight Magnitude</label>
+                     <input type="number" value={formData.weight} onChange={e=>setFormData({...formData, weight: parseInt(e.target.value) || 1})} className="w-full bg-slate-50 border border-gray-100 rounded-xl px-5 py-4 text-xs font-black" placeholder="1" />
+                  </div>
                </div>
             </div>
 
@@ -336,7 +348,7 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                <span className="text-[9px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full">{questions.length} Captured</span>
             </div>
             <div className="flex-1 overflow-y-auto p-8 space-y-6 max-h-[800px] no-scrollbar">
-               {questions.length > 0 ? [...questions].reverse().map((q, i) => (
+                {questions.length > 0 ? [...questions].reverse().map((q, i) => (
                   <div key={q.id} className="bg-slate-950 border border-white/5 p-6 rounded-3xl space-y-4 group transition-all hover:border-blue-500/30">
                      <div className="flex justify-between items-start">
                         <div className="space-y-1 flex-1">
@@ -345,6 +357,19 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                               {q.ghanaianLanguageTag && <span className="text-[7px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">TAG: {q.ghanaianLanguageTag}</span>}
                            </div>
                            <p className="text-[11px] font-bold text-slate-300 uppercase leading-relaxed line-clamp-3">"{q.questionText}"</p>
+                           
+                           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
+                              <span className="text-[7px] font-black text-blue-500 uppercase tracking-widest"><span className="text-slate-600 mr-1">STRAND:</span>{q.strandCode || q.strand}</span>
+                              <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest"><span className="text-slate-600 mr-1">SUB:</span>{q.subStrandCode || q.subStrand}</span>
+                              <span className="text-[7px] font-black text-emerald-400 uppercase tracking-widest"><span className="text-slate-600 mr-1">IND:</span>{q.indicatorCode}</span>
+                              <span className="text-[7px] font-black text-orange-400 uppercase tracking-widest">
+                                <span className="text-slate-600 mr-1">ANS:</span>
+                                {q.type === 'OBJECTIVE' ? q.correctKey : (
+                                  <button onClick={() => setViewTheoryAns(q.answerScheme)} className="underline hover:text-orange-300">VIEW RUBRIC</button>
+                                )}
+                              </span>
+                           </div>
+
                            <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mt-2">{q.subject}</p>
                         </div>
                         <div className="bg-blue-600 text-white px-2 py-0.5 rounded text-[7px] font-black uppercase">SYNCED</div>
@@ -359,6 +384,26 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
             </div>
          </div>
       </div>
+
+      {/* Theory Answer Popout */}
+      {viewTheoryAns && (
+        <div className="fixed inset-0 z-[700] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
+              <h3 className="text-xl font-black uppercase tracking-tight">Theory Rubric Shard</h3>
+              <button onClick={() => setViewTheoryAns(null)} className="text-slate-400 hover:text-white">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className="p-10">
+              <div className="bg-slate-50 border border-gray-100 rounded-3xl p-8 min-h-[200px] max-h-[400px] overflow-y-auto no-scrollbar">
+                <p className="text-sm font-bold text-slate-700 uppercase leading-relaxed whitespace-pre-wrap">{viewTheoryAns}</p>
+              </div>
+              <button onClick={() => setViewTheoryAns(null)} className="w-full mt-8 bg-blue-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">Close Shard</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
