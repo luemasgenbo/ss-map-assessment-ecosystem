@@ -72,12 +72,14 @@ const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [viewMode, setViewMode] = useState<'home' | 'master' | 'reports' | 'management' | 'series' | 'pupil_hub'>('home');
+  const [viewMode, setViewMode] = useState<'home' | 'master' | 'reports' | 'management' | 'series' | 'pupil_hub'>(
+    (localStorage.getItem('uba_active_view') as any) || 'home'
+  );
   const [reportSearchTerm, setReportSearchTerm] = useState('');
   
   const [currentHubId, setCurrentHubId] = useState<string | null>(localStorage.getItem('uba_active_hub_id'));
   const [activeRole, setActiveRole] = useState<string | null>(localStorage.getItem('uba_active_role'));
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(localStorage.getItem('uba_is_super_admin') === 'true');
   
   const [loggedInUser, setLoggedInUser] = useState<{ name: string; nodeId: string; role: string; email?: string; subject?: string } | null>(null);
   const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
@@ -88,6 +90,14 @@ const App: React.FC = () => {
   useEffect(() => {
     stateRef.current = { settings, students, facilitators };
   }, [settings, students, facilitators]);
+
+  useEffect(() => {
+    if (viewMode) localStorage.setItem('uba_active_view', viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem('uba_is_super_admin', isSuperAdmin.toString());
+  }, [isSuperAdmin]);
 
   const syncCloudShards = useCallback(async (hubId: string) => {
     if (!hubId) return null;
@@ -135,7 +145,14 @@ const App: React.FC = () => {
             setIsSuperAdmin(true);
           } else {
             await syncCloudShards(storedHubId);
-            if (user.role === 'pupil') setViewMode('pupil_hub');
+            // If it's a pupil, force pupil_hub regardless of stored view
+            if (user.role === 'pupil') {
+              setViewMode('pupil_hub');
+            } else {
+              // For other roles, if the stored view is pupil_hub, reset to home
+              const storedView = localStorage.getItem('uba_active_view');
+              if (storedView === 'pupil_hub') setViewMode('home');
+            }
           }
         } catch (e) {
           localStorage.clear();
@@ -255,12 +272,20 @@ const App: React.FC = () => {
     localStorage.setItem('uba_active_hub_id', hubId);
     localStorage.setItem('uba_active_role', user.role);
     localStorage.setItem('uba_user_context', JSON.stringify(user));
+    localStorage.setItem('uba_is_super_admin', (user.role === 'super_admin').toString());
+    
     await syncCloudShards(hubId);
     setCurrentHubId(hubId);
     setActiveRole(user.role);
     setLoggedInUser(user);
-    if (user.role === 'pupil') setViewMode('pupil_hub');
-    else setViewMode('home');
+    
+    if (user.role === 'pupil') {
+      setViewMode('pupil_hub');
+      localStorage.setItem('uba_active_view', 'pupil_hub');
+    } else {
+      setViewMode('home');
+      localStorage.setItem('uba_active_view', 'home');
+    }
   };
 
   const memoizedMatrix = useMemo(() => {

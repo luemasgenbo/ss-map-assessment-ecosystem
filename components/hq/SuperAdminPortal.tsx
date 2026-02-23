@@ -35,7 +35,9 @@ type HQViewID =
 const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: string) => void; }> = ({ onExit, onRemoteView }) => {
   const [registry, setRegistry] = useState<SchoolRegistryEntry[]>([]);
   const [auditTrail, setAuditTrail] = useState<SystemAuditEntry[]>([]);
-  const [view, setView] = useState<HQViewID>('dashboard');
+  const [view, setView] = useState<HQViewID>(
+    (localStorage.getItem('uba_hq_active_view') as HQViewID) || 'dashboard'
+  );
   const [isSyncing, setIsSyncing] = useState(true);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
@@ -97,6 +99,10 @@ const SuperAdminPortal: React.FC<{ onExit: () => void; onRemoteView: (schoolId: 
       setIsSyncing(false);
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem('uba_hq_active_view', view);
+  }, [view]);
 
   const handleLogAction = async (action: string, target: string, details: string) => {
     try {

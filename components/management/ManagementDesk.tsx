@@ -47,7 +47,15 @@ const ManagementDesk: React.FC<ManagementDeskProps> = ({
   students, setStudents, facilitators, setFacilitators, subjects, settings, onSettingChange, onBulkUpdate, onSave, processedSnapshot, onLoadDummyData, onClearData,
   isFacilitator, activeFacilitator, loggedInUser
 }) => {
-  const [activeTab, setActiveTab] = useState<ManagementTabType>(isFacilitator ? 'facilitatorDesk' : 'scoreEntry');
+  const [activeTab, setActiveTab] = React.useState<ManagementTabType>(() => {
+    const stored = localStorage.getItem('uba_mgmt_active_tab');
+    if (stored) return stored as ManagementTabType;
+    return isFacilitator ? 'facilitatorDesk' : 'scoreEntry';
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('uba_mgmt_active_tab', activeTab);
+  }, [activeTab]);
 
   return (
     <div className="p-0 max-w-7xl mx-auto pb-24 animate-in fade-in duration-500">

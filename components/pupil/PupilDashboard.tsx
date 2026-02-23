@@ -26,7 +26,13 @@ interface PupilDashboardProps {
 const PupilDashboard: React.FC<PupilDashboardProps> = ({ 
   student, stats, settings, classAverageAggregate, totalEnrolled, onSettingChange, onRefresh, globalRegistry, onLogout 
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'report' | 'merit' | 'bece' | 'journey' | 'detailed' | 'global' | 'practice' | 'curriculum'>('report');
+  const [activeSubTab, setActiveSubTab] = useState<'report' | 'merit' | 'bece' | 'journey' | 'detailed' | 'global' | 'practice' | 'curriculum'>(
+    (localStorage.getItem('uba_pupil_active_subtab') as any) || 'report'
+  );
+
+  useEffect(() => {
+    localStorage.setItem('uba_pupil_active_subtab', activeSubTab);
+  }, [activeSubTab]);
   
   // Left Sidebar Logic
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
