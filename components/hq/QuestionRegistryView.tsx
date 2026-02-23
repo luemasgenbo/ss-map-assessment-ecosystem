@@ -116,7 +116,7 @@ const QuestionRegistryView: React.FC = () => {
           instruction: editFormData.instruction,
           type: editFormData.type,
           blooms_level: editFormData.blooms_level,
-          question_text: editFormData.question_text.toUpperCase(),
+          question_text: editFormData.question_text,
           correct_key: editFormData.correct_key,
           answer_scheme: finalAnswerScheme,
           weight: editFormData.weight,
@@ -346,7 +346,12 @@ const QuestionRegistryView: React.FC = () => {
 
                  <div className="space-y-1">
                     <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Main Question Statement</label>
-                    <textarea value={editFormData.question_text} onChange={e=>setEditFormData({...editFormData, question_text: e.target.value.toUpperCase()})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 uppercase" rows={4} />
+                    <textarea 
+                      value={editFormData.question_text} 
+                      onChange={e=>setEditFormData({...editFormData, question_text: e.target.value})} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10" 
+                      rows={12} 
+                    />
                  </div>
 
                  {editFormData.type === 'OBJECTIVE' && (
@@ -375,7 +380,12 @@ const QuestionRegistryView: React.FC = () => {
                  {editFormData.type === 'THEORY' && (
                     <div className="space-y-1">
                        <label className="text-[8px] font-black text-slate-500 uppercase ml-2">Answer Scheme / Rubric</label>
-                       <textarea value={editFormData.answerScheme} onChange={e=>setEditFormData({...editFormData, answerScheme: e.target.value.toUpperCase()})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 uppercase" rows={6} />
+                       <textarea 
+                         value={editFormData.answerScheme} 
+                         onChange={e=>setEditFormData({...editFormData, answerScheme: e.target.value})} 
+                         className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10" 
+                         rows={10} 
+                       />
                     </div>
                  )}
               </div>

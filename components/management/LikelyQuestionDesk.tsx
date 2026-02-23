@@ -303,7 +303,13 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
 
             <div className="space-y-1">
                <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Main Question Statement</label>
-               <textarea value={formData.questionText} onChange={e=>setFormData({...formData, questionText: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-2xl p-6 text-sm font-bold text-slate-700 min-h-[100px] uppercase focus:ring-8 focus:ring-blue-500/5 outline-none transition-all" required placeholder="WHICH COMBINATION OF COMPONENTS REPRESENT THE MOST LOGICAL ANALYSIS..." />
+               <textarea 
+                 value={formData.questionText} 
+                 onChange={e=>setFormData({...formData, questionText: e.target.value})} 
+                 className="w-full bg-slate-50 border border-gray-100 rounded-2xl p-6 text-sm font-bold text-slate-700 min-h-[300px] focus:ring-8 focus:ring-blue-500/5 outline-none transition-all" 
+                 required 
+                 placeholder="ENTER FULL QUESTION TEXT (INCLUDING SECTIONS, SUB-QUESTIONS, ETC)..." 
+               />
             </div>
 
             <div className="space-y-1">
@@ -338,7 +344,12 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
               <div className="space-y-4">
                 <div className="space-y-1">
                    <label className="text-[8px] font-black text-slate-400 uppercase ml-2">Verification Rubric / Marking Scheme</label>
-                   <textarea value={formData.answerScheme} onChange={e=>setFormData({...formData, answerScheme: e.target.value})} className="w-full bg-slate-50 border border-gray-100 rounded-2xl p-6 text-xs font-bold text-slate-700 min-h-[150px] uppercase" placeholder="ENTER MARKING RUBRIC..." />
+                   <textarea 
+                     value={formData.answerScheme} 
+                     onChange={e=>setFormData({...formData, answerScheme: e.target.value})} 
+                     className="w-full bg-slate-50 border border-gray-100 rounded-2xl p-6 text-xs font-bold text-slate-700 min-h-[250px]" 
+                     placeholder="ENTER FULL MARKING RUBRIC AND EXPECTED ANSWERS..." 
+                   />
                 </div>
               </div>
             )}
