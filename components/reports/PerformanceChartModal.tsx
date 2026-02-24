@@ -90,48 +90,48 @@ const PerformanceChartModal: React.FC<PerformanceChartModalProps> = ({ student, 
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-950/40 backdrop-blur-md p-4 md:p-8">
       <div className="bg-white w-full max-w-6xl h-[90vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden border border-white/20">
         {/* Header */}
-        <div className="p-8 bg-blue-950 text-white flex justify-between items-center shrink-0">
+        <div className="py-4 px-8 bg-blue-950 text-white flex justify-between items-center shrink-0">
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tighter leading-none">{student.name}</h2>
-            <div className="flex items-center gap-4 mt-2">
-              <p className="text-[10px] font-black text-blue-300 uppercase tracking-[0.3em]">Longitudinal Performance Analytics Shard</p>
-              <span className="px-3 py-1 bg-blue-900 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-100 border border-blue-800">Class: {studentCategory}</span>
+            <h2 className="text-xl font-black uppercase tracking-tighter leading-none">{student.name}</h2>
+            <div className="flex items-center gap-4 mt-1.5">
+              <p className="text-[9px] font-black text-blue-300 uppercase tracking-[0.3em]">Longitudinal Performance Analytics Shard</p>
+              <span className="px-2 py-0.5 bg-blue-900 rounded-full text-[7px] font-black uppercase tracking-widest text-blue-100 border border-blue-800">Class: {studentCategory}</span>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all active:scale-90"
+            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all active:scale-90"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
           
           {/* Aggregate Chart */}
           <section>
-            <div className="flex justify-between items-end mb-6">
+            <div className="flex justify-between items-end mb-4">
               <div>
-                <h3 className="text-lg font-black text-blue-950 uppercase tracking-tight">Aggregate Progression</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Lower values indicate higher academic standing</p>
+                <h3 className="text-base font-black text-blue-950 uppercase tracking-tight">Aggregate Progression</h3>
+                <p className="text-[9px] font-bold text-slate-400 uppercase">Lower values indicate higher academic standing</p>
               </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Student</span>
+              <div className="flex gap-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Student</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-indigo-400"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Class Avg</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-400"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Class Avg</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-slate-300"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Combined Avg</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Combined Avg</span>
                 </div>
               </div>
             </div>
-            <div className="h-[300px] w-full bg-slate-50 rounded-3xl p-4 border border-slate-100">
+            <div className="h-[260px] w-full bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -150,27 +150,27 @@ const PerformanceChartModal: React.FC<PerformanceChartModalProps> = ({ student, 
 
           {/* Rate% Chart */}
           <section>
-            <div className="flex justify-between items-end mb-6">
+            <div className="flex justify-between items-end mb-4">
               <div>
-                <h3 className="text-lg font-black text-blue-950 uppercase tracking-tight">Efficiency Rate (%)</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Percentage of total marks attained across all disciplines</p>
+                <h3 className="text-base font-black text-blue-950 uppercase tracking-tight">Efficiency Rate (%)</h3>
+                <p className="text-[9px] font-bold text-slate-400 uppercase">Percentage of total marks attained across all disciplines</p>
               </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Student</span>
+              <div className="flex gap-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Student</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-teal-400"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Class Avg</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-teal-400"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Class Avg</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-slate-300"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Combined Avg</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Combined Avg</span>
                 </div>
               </div>
             </div>
-            <div className="h-[300px] w-full bg-slate-50 rounded-3xl p-4 border border-slate-100">
+            <div className="h-[260px] w-full bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -195,27 +195,27 @@ const PerformanceChartModal: React.FC<PerformanceChartModalProps> = ({ student, 
 
           {/* Grade Chart */}
           <section>
-            <div className="flex justify-between items-end mb-6">
+            <div className="flex justify-between items-end mb-4">
               <div>
-                <h3 className="text-lg font-black text-blue-950 uppercase tracking-tight">Grade Band Shifting</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Categorical performance levels (EXC &gt; HIGH &gt; PASS &gt; REM)</p>
+                <h3 className="text-base font-black text-blue-950 uppercase tracking-tight">Grade Band Shifting</h3>
+                <p className="text-[9px] font-bold text-slate-400 uppercase">Categorical performance levels (EXC &gt; HIGH &gt; PASS &gt; REM)</p>
               </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Student</span>
+              <div className="flex gap-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Student</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-violet-400"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Class Avg</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-violet-400"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Class Avg</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-slate-300"></div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase">Combined Avg</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase">Combined Avg</span>
                 </div>
               </div>
             </div>
-            <div className="h-[300px] w-full bg-slate-50 rounded-3xl p-4 border border-slate-100">
+            <div className="h-[260px] w-full bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -243,8 +243,8 @@ const PerformanceChartModal: React.FC<PerformanceChartModalProps> = ({ student, 
         </div>
 
         {/* Footer */}
-        <div className="p-6 bg-slate-50 border-t border-slate-100 text-center shrink-0">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em]">United Baylor Academy — Longitudinal Analytics Engine v2.5</p>
+        <div className="p-4 bg-slate-50 border-t border-slate-100 text-center shrink-0">
+          <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.5em]">United Baylor Academy — Longitudinal Analytics Engine v2.5</p>
         </div>
       </div>
     </div>
