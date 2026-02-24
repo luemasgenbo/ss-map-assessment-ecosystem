@@ -8,19 +8,57 @@
     <meta name="theme-color" content="#1e3a8a" />
     <title>MOCK ANALYSIS SS-MAP | HUB</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
       @media print {
-        @page { margin: 0; }
-        .print-landscape { @page { size: A4 landscape; margin: 0.5cm; } }
-        .print-portrait { @page { size: A4 portrait; margin: 0; } }
-        .no-print { display: none !important; }
-        .page-break { page-break-after: always; }
-        body { 
-          -webkit-print-color-adjust: exact !important; 
-          print-color-adjust: exact !important;
-          background-color: white !important;
+        @page { 
+          size: A4 portrait; 
+          margin: 0; 
+        }
+        
+        /* Hide everything by default */
+        body > * {
+          display: none !important;
+        }
+
+        /* Show only the printing container and its ancestors */
+        #root, 
+        #root > div, 
+        #root > div > div, 
+        .report-card-container.is-printing {
+          display: block !important;
+          visibility: visible !important;
+          position: relative !important;
+          width: 100% !important;
+          height: auto !important;
+          background: white !important;
           margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        /* Hide all other siblings of the printing container */
+        .report-card-container:not(.is-printing) {
+          display: none !important;
+        }
+
+        /* Hide UI elements */
+        .no-print, .no-print * {
+          display: none !important;
+        }
+
+        /* Reset scaling for print */
+        .is-printing .print-content {
+          transform: none !important;
+          width: 210mm !important;
+          height: 297mm !important;
+          margin: 0 auto !important;
+          box-shadow: none !important;
+          border: none !important;
+        }
+
+        /* Ensure background colors print */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
       }
       
