@@ -94,6 +94,7 @@ export interface StaffAssignment {
   taughtSubject?: string;
   teachingCategory?: string;
   uniqueCode?: string;
+  isTeamLead?: boolean;
   invigilations: InvigilationSlot[]; 
   account: StaffAccount;
   marking: {

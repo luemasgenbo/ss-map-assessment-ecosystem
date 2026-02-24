@@ -17,7 +17,7 @@ const FacilitatorPortal: React.FC<FacilitatorPortalProps> = ({
   subjects, facilitators, setFacilitators, settings, onSave, isFacilitator, activeFacilitator 
 }) => {
   const [newStaff, setNewStaff] = useState({ 
-    name: '', email: '', role: 'FACILITATOR' as StaffRole, subject: '', category: 'BASIC_SUBJECT_LEVEL', uniqueCode: ''
+    name: '', email: '', role: 'FACILITATOR' as StaffRole, subject: '', category: 'BASIC_SUBJECT_LEVEL', uniqueCode: '', isTeamLead: false
   });
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [editingEmail, setEditingEmail] = useState<string | null>(null);
@@ -172,7 +172,8 @@ const FacilitatorPortal: React.FC<FacilitatorPortalProps> = ({
         taughtSubject: newStaff.subject,
         teachingCategory: newStaff.category,
         uniqueCode: uniqueCode,
-        enrolledId: nodeId
+        enrolledId: nodeId,
+        isTeamLead: newStaff.isTeamLead
       };
       
       const nextFacilitators = { ...facilitators };
@@ -182,7 +183,7 @@ const FacilitatorPortal: React.FC<FacilitatorPortalProps> = ({
       setFacilitators(nextFacilitators);
       await onSave({ facilitators: nextFacilitators });
       
-      setNewStaff({ name: '', email: '', role: 'FACILITATOR', subject: '', category: 'BASIC_SUBJECT_LEVEL', uniqueCode: '' });
+      setNewStaff({ name: '', email: '', role: 'FACILITATOR', subject: '', category: 'BASIC_SUBJECT_LEVEL', uniqueCode: '', isTeamLead: false });
       setEditingEmail(null);
       alert("STAFF NODE ACTIVATED & MIRRORED TO LOGIN HUB.");
     } catch (err: any) {
@@ -263,6 +264,9 @@ const FacilitatorPortal: React.FC<FacilitatorPortalProps> = ({
                         <div className="flex items-center gap-3">
                            <h4 className="text-lg font-black text-slate-900 uppercase leading-none">{f.taughtSubject || 'GENERALIST'}</h4>
                            <span className="px-3 py-0.5 rounded-lg text-[8px] font-black uppercase bg-emerald-50 text-emerald-600">PIN: {f.uniqueCode}</span>
+                           {f.isTeamLead && (
+                             <span className="px-3 py-0.5 rounded-lg text-[8px] font-black uppercase bg-blue-900 text-white shadow-lg shadow-blue-900/20">TEAM LEADER</span>
+                           )}
                         </div>
                         <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Identity: {f.name} | ID: {f.enrolledId}</div>
                      </div>
@@ -270,6 +274,17 @@ const FacilitatorPortal: React.FC<FacilitatorPortalProps> = ({
                   <div className="flex gap-3">
                     {!isFacilitator && (
                       <>
+                        <button 
+                          onClick={() => {
+                            const next = { ...facilitators };
+                            next[f.email].isTeamLead = !next[f.email].isTeamLead;
+                            setFacilitators(next);
+                            onSave({ facilitators: next });
+                          }}
+                          className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase border transition-all flex items-center gap-2 shadow-sm ${f.isTeamLead ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-slate-900 border-gray-200 hover:border-blue-900'}`}
+                        >
+                          {f.isTeamLead ? 'Revoke Lead' : 'Make Team Lead'}
+                        </button>
                         <button onClick={() => handleWhatsAppForward(f)} className="bg-green-50 text-green-600 px-4 py-2.5 rounded-xl font-black text-[10px] uppercase border border-green-100 hover:bg-green-600 hover:text-white transition-all flex items-center gap-2 shadow-sm" title="Share Credentials via WhatsApp">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-7.6 8.38 8.38 0 0 1 3.8.9L21 3.5Z"/></svg>
                           Share Keys
