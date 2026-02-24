@@ -163,7 +163,7 @@ const PupilDashboard: React.FC<PupilDashboardProps> = ({
         </div>
 
         <div className="flex-1 p-0 space-y-12 bg-slate-50/60">
-          <div className="bg-white p-6 md:p-10 shadow-xl border-b border-gray-100 max-w-7xl mx-auto w-full">
+          <div className="no-print bg-white p-6 md:p-10 shadow-xl border-b border-gray-100 max-w-7xl mx-auto w-full">
              <ReportBrandingHeader 
                settings={settings} 
                onSettingChange={onSettingChange} 

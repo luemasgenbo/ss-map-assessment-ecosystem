@@ -12,15 +12,15 @@
       @media print {
         @page { 
           size: A4 portrait; 
-          margin: 0; 
+          margin: 0mm !important; 
         }
         
         html, body {
           margin: 0 !important;
           padding: 0 !important;
-          height: 100%;
+          height: auto !important;
           background: white !important;
-          visibility: hidden;
+          visibility: hidden !important;
         }
 
         /* Hide UI elements */
@@ -31,21 +31,26 @@
 
         /* Show only the printing container */
         .report-card-container.is-printing {
-          visibility: visible;
+          visibility: visible !important;
           display: block !important;
-          position: fixed !important;
+          position: absolute !important;
           top: 0 !important;
           left: 0 !important;
           width: 210mm !important;
           height: 297mm !important;
           margin: 0 !important;
           padding: 0 !important;
-          z-index: 9999;
+          z-index: 9999 !important;
           background: white !important;
         }
 
         .report-card-container.is-printing * {
-          visibility: visible;
+          visibility: visible !important;
+        }
+
+        /* Hide all other report cards to prevent extra pages */
+        .report-card-container:not(.is-printing) {
+          display: none !important;
         }
 
         /* Reset scaling for print */

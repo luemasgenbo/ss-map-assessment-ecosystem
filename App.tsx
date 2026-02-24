@@ -362,8 +362,50 @@ const App: React.FC = () => {
         {viewMode==='series' && <SeriesBroadSheet students={students} settings={settings} onSettingChange={(k,v)=>{ const next={...settings,[k]:v}; setSettings(next); void handleSaveAll({settings:next}); }} currentProcessed={processedStudents.map(ps=>({id:ps.id, bestSixAggregate:ps.bestSixAggregate, rank:ps.rank, totalScore:ps.totalScore, category:ps.category}))} />}
         {viewMode==='reports' && stats && (
           <div className="space-y-8">
-            <input type="text" placeholder="Filter Identity..." value={reportSearchTerm} onChange={(e)=>setReportSearchTerm(e.target.value)} className="w-full p-6 rounded-3xl border-2 border-gray-100 shadow-sm font-bold no-print outline-none uppercase" />
-            {processedStudents.filter(s=>(s.name||"").toLowerCase().includes(reportSearchTerm.toLowerCase())).map(s=><ReportCard key={s.id} student={s} stats={stats} settings={settings} onSettingChange={(k,v)=>{ const next={...settings,[k]:v}; setSettings(next); void handleSaveAll({settings:next}); }} classAverageAggregate={classAvgAggregate} totalEnrolled={processedStudents.length} isFacilitator={activeRole === 'facilitator'} loggedInUser={loggedInUser} />)}
+            <div className="no-print flex flex-col md:flex-row gap-4">
+              <input 
+                type="text" 
+                placeholder="Search Student..." 
+                value={reportSearchTerm} 
+                onChange={(e)=>setReportSearchTerm(e.target.value)} 
+                className="flex-1 p-6 rounded-3xl border-2 border-gray-100 shadow-sm font-bold outline-none uppercase" 
+              />
+              <select 
+                className="p-6 rounded-3xl border-2 border-gray-100 shadow-sm font-bold outline-none uppercase bg-white cursor-pointer"
+                onChange={(e) => {
+                  const student = processedStudents.find(s => s.id.toString() === e.target.value);
+                  if (student) setReportSearchTerm(student.name);
+                }}
+              >
+                <option value="">Quick Select Student</option>
+                {processedStudents.sort((a,b) => a.name.localeCompare(b.name)).map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            
+            {processedStudents
+              .filter(s=>(s.name||"").toLowerCase().includes(reportSearchTerm.toLowerCase()))
+              .map(s=>(
+                <ReportCard 
+                  key={s.id} 
+                  student={s} 
+                  stats={stats} 
+                  settings={settings} 
+                  onSettingChange={(k,v)=>{ const next={...settings,[k]:v}; setSettings(next); void handleSaveAll({settings:next}); }} 
+                  classAverageAggregate={classAvgAggregate} 
+                  totalEnrolled={processedStudents.length} 
+                  isFacilitator={activeRole === 'facilitator'} 
+                  loggedInUser={loggedInUser} 
+                />
+              ))
+            }
+            
+            {processedStudents.filter(s=>(s.name||"").toLowerCase().includes(reportSearchTerm.toLowerCase())).length === 0 && (
+              <div className="p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
+                <p className="text-xs font-black text-gray-300 uppercase tracking-widest">No matching student records found</p>
+              </div>
+            )}
           </div>
         )}
         {viewMode==='management' && (
