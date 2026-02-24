@@ -28,9 +28,12 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
         isLandscape={false}
         readOnly={readOnly}
       />
-      
-      {/* CANDIDATE PARTICULARS - Integrated into Header Area */}
-      <div className="grid grid-cols-2 gap-4 mt-4">
+    </div>
+
+    {/* GRID BOXES AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 py-2">
+      {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
+      <div className="grid grid-cols-2 gap-4 mb-2">
         <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-blue-50">
           <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-3 py-1 uppercase tracking-widest flex items-center justify-between">
             <span>Logistics Node</span>
@@ -75,10 +78,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
           </div>
         </div>
       </div>
-    </div>
 
-    {/* GRID BOXES AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 py-2">
       <div className="flex-1 border-[2px] border-blue-950 rounded-xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
           <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest sticky top-0">
@@ -207,8 +207,12 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
         readOnly={readOnly}
         hideMetadataStrip={true}
       />
-      
-      <div className="grid grid-cols-2 gap-8 mt-4 border-t border-gray-100 pt-2">
+    </div>
+
+    {/* GRID BOXES AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 py-4">
+      {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
+      <div className="grid grid-cols-2 gap-8 mb-4 border-y border-gray-100 py-2">
         <div className="space-y-0.5">
           <div className="flex justify-between border-b border-gray-50">
             <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
@@ -238,10 +242,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
           </div>
         </div>
       </div>
-    </div>
 
-    {/* GRID BOXES AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 py-4">
       <div className="flex-1 border-2 border-gray-100 rounded-2xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
           <thead>
