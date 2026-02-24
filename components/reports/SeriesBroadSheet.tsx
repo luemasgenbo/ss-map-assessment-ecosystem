@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StudentData, GlobalSettings, MockSeriesRecord } from '../../types';
 import EditableField from '../shared/EditableField';
 import ReportBrandingHeader from '../shared/ReportBrandingHeader';
+import PerformanceChartModal from './PerformanceChartModal';
 
 interface SeriesBroadSheetProps {
   students: StudentData[];
@@ -11,6 +12,7 @@ interface SeriesBroadSheetProps {
 }
 
 const SeriesBroadSheet: React.FC<SeriesBroadSheetProps> = ({ students, settings, onSettingChange, currentProcessed }) => {
+  const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
   const mockSeriesNames = settings.committedMocks || [];
   const subjectCount = 10;
 
@@ -70,8 +72,14 @@ const SeriesBroadSheet: React.FC<SeriesBroadSheetProps> = ({ students, settings,
                 const live = currentProcessed.find(p => p.id === student.id);
                 return (
                   <tr key={student.id} className="border-b border-gray-100 hover:bg-blue-50/20 transition-colors group leading-none">
-                    <td className="p-4 font-black uppercase text-blue-900 border-r border-gray-100 sticky left-0 bg-white group-hover:bg-blue-50/50 z-30 shadow-md">
-                      {student.name}
+                    <td 
+                      className="p-4 font-black uppercase text-blue-900 border-r border-gray-100 sticky left-0 bg-white group-hover:bg-blue-50/50 z-30 shadow-md cursor-pointer hover:text-blue-600 transition-colors"
+                      onClick={() => setSelectedStudent(student)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{student.name}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-0 group-hover:opacity-100 transition-opacity"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                      </div>
                     </td>
                     {mockSeriesNames.map((m) => {
                       const record = student.seriesHistory?.[m];
@@ -127,6 +135,16 @@ const SeriesBroadSheet: React.FC<SeriesBroadSheetProps> = ({ students, settings,
       <div className="mt-12 text-center py-6 border-t border-gray-100 opacity-40">
          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">SS-Map Hub — Longitudinal Persistence Shard</p>
       </div>
+
+      {selectedStudent && (
+        <PerformanceChartModal 
+          student={selectedStudent}
+          allStudents={students}
+          processedStudents={currentProcessed}
+          settings={settings}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
     </div>
   );
 };
