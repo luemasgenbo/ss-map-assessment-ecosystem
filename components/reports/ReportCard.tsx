@@ -189,30 +189,30 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     <div className="grid grid-cols-2 gap-8 mb-8 border-y-2 border-gray-100 py-6">
       <div className="space-y-3">
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Student Name</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase">{student.name}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{student.name}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Index Number</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase">{student.indexNumber || student.id}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Index Number</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{student.indexNumber || student.id}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Academic Year</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase">{settings.academicYear}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Academic Year</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</span>
         </div>
       </div>
       <div className="space-y-3">
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Term / Series</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase">{settings.termInfo} - {settings.activeMock}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Term / Series</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.termInfo} - {settings.activeMock}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Class Position</span>
-          <span className="text-[10px] font-black text-blue-600 uppercase">Rank {student.rank} of {totalEnrolled}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Class Position</span>
+          <span className="text-[10px] font-black text-blue-600 uppercase leading-none">Rank {student.rank} of {totalEnrolled}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Attendance</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase">{student.attendance} / {settings.attendanceTotal}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Attendance</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{student.attendance} / {settings.attendanceTotal}</span>
         </div>
       </div>
     </div>
@@ -221,19 +221,19 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-50 text-[10px] font-black text-gray-500 uppercase border-b-2 border-gray-200">
-            <th className="py-4 px-4 text-left">Subject</th>
-            <th className="py-4 px-2 text-center">Score</th>
-            <th className="py-4 px-2 text-center">Grade</th>
-            <th className="py-4 px-4 text-left">Remarks</th>
+            <th className="py-4 px-4 text-left leading-none">Subject</th>
+            <th className="py-4 px-2 text-center leading-none">Score</th>
+            <th className="py-4 px-2 text-center leading-none">Grade</th>
+            <th className="py-4 px-4 text-left leading-none">Remarks</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {student.subjects.map((sub: any) => (
             <tr key={sub.subject} className="text-[10px]">
-              <td className="py-3 px-4 font-bold text-gray-800 uppercase">{sub.subject}</td>
-              <td className="py-3 px-2 text-center font-mono font-bold text-gray-600">{Math.round(sub.finalCompositeScore)}</td>
-              <td className={`py-3 px-2 text-center font-black ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
-              <td className="py-3 px-4 text-gray-500 italic uppercase">{sub.remark}</td>
+              <td className="py-3 px-4 font-bold text-gray-800 uppercase leading-none">{sub.subject}</td>
+              <td className="py-3 px-2 text-center font-mono font-bold text-gray-600 leading-none">{Math.round(sub.finalCompositeScore)}</td>
+              <td className={`py-3 px-2 text-center font-black leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
+              <td className="py-3 px-4 text-gray-500 italic uppercase leading-none">{sub.remark}</td>
             </tr>
           ))}
         </tbody>
@@ -241,8 +241,8 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     </div>
 
     <div className="mt-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-      <h4 className="text-[10px] font-black text-gray-400 uppercase mb-2">Headteacher's Remarks</h4>
-      <p className="text-[11px] font-bold text-gray-700 uppercase leading-relaxed">
+      <h4 className="text-[10px] font-black text-gray-400 uppercase mb-2 leading-none">Headteacher's Remarks</h4>
+      <p className="text-[11px] font-bold text-gray-700 uppercase leading-none">
         {student.overallRemark || "Candidate has shown satisfactory progress across most disciplines. Continued focus on core areas is recommended for sustained excellence."}
       </p>
     </div>
@@ -250,12 +250,12 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     <div className="mt-auto pt-8 flex justify-between items-end border-t border-gray-100">
       <div className="text-center">
         <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
-        <span className="text-[9px] font-black text-gray-400 uppercase">Class Teacher Signature</span>
+        <span className="text-[9px] font-black text-gray-400 uppercase leading-none">Class Teacher Signature</span>
       </div>
       <div className="text-center">
-        <div className="text-[11px] font-black text-gray-900 uppercase mb-1">{settings.headTeacherName}</div>
+        <div className="text-[11px] font-black text-gray-900 uppercase mb-1 leading-none">{settings.headTeacherName}</div>
         <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
-        <span className="text-[9px] font-black text-gray-400 uppercase">Headteacher Signature</span>
+        <span className="text-[9px] font-black text-gray-400 uppercase leading-none">Headteacher Signature</span>
       </div>
     </div>
   </div>
@@ -265,18 +265,18 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
     <div className="flex justify-between items-start mb-12">
       <div>
-        <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">{settings.schoolName}</h1>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{settings.examTitle}</p>
+        <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">{settings.examTitle}</p>
       </div>
       <div className="text-right">
-        <p className="text-[10px] font-black text-gray-900 uppercase">{settings.academicYear}</p>
-        <p className="text-[10px] font-bold text-gray-400 uppercase">{settings.termInfo}</p>
+        <p className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mt-1">{settings.termInfo}</p>
       </div>
     </div>
 
     <div className="mb-12">
-      <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2">{student.name}</h2>
-      <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+      <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2 leading-none">{student.name}</h2>
+      <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
         <span>ID: {student.indexNumber || student.id}</span>
         <span>Rank: {student.rank} / {totalEnrolled}</span>
         <span>Aggregate: {student.bestSixAggregate}</span>
@@ -287,10 +287,10 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       <div className="grid grid-cols-1 gap-1">
         {student.subjects.map((sub: any) => (
           <div key={sub.subject} className="flex justify-between items-center py-2 border-b border-gray-50">
-            <span className="text-xs font-bold text-gray-800 uppercase">{sub.subject}</span>
+            <span className="text-xs font-bold text-gray-800 uppercase leading-none">{sub.subject}</span>
             <div className="flex gap-8 items-center">
-              <span className="text-xs font-mono text-gray-400">{Math.round(sub.finalCompositeScore)}</span>
-              <span className={`text-sm font-black w-8 text-right ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-gray-900'}`}>{sub.grade}</span>
+              <span className="text-xs font-mono text-gray-400 leading-none">{Math.round(sub.finalCompositeScore)}</span>
+              <span className={`text-sm font-black w-8 text-right leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-gray-900'}`}>{sub.grade}</span>
             </div>
           </div>
         ))}
@@ -299,15 +299,15 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
 
     <div className="mt-12">
       <div className="border-l-4 border-gray-900 pl-6 py-2">
-        <p className="text-xs font-bold text-gray-600 uppercase leading-relaxed italic">
+        <p className="text-xs font-bold text-gray-600 uppercase leading-none italic">
           "{student.overallRemark || "Performance is consistent with expectations. Keep up the momentum."}"
         </p>
       </div>
     </div>
 
     <div className="mt-auto pt-12 flex justify-between items-center">
-      <div className="text-[10px] font-black text-gray-300 uppercase">Official Academic Record</div>
-      <div className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1">{settings.headTeacherName}</div>
+      <div className="text-[10px] font-black text-gray-300 uppercase leading-none">Official Academic Record</div>
+      <div className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1 leading-none">{settings.headTeacherName}</div>
     </div>
   </div>
 );
