@@ -204,11 +204,14 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-        
-        {/* Multi-Subject Queue */}
-        <div className="xl:col-span-3 space-y-6">
-           <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-8 shadow-2xl space-y-6">
+      <div className="relative">
+        {/* Submission Queue - Hover Slide-out Sidebar */}
+        <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[100] group flex items-center">
+           {/* Hover Trigger Handle */}
+           <div className="w-1.5 h-32 bg-blue-600/30 rounded-r-full cursor-pointer group-hover:opacity-0 transition-opacity"></div>
+           
+           {/* The actual queue */}
+           <div className="absolute left-0 w-80 bg-slate-900 border border-slate-800 rounded-r-[3rem] p-8 shadow-2xl space-y-6 -translate-x-[98%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out">
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
                  <h3 className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Submission Queue</h3>
                  <div className="flex gap-1.5">
@@ -217,7 +220,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                     <div className="w-2 h-2 bg-slate-700 rounded-full" title="Draft"></div>
                  </div>
               </div>
-              <div className="space-y-3 max-h-[600px] overflow-y-auto no-scrollbar">
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto overflow-x-hidden no-scrollbar">
                  {subjects.map(sub => {
                    const isSelected = selectedSubject === sub;
                    const isDisabled = isFacilitator && activeFacilitator?.subject !== sub;
@@ -241,7 +244,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
         </div>
 
         {/* Subject Resource Terminal */}
-        <div className="xl:col-span-9 space-y-8">
+        <div className="w-full space-y-8">
            <div className="bg-white border border-gray-100 rounded-[3.5rem] shadow-2xl p-10 space-y-10">
               <div className="flex flex-col md:flex-row justify-between items-start border-b border-gray-50 pb-8 gap-6">
                  <div className="space-y-1">
