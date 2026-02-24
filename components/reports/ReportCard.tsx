@@ -77,8 +77,8 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
       </div>
     </div>
 
-    {/* GRID BOXES AREA - 70% */}
-    <div className="h-[70%] flex flex-col shrink-0 py-2">
+    {/* GRID BOXES AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 py-2">
       <div className="flex-1 border-[2px] border-blue-950 rounded-xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
           <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest sticky top-0">
@@ -137,8 +137,8 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
       </div>
     </div>
 
-    {/* OTHERS & SPACING AREA - 10% */}
-    <div className="h-[10%] flex flex-col shrink-0 pt-2 gap-2">
+    {/* OTHERS & SPACING AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 pt-2 gap-2">
       <div className="grid grid-cols-3 gap-2 flex-1">
         {/* CONDUCT & ATTENDANCE */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex flex-col justify-center">
@@ -240,8 +240,8 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
       </div>
     </div>
 
-    {/* GRID BOXES AREA - 70% */}
-    <div className="h-[70%] flex flex-col shrink-0 py-4">
+    {/* GRID BOXES AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 py-4">
       <div className="flex-1 border-2 border-gray-100 rounded-2xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
           <thead>
@@ -287,8 +287,8 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
       </div>
     </div>
 
-    {/* OTHERS & SPACING AREA - 10% */}
-    <div className="h-[10%] flex flex-col shrink-0 pt-4 gap-4">
+    {/* OTHERS & SPACING AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 pt-4 gap-4">
       <div className="grid grid-cols-3 gap-4 flex-1">
         <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col justify-center">
           <h4 className="text-[8px] font-black text-gray-400 uppercase mb-1 leading-none">Conduct & Attendance</h4>
@@ -347,8 +347,8 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       </div>
     </div>
 
-    {/* GRID BOXES AREA - 70% */}
-    <div className="h-[70%] flex flex-col shrink-0">
+    {/* GRID BOXES AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0">
       <div className="mb-8">
         <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2 leading-none">{student.name}</h2>
         <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
@@ -373,8 +373,8 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       </div>
     </div>
 
-    {/* OTHERS & SPACING AREA - 10% */}
-    <div className="h-[10%] flex flex-col shrink-0 pt-8">
+    {/* OTHERS & SPACING AREA - 40% */}
+    <div className="h-[40%] flex flex-col shrink-0 pt-8">
       <div className="border-l-4 border-gray-900 pl-6 py-2 mb-4">
         <p className="text-xs font-bold text-gray-600 uppercase leading-none italic">
           "{student.overallRemark || "The candidate demonstrates a stable academic profile."}"
