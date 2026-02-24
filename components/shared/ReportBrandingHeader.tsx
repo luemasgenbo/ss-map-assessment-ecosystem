@@ -57,7 +57,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
 
         {/* Identity Particulars - ALL EDITABLE */}
         <div className="flex-1">
-          <h1 className={`${isLandscape ? 'text-4xl' : 'text-3xl'} font-black text-blue-950 tracking-tighter uppercase leading-[5px]`}>
+          <h1 className={`${isLandscape ? 'text-4xl' : 'text-3xl'} font-black text-blue-950 tracking-tighter uppercase leading-none`}>
             <EditableField 
                 value={settings.schoolName || "UNITED BAYLOR ACADEMY"} 
                 onChange={(v) => onSettingChange('schoolName', v.toUpperCase())} 
@@ -66,7 +66,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
                 placeholder="ACADEMY NAME"
             />
           </h1>
-          <div className="text-[16px] font-black text-blue-800 uppercase tracking-[0.4em] italic leading-[5px] pt-1">
+          <div className="text-[16px] font-black text-blue-800 uppercase tracking-[0.4em] italic leading-none pt-1">
             <EditableField 
                 value={settings.schoolMotto || "EXCELLENCE IN KNOWLEDGE AND CHARACTER"} 
                 onChange={(v) => onSettingChange('schoolMotto', v.toUpperCase())} 
@@ -75,7 +75,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
                 placeholder="ACADEMY MOTTO"
             />
           </div>
-          <div className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] pt-1 leading-[5px]">
+          <div className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] pt-1 leading-none">
             <EditableField 
                 value={settings.schoolAddress || "ACCRA DIGITAL CENTRE, GHANA"} 
                 onChange={(v) => onSettingChange('schoolAddress', v.toUpperCase())} 
@@ -98,7 +98,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
             placeholder="REPORT TITLE"
            />
          </h2>
-         {subtitle && <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.5em] mt-1 leading-[5px]">{subtitle}</p>}
+         {subtitle && <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.5em] mt-1 leading-none">{subtitle}</p>}
       </div>
 
       {/* Connectivity Cluster - Particulars Focus */}
