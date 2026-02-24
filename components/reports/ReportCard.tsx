@@ -18,7 +18,8 @@ interface ReportCardProps {
 
 const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0">
-    <div className="shrink-0 mb-4">
+    {/* HEADER AREA - 20% */}
+    <div className="h-[20%] flex flex-col justify-center shrink-0 border-b-2 border-blue-900/10 mb-2">
       <ReportBrandingHeader 
         settings={settings} 
         onSettingChange={onSettingChange} 
@@ -27,145 +28,166 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
         isLandscape={false}
         readOnly={readOnly}
       />
-    </div>
-
-    {/* PUPIL & LOGISTICS MATRIX - High Contrast & 6px Shards */}
-    <div className="grid grid-cols-2 gap-4 mb-4 shrink-0">
-      <div className="border-[1.5px] border-blue-900 rounded-2xl overflow-hidden bg-blue-300">
-        <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-4 py-1.5 uppercase tracking-widest flex items-center justify-between">
-          <span>Logistics Node</span>
-          <span className="font-mono">NODE-0{student.id % 9}</span>
-        </div>
-        <div className="divide-y divide-blue-400">
-          {[
-            {l:'Series Cycle',k:'activeMock',v:settings.activeMock},
-            {l:'Current Term',k:'termInfo',v:settings.termInfo},
-            {l:'Academic Yr',k:'academicYear',v:settings.academicYear},
-            {l:'Authority',k:'headTeacherName',v:settings.headTeacherName},
-          ].map((item, i) => (
-            <div key={i} className="flex h-3 items-center px-4 gap-2">
-              <span className="text-[6px] leading-none font-black text-blue-950 uppercase w-[50px] shrink-0 border-r border-blue-400">{item.l}</span>
-              <div className="text-[6px] leading-none font-black text-blue-900 uppercase truncate flex-1">
-                <EditableField 
-                  value={item.v} 
-                  onChange={(val) => onSettingChange(item.k as keyof GlobalSettings, val.toUpperCase())}
-                  className="text-[6px] leading-none"
-                  disabled={readOnly}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="border-[1.5px] border-blue-900 rounded-2xl overflow-hidden bg-indigo-300">
-        <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-4 py-1.5 uppercase tracking-widest flex items-center justify-between">
-          <span>Candidate Particulars</span>
-          <span>VERIFIED</span>
-        </div>
-        <div className="divide-y divide-indigo-400">
-          {[
-            {l:'Full Name',v:student.name},
-            {l:'Attendance',v:`${student.attendance} / ${settings.attendanceTotal}`},
-            {l:'Mock Rank',v:`#${student.rank} OF ${totalEnrolled}`},
-            {l:'Best 6 Agg',v:student.bestSixAggregate}
-          ].map((item, i) => (
-            <div key={i} className="flex h-3 items-center px-4 gap-2">
-              <span className="text-[6px] leading-none font-black text-indigo-950 uppercase w-[50px] shrink-0 border-r border-indigo-400">{item.l}</span>
-              <span className="text-[6px] leading-none font-black uppercase truncate text-blue-950">{item.v}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    {/* RESULTS MATRIX - Header & Shards in 6px */}
-    <div className="mb-4 shrink-0">
-      <table className="w-full border-collapse border-[2px] border-blue-950 rounded-xl overflow-hidden">
-        <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest">
-          <tr className="h-6">
-            <th className="px-3 text-left">Academic Discipline</th>
-            <th className="px-1 text-center w-[30px]">Obj</th>
-            <th className="px-1 text-center w-[30px]">Thy</th>
-            <th className="px-1 text-center w-[40px] bg-blue-900">Sum</th>
-            <th className="px-1 text-center w-[30px]">SBA</th>
-            <th className="px-1 text-center w-[40px] bg-red-900">Cmp</th>
-            <th className="px-1 text-center w-[30px]">Grd</th>
-            <th className="px-3 text-left">Remark Shard</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {student.subjects.map((sub: any) => (
-            <tr key={sub.subject} className="even:bg-blue-100 font-bold h-3">
-              <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[6px] leading-none border-r border-gray-100">{sub.subject}</td>
-              <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
-              <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
-              <td className="text-center font-black bg-blue-200 text-blue-900 text-[6px] leading-none border-r border-blue-900/10">{(sub.sectionA || 0) + (sub.sectionB || 0)}</td>
-              <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{Math.round(sub.sbaScore)}</td>
-              <td className="text-center font-black bg-red-200 text-red-900 text-[6px] leading-none border-r border-red-900/10">{Math.round(sub.finalCompositeScore)}</td>
-              <td className={`text-center font-black text-[6px] leading-none border-r border-gray-100 ${sub.gradeValue >= 7 ? 'text-red-700' : 'text-blue-900'}`}>{sub.grade}</td>
-              <td className="px-3 text-[6px] leading-none uppercase text-slate-500 italic truncate max-w-[200px]">{sub.remark}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    {/* PERFORMANCE ANALYSIS HEATMAP - 6px Components */}
-    <div className="mb-4 grid grid-cols-4 gap-3 shrink-0 h-[40px]">
-      <div className="col-span-1 bg-blue-950 text-white rounded-2xl flex flex-col items-center justify-center border-2 border-blue-900 shadow-xl h-full">
-        <span className="text-[6px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
-        <span className="text-[14px] font-black font-mono leading-none mt-1">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
-      </div>
-      <div className="col-span-3 border-2 border-blue-900 rounded-2xl flex items-center justify-around bg-blue-200 h-full px-6">
-        {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
-          <div key={g} className="flex flex-col items-center justify-center">
-            <span className="text-[6px] font-black text-slate-500 leading-none mb-1 uppercase tracking-tighter">{g}</span>
-            <span className={`text-[10px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-900' : 'text-slate-400'}`}>
-              {gradeDistribution[g] || 0}
-            </span>
+      
+      {/* CANDIDATE PARTICULARS - Integrated into Header Area */}
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-blue-50">
+          <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-3 py-1 uppercase tracking-widest flex items-center justify-between">
+            <span>Logistics Node</span>
+            <span className="font-mono">NODE-0{student.id % 9}</span>
           </div>
-        ))}
-      </div>
-    </div>
-
-    {/* NRT ANALYTICAL APPENDICES - 6px Text */}
-    <div className="grid grid-cols-1 gap-3 mb-3 shrink-0">
-      <div className="bg-slate-900 text-white px-8 py-3 rounded-[2.5rem] relative h-[60px] overflow-hidden flex flex-col justify-center border-2 border-slate-800 shadow-inner">
-        <div className="absolute top-0 right-0 px-4 py-1 bg-blue-600 text-white text-[6px] leading-none font-black uppercase tracking-widest rounded-bl-2xl">Instructional Feedback Shard</div>
-        <p className="text-[6px] leading-none font-black text-blue-100 uppercase italic">
-          {student.overallRemark || 'The candidate demonstrates a stable academic profile with consistent mastery in core disciplines.'}
-        </p>
-      </div>
-      <div className="bg-indigo-200 border-2 border-indigo-300 px-8 py-3 rounded-[2.5rem] relative h-[60px] overflow-hidden flex flex-col justify-center shadow-inner border-b-4 border-b-blue-900/20">
-        <div className="absolute top-0 right-0 px-4 py-1 bg-indigo-900 text-white text-[6px] leading-none font-black uppercase tracking-widest rounded-bl-2xl">Administrative Recommendation</div>
-        <p className="text-[6px] leading-none font-bold text-indigo-950 uppercase">
-          PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS. COGNITIVE CALIBRATION REQUIRED.
-        </p>
-      </div>
-    </div>
-
-    {/* SIGNATURE NODES - 6px Text */}
-    <div className="flex justify-between items-end mt-auto pb-4 border-t border-slate-100 pt-4 shrink-0">
-      <div className="w-[30%] text-center border-t border-slate-950 pt-2">
-        <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-1">Academy Director</p>
-        <div className="font-black text-blue-950 text-[6px] leading-none uppercase truncate">
-          <EditableField 
-            value={settings.headTeacherName} 
-            onChange={(v) => onSettingChange('headTeacherName', v.toUpperCase())}
-            className="text-[6px] leading-none font-black"
-            disabled={readOnly}
-          />
+          <div className="divide-y divide-blue-200">
+            {[
+              {l:'Series Cycle',k:'activeMock',v:settings.activeMock},
+              {l:'Current Term',k:'termInfo',v:settings.termInfo},
+              {l:'Academic Yr',k:'academicYear',v:settings.academicYear},
+            ].map((item, i) => (
+              <div key={i} className="flex h-3 items-center px-3 gap-2">
+                <span className="text-[6px] leading-none font-black text-blue-950 uppercase w-[50px] shrink-0 border-r border-blue-200">{item.l}</span>
+                <div className="text-[6px] leading-none font-black text-blue-900 uppercase truncate flex-1">
+                  <EditableField 
+                    value={item.v} 
+                    onChange={(val) => onSettingChange(item.k as keyof GlobalSettings, val.toUpperCase())}
+                    className="text-[6px] leading-none"
+                    disabled={readOnly}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-indigo-50">
+          <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-3 py-1 uppercase tracking-widest flex items-center justify-between">
+            <span>Candidate Particulars</span>
+            <span>VERIFIED</span>
+          </div>
+          <div className="divide-y divide-indigo-200">
+            {[
+              {l:'Full Name',v:student.name},
+              {l:'Attendance',v:`${student.attendance} / ${settings.attendanceTotal}`},
+              {l:'Mock Rank',v:`#${student.rank} OF ${totalEnrolled}`},
+            ].map((item, i) => (
+              <div key={i} className="flex h-3 items-center px-3 gap-2">
+                <span className="text-[6px] leading-none font-black text-indigo-950 uppercase w-[50px] shrink-0 border-r border-indigo-200">{item.l}</span>
+                <span className="text-[6px] leading-none font-black uppercase truncate text-blue-950">{item.v}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="w-[30%] text-center border-t border-slate-950 pt-2">
-        <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-1">Next Resumption</p>
-        <div className="font-black text-red-700 text-[6px] leading-none uppercase">
-          <EditableField 
-            value={settings.nextTermBegin} 
-            onChange={(v) => onSettingChange('nextTermBegin', v)}
-            className="text-[6px] leading-none font-black"
-            disabled={readOnly}
-          />
+    </div>
+
+    {/* GRID BOXES AREA - 70% */}
+    <div className="h-[70%] flex flex-col shrink-0 py-2">
+      <div className="flex-1 border-[2px] border-blue-950 rounded-xl overflow-hidden flex flex-col">
+        <table className="w-full border-collapse">
+          <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest sticky top-0">
+            <tr className="h-6">
+              <th className="px-3 text-left">Academic Discipline</th>
+              <th className="px-1 text-center w-[30px]">Obj</th>
+              <th className="px-1 text-center w-[30px]">Thy</th>
+              <th className="px-1 text-center w-[40px] bg-blue-900">Sum</th>
+              <th className="px-1 text-center w-[30px]">SBA</th>
+              <th className="px-1 text-center w-[40px] bg-red-900">Cmp</th>
+              <th className="px-1 text-center w-[30px]">Grd</th>
+              <th className="px-3 text-left">Remark Shard</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {student.subjects.map((sub: any) => {
+              // Color coding logic for Prestige variant
+              let rowColor = "bg-white";
+              if (sub.gradeValue <= 3) rowColor = "bg-emerald-50";
+              else if (sub.gradeValue <= 6) rowColor = "bg-blue-50";
+              else rowColor = "bg-red-50";
+
+              return (
+                <tr key={sub.subject} className={`${rowColor} font-bold h-6 border-b border-gray-100`}>
+                  <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[6px] leading-none border-r border-gray-100">{sub.subject}</td>
+                  <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
+                  <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
+                  <td className="text-center font-black bg-blue-100/50 text-blue-900 text-[6px] leading-none border-r border-blue-950/10">{(sub.sectionA || 0) + (sub.sectionB || 0)}</td>
+                  <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{Math.round(sub.sbaScore)}</td>
+                  <td className="text-center font-black bg-red-100/50 text-red-900 text-[6px] leading-none border-r border-red-950/10">{Math.round(sub.finalCompositeScore)}</td>
+                  <td className={`text-center font-black text-[6px] leading-none border-r border-gray-100 ${sub.gradeValue >= 7 ? 'text-red-700' : 'text-blue-900'}`}>{sub.grade}</td>
+                  <td className="px-3 text-[6px] leading-none uppercase text-slate-500 italic truncate max-w-[200px]">{sub.remark}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        
+        {/* PERFORMANCE ANALYSIS HEATMAP - Integrated into Grid Area */}
+        <div className="mt-auto p-4 bg-slate-50 border-t border-blue-950/10 grid grid-cols-4 gap-3 h-[50px] shrink-0">
+          <div className="col-span-1 bg-blue-950 text-white rounded-xl flex flex-col items-center justify-center border border-blue-900 shadow-lg h-full">
+            <span className="text-[6px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
+            <span className="text-[12px] font-black font-mono leading-none mt-1">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
+          </div>
+          <div className="col-span-3 border border-blue-900 rounded-xl flex items-center justify-around bg-white h-full px-4">
+            {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
+              <div key={g} className="flex flex-col items-center justify-center">
+                <span className="text-[6px] font-black text-slate-400 leading-none mb-0.5 uppercase tracking-tighter">{g}</span>
+                <span className={`text-[8px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-900' : 'text-slate-300'}`}>
+                  {gradeDistribution[g] || 0}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* OTHERS & SPACING AREA - 10% */}
+    <div className="h-[10%] flex flex-col shrink-0 pt-2 gap-2">
+      <div className="grid grid-cols-3 gap-2 flex-1">
+        {/* CONDUCT & ATTENDANCE */}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex flex-col justify-center">
+          <span className="text-[6px] font-black text-slate-400 uppercase tracking-widest mb-1">Conduct & Attendance</span>
+          <p className="text-[6px] leading-tight font-bold text-slate-700 uppercase italic">
+            {student.conductRemark || 'Candidate maintains exemplary discipline and consistent presence.'}
+          </p>
+        </div>
+        
+        {/* ACADEMIC RECOMMENDATION (STRENGTH/WEAKNESS) */}
+        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-2 flex flex-col justify-center">
+          <span className="text-[6px] font-black text-indigo-400 uppercase tracking-widest mb-1">Academic Recommendation</span>
+          <p className="text-[6px] leading-tight font-bold text-indigo-900 uppercase">
+            <span className="text-emerald-700">STR:</span> CONSISTENT MASTERY. <span className="text-red-700">WEAK:</span> {student.weaknessAnalysis || 'IDENTIFIED STRANDS REQUIRE CALIBRATION.'}
+          </p>
+        </div>
+
+        {/* ADMINISTRATIVE FEEDBACK */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-2 flex flex-col justify-center">
+          <span className="text-[6px] font-black text-blue-400 uppercase tracking-widest mb-1">Administrative Feedback</span>
+          <p className="text-[6px] leading-tight font-bold text-blue-900 uppercase">
+            {student.overallRemark || 'PROMOTION TO NEXT LEVEL APPROVED. CONTINUE EXCELLENCE.'}
+          </p>
+        </div>
+      </div>
+
+      {/* AUTHORIZATIONS - MUST REMAIN ON SHEET ONE */}
+      <div className="flex justify-between items-end border-t border-slate-100 pt-2 shrink-0">
+        <div className="w-[30%] text-center border-t border-slate-950 pt-1">
+          <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-0.5">Academy Director</p>
+          <div className="font-black text-blue-950 text-[6px] leading-none uppercase truncate">
+            <EditableField 
+              value={settings.headTeacherName} 
+              onChange={(v) => onSettingChange('headTeacherName', v.toUpperCase())}
+              className="text-[6px] leading-none font-black"
+              disabled={readOnly}
+            />
+          </div>
+        </div>
+        <div className="w-[30%] text-center border-t border-slate-950 pt-1">
+          <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-0.5">Next Resumption</p>
+          <div className="font-black text-red-700 text-[6px] leading-none uppercase">
+            <EditableField 
+              value={settings.nextTermBegin} 
+              onChange={(v) => onSettingChange('nextTermBegin', v)}
+              className="text-[6px] leading-none font-black"
+              disabled={readOnly}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -174,7 +196,8 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
 
 const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
-    <div className="shrink-0 mb-8">
+    {/* HEADER AREA - 20% */}
+    <div className="h-[20%] flex flex-col justify-center shrink-0 border-b-2 border-gray-100 mb-4">
       <ReportBrandingHeader 
         settings={settings} 
         onSettingChange={onSettingChange} 
@@ -184,116 +207,120 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
         readOnly={readOnly}
         hideMetadataStrip={true}
       />
-    </div>
-
-    <div className="grid grid-cols-2 gap-8 mb-2 border-y-2 border-gray-100 py-2">
-      <div className="space-y-0">
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
-          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.name}</span>
+      
+      <div className="grid grid-cols-2 gap-8 mt-4 border-t border-gray-100 pt-2">
+        <div className="space-y-0.5">
+          <div className="flex justify-between border-b border-gray-50">
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
+            <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.name}</span>
+          </div>
+          <div className="flex justify-between border-b border-gray-50">
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Index Number</span>
+            <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.indexNumber || student.id}</span>
+          </div>
+          <div className="flex justify-between border-b border-gray-50">
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Academic Year</span>
+            <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</span>
+          </div>
         </div>
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Index Number</span>
-          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.indexNumber || student.id}</span>
-        </div>
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Logistics Node</span>
-          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">NODE-0{student.id % 9}</span>
-        </div>
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Academic Year</span>
-          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</span>
-        </div>
-      </div>
-      <div className="space-y-0">
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Series Cycle</span>
-          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{settings.activeMock}</span>
-        </div>
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Class Position</span>
-          <span className="text-[9px] font-black text-blue-600 uppercase leading-none">Rank {student.rank} of {totalEnrolled}</span>
-        </div>
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Attendance</span>
-          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.attendance} / {settings.attendanceTotal}</span>
-        </div>
-        <div className="flex justify-between border-b border-gray-50 pb-0.5">
-          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Best 6 Agg</span>
-          <span className="text-[9px] font-black text-red-600 uppercase leading-none">{student.bestSixAggregate}</span>
+        <div className="space-y-0.5">
+          <div className="flex justify-between border-b border-gray-50">
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Class Position</span>
+            <span className="text-[9px] font-black text-blue-600 uppercase leading-none">Rank {student.rank} of {totalEnrolled}</span>
+          </div>
+          <div className="flex justify-between border-b border-gray-50">
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Attendance</span>
+            <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.attendance} / {settings.attendanceTotal}</span>
+          </div>
+          <div className="flex justify-between border-b border-gray-50">
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Best 6 Agg</span>
+            <span className="text-[9px] font-black text-red-600 uppercase leading-none">{student.bestSixAggregate}</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div className="flex-1">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-50 text-[9px] font-black text-gray-500 uppercase border-b-2 border-gray-200">
-            <th className="py-1 px-4 text-left leading-none">Discipline</th>
-            <th className="py-1 px-2 text-center leading-none">Obj</th>
-            <th className="py-1 px-2 text-center leading-none">Thy</th>
-            <th className="py-1 px-2 text-center leading-none">SBA</th>
-            <th className="py-1 px-2 text-center leading-none">Cmp</th>
-            <th className="py-1 px-2 text-center leading-none">Grd</th>
-            <th className="py-1 px-4 text-left leading-none">Remark</th>
-          </tr>
-        </thead>
-        <tbody>
-          {student.subjects.map((sub: any) => (
-            <tr key={sub.subject} className="text-[9px]">
-              <td className="py-0 px-4 font-bold text-gray-800 uppercase leading-none">{sub.subject}</td>
-              <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionA ?? '0'}</td>
-              <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionB ?? '0'}</td>
-              <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{Math.round(sub.sbaScore)}</td>
-              <td className="py-0 px-2 text-center font-black text-gray-900 leading-none">{Math.round(sub.finalCompositeScore)}</td>
-              <td className={`py-0 px-2 text-center font-black leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
-              <td className="py-0 px-4 text-gray-500 italic uppercase leading-none">{sub.remark}</td>
+    {/* GRID BOXES AREA - 70% */}
+    <div className="h-[70%] flex flex-col shrink-0 py-4">
+      <div className="flex-1 border-2 border-gray-100 rounded-2xl overflow-hidden flex flex-col">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-50 text-[9px] font-black text-gray-500 uppercase border-b-2 border-gray-200 h-8">
+              <th className="py-1 px-4 text-left leading-none">Discipline</th>
+              <th className="py-1 px-2 text-center leading-none">Obj</th>
+              <th className="py-1 px-2 text-center leading-none">Thy</th>
+              <th className="py-1 px-2 text-center leading-none">SBA</th>
+              <th className="py-1 px-2 text-center leading-none">Cmp</th>
+              <th className="py-1 px-2 text-center leading-none">Grd</th>
+              <th className="py-1 px-4 text-left leading-none">Remark</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {student.subjects.map((sub: any) => (
+              <tr key={sub.subject} className="text-[9px] h-8">
+                <td className="py-0 px-4 font-bold text-gray-800 uppercase leading-none">{sub.subject}</td>
+                <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionA ?? '0'}</td>
+                <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionB ?? '0'}</td>
+                <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{Math.round(sub.sbaScore)}</td>
+                <td className="py-0 px-2 text-center font-black text-gray-900 leading-none">{Math.round(sub.finalCompositeScore)}</td>
+                <td className={`py-0 px-2 text-center font-black leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
+                <td className="py-0 px-4 text-gray-500 italic uppercase leading-none">{sub.remark}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <div className="mt-6 flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-        <div className="flex flex-col">
-          <span className="text-[8px] font-black text-gray-400 uppercase leading-none mb-1">Overall Efficiency</span>
-          <span className="text-lg font-black text-gray-900 leading-none">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
-        </div>
-        <div className="flex gap-4">
-          {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
-            <div key={g} className="flex flex-col items-center">
-              <span className="text-[7px] font-black text-gray-400 uppercase leading-none mb-1">{g}</span>
-              <span className={`text-[9px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-600' : 'text-gray-300'}`}>{gradeDistribution[g] || 0}</span>
-            </div>
-          ))}
+        <div className="mt-auto flex items-center justify-between bg-gray-50 p-6 border-t border-gray-100">
+          <div className="flex flex-col">
+            <span className="text-[8px] font-black text-gray-400 uppercase leading-none mb-1">Overall Efficiency</span>
+            <span className="text-xl font-black text-gray-900 leading-none">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
+          </div>
+          <div className="flex gap-6">
+            {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
+              <div key={g} className="flex flex-col items-center">
+                <span className="text-[7px] font-black text-gray-400 uppercase leading-none mb-1">{g}</span>
+                <span className={`text-[10px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-600' : 'text-gray-300'}`}>{gradeDistribution[g] || 0}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
 
-    <div className="mt-6 grid grid-cols-1 gap-4">
-      <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
-        <h4 className="text-[9px] font-black text-gray-400 uppercase mb-2 leading-none">Instructional Feedback Shard</h4>
-        <p className="text-[10px] font-bold text-gray-700 uppercase leading-none italic">
-          {student.overallRemark || "Candidate demonstrates stable proficiency with consistent mastery in core disciplines."}
-        </p>
+    {/* OTHERS & SPACING AREA - 10% */}
+    <div className="h-[10%] flex flex-col shrink-0 pt-4 gap-4">
+      <div className="grid grid-cols-3 gap-4 flex-1">
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col justify-center">
+          <h4 className="text-[8px] font-black text-gray-400 uppercase mb-1 leading-none">Conduct & Attendance</h4>
+          <p className="text-[9px] font-bold text-gray-700 uppercase leading-tight italic">
+            {student.conductRemark || "Exemplary discipline observed."}
+          </p>
+        </div>
+        <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col justify-center">
+          <h4 className="text-[8px] font-black text-indigo-400 uppercase mb-1 leading-none">Academic Recommendation</h4>
+          <p className="text-[9px] font-bold text-indigo-900 uppercase leading-tight">
+            STR: CONSISTENT. WEAK: {student.weaknessAnalysis || 'NONE IDENTIFIED.'}
+          </p>
+        </div>
+        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col justify-center">
+          <h4 className="text-[8px] font-black text-blue-400 uppercase mb-1 leading-none">Administrative Feedback</h4>
+          <p className="text-[9px] font-bold text-blue-900 uppercase leading-tight">
+            {student.overallRemark || "PROMOTED TO NEXT STAGE."}
+          </p>
+        </div>
       </div>
-      <div className="p-5 bg-indigo-50 rounded-2xl border border-indigo-100">
-        <h4 className="text-[9px] font-black text-indigo-400 uppercase mb-2 leading-none">Administrative Recommendation</h4>
-        <p className="text-[10px] font-bold text-indigo-900 uppercase leading-none">
-          PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS. COGNITIVE CALIBRATION REQUIRED.
-        </p>
-      </div>
-    </div>
 
-    <div className="mt-auto pt-8 flex justify-between items-end border-t border-gray-100">
-      <div className="text-center">
-        <p className="text-[10px] font-black text-gray-900 uppercase mb-1 leading-none">{settings.headTeacherName}</p>
-        <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
-        <span className="text-[8px] font-black text-gray-400 uppercase leading-none">Academy Director</span>
-      </div>
-      <div className="text-center">
-        <p className="text-[10px] font-black text-red-600 uppercase mb-1 leading-none">{settings.nextTermBegin}</p>
-        <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
-        <span className="text-[8px] font-black text-gray-400 uppercase leading-none">Next Resumption</span>
+      <div className="mt-auto pt-4 flex justify-between items-end border-t border-gray-100">
+        <div className="text-center">
+          <p className="text-[9px] font-black text-gray-900 uppercase mb-1 leading-none">{settings.headTeacherName}</p>
+          <div className="w-40 border-b border-gray-900 mb-1"></div>
+          <span className="text-[7px] font-black text-gray-400 uppercase leading-none">Academy Director</span>
+        </div>
+        <div className="text-center">
+          <p className="text-[9px] font-black text-red-600 uppercase mb-1 leading-none">{settings.nextTermBegin}</p>
+          <div className="w-40 border-b border-gray-900 mb-1"></div>
+          <span className="text-[7px] font-black text-gray-400 uppercase leading-none">Next Resumption</span>
+        </div>
       </div>
     </div>
   </div>
@@ -301,66 +328,68 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
 
 const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
-    <div className="flex justify-between items-start mb-12">
-      <div>
-        <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">{settings.examTitle}</p>
-        <div className="mt-4 space-y-0">
-          <p className="text-[8px] font-black text-gray-400 uppercase leading-none">TEL: {settings.schoolContact}</p>
-          <p className="text-[8px] font-black text-gray-400 uppercase leading-none">MAIL: {settings.schoolEmail}</p>
-          <p className="text-[8px] font-black text-gray-400 uppercase leading-none">WEB: {settings.schoolWebsite}</p>
+    {/* HEADER AREA - 20% */}
+    <div className="h-[20%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-8">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">{settings.examTitle}</p>
+          <div className="mt-4 space-y-0.5">
+            <p className="text-[8px] font-black text-gray-400 uppercase leading-none">TEL: {settings.schoolContact}</p>
+            <p className="text-[8px] font-black text-gray-400 uppercase leading-none">MAIL: {settings.schoolEmail}</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</p>
+          <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mt-1">{settings.termInfo}</p>
+          <p className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">NODE-0{student.id % 9}</p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</p>
-        <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mt-1">{settings.termInfo}</p>
-        <p className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">NODE-0{student.id % 9}</p>
-      </div>
     </div>
 
-    <div className="mb-12">
-      <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2 leading-none">{student.name}</h2>
-      <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-        <span>ID: {student.indexNumber || student.id}</span>
-        <span>Rank: {student.rank} / {totalEnrolled}</span>
-        <span>Aggregate: {student.bestSixAggregate}</span>
-        <span>Cycle: {settings.activeMock}</span>
+    {/* GRID BOXES AREA - 70% */}
+    <div className="h-[70%] flex flex-col shrink-0">
+      <div className="mb-8">
+        <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2 leading-none">{student.name}</h2>
+        <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+          <span>ID: {student.indexNumber || student.id}</span>
+          <span>Rank: {student.rank} / {totalEnrolled}</span>
+          <span>Aggregate: {student.bestSixAggregate}</span>
+        </div>
       </div>
-    </div>
 
-    <div className="flex-1">
-      <div className="grid grid-cols-1 gap-0">
-        {student.subjects.map((sub: any) => (
-          <div key={sub.subject} className="flex justify-between items-center py-0 border-b border-gray-50">
-            <span className="text-xs font-bold text-gray-800 uppercase leading-none">{sub.subject}</span>
-            <div className="flex gap-8 items-center">
-              <span className="text-xs font-mono text-gray-400 leading-none">{Math.round(sub.finalCompositeScore)}</span>
-              <span className={`text-sm font-black w-8 text-right leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-gray-900'}`}>{sub.grade}</span>
+      <div className="flex-1 overflow-hidden">
+        <div className="grid grid-cols-1 gap-0">
+          {student.subjects.map((sub: any) => (
+            <div key={sub.subject} className="flex justify-between items-center py-1 border-b border-gray-50">
+              <span className="text-xs font-bold text-gray-800 uppercase leading-none">{sub.subject}</span>
+              <div className="flex gap-8 items-center">
+                <span className="text-xs font-mono text-gray-400 leading-none">{Math.round(sub.finalCompositeScore)}</span>
+                <span className={`text-sm font-black w-8 text-right leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-gray-900'}`}>{sub.grade}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
 
-    <div className="mt-12 space-y-4">
-      <div className="border-l-4 border-gray-900 pl-6 py-2">
+    {/* OTHERS & SPACING AREA - 10% */}
+    <div className="h-[10%] flex flex-col shrink-0 pt-8">
+      <div className="border-l-4 border-gray-900 pl-6 py-2 mb-4">
         <p className="text-xs font-bold text-gray-600 uppercase leading-none italic">
-          "{student.overallRemark || "The candidate demonstrates a stable academic profile with consistent mastery in core disciplines."}"
+          "{student.overallRemark || "The candidate demonstrates a stable academic profile."}"
         </p>
       </div>
-      <p className="text-[10px] font-bold text-gray-400 uppercase leading-none pl-7">
-        REC: PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS.
-      </p>
-    </div>
-
-    <div className="mt-auto pt-12 flex justify-between items-center">
-      <div className="flex flex-col">
-        <span className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1 leading-none">{settings.headTeacherName}</span>
-        <span className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">Academy Director</span>
-      </div>
-      <div className="flex flex-col items-end">
-        <span className="text-[10px] font-black text-red-600 border-b-2 border-red-600 pb-1 leading-none">{settings.nextTermBegin}</span>
-        <span className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">Next Resumption</span>
+      
+      <div className="mt-auto flex justify-between items-center">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1 leading-none">{settings.headTeacherName}</span>
+          <span className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">Academy Director</span>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] font-black text-red-600 border-b-2 border-red-600 pb-1 leading-none">{settings.nextTermBegin}</span>
+          <span className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">Next Resumption</span>
+        </div>
       </div>
     </div>
   </div>
