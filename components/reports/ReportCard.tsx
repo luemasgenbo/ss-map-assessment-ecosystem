@@ -172,7 +172,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
   </div>
 );
 
-const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, totalEnrolled, readOnly }) => (
+const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
     <div className="shrink-0 mb-8">
       <ReportBrandingHeader 
@@ -186,33 +186,41 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
       />
     </div>
 
-    <div className="grid grid-cols-2 gap-8 mb-8 border-y-2 border-gray-100 py-6">
-      <div className="space-y-3">
+    <div className="grid grid-cols-2 gap-8 mb-6 border-y-2 border-gray-100 py-6">
+      <div className="space-y-2">
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{student.name}</span>
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
+          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.name}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Index Number</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{student.indexNumber || student.id}</span>
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Index Number</span>
+          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.indexNumber || student.id}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Academic Year</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</span>
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Logistics Node</span>
+          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">NODE-0{student.id % 9}</span>
+        </div>
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Academic Year</span>
+          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</span>
         </div>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Term / Series</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.termInfo} - {settings.activeMock}</span>
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Series Cycle</span>
+          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{settings.activeMock}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Class Position</span>
-          <span className="text-[10px] font-black text-blue-600 uppercase leading-none">Rank {student.rank} of {totalEnrolled}</span>
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Class Position</span>
+          <span className="text-[9px] font-black text-blue-600 uppercase leading-none">Rank {student.rank} of {totalEnrolled}</span>
         </div>
         <div className="flex justify-between border-b border-gray-50 pb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">Attendance</span>
-          <span className="text-[10px] font-black text-gray-900 uppercase leading-none">{student.attendance} / {settings.attendanceTotal}</span>
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Attendance</span>
+          <span className="text-[9px] font-black text-gray-900 uppercase leading-none">{student.attendance} / {settings.attendanceTotal}</span>
+        </div>
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Best 6 Agg</span>
+          <span className="text-[9px] font-black text-red-600 uppercase leading-none">{student.bestSixAggregate}</span>
         </div>
       </div>
     </div>
@@ -220,42 +228,72 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     <div className="flex-1">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-gray-50 text-[10px] font-black text-gray-500 uppercase border-b-2 border-gray-200">
-            <th className="py-4 px-4 text-left leading-none">Subject</th>
-            <th className="py-4 px-2 text-center leading-none">Score</th>
-            <th className="py-4 px-2 text-center leading-none">Grade</th>
-            <th className="py-4 px-4 text-left leading-none">Remarks</th>
+          <tr className="bg-gray-50 text-[9px] font-black text-gray-500 uppercase border-b-2 border-gray-200">
+            <th className="py-3 px-4 text-left leading-none">Discipline</th>
+            <th className="py-3 px-2 text-center leading-none">Obj</th>
+            <th className="py-3 px-2 text-center leading-none">Thy</th>
+            <th className="py-3 px-2 text-center leading-none">SBA</th>
+            <th className="py-3 px-2 text-center leading-none">Cmp</th>
+            <th className="py-3 px-2 text-center leading-none">Grd</th>
+            <th className="py-3 px-4 text-left leading-none">Remark</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {student.subjects.map((sub: any) => (
-            <tr key={sub.subject} className="text-[10px]">
-              <td className="py-3 px-4 font-bold text-gray-800 uppercase leading-none">{sub.subject}</td>
-              <td className="py-3 px-2 text-center font-mono font-bold text-gray-600 leading-none">{Math.round(sub.finalCompositeScore)}</td>
-              <td className={`py-3 px-2 text-center font-black leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
-              <td className="py-3 px-4 text-gray-500 italic uppercase leading-none">{sub.remark}</td>
+            <tr key={sub.subject} className="text-[9px]">
+              <td className="py-2.5 px-4 font-bold text-gray-800 uppercase leading-none">{sub.subject}</td>
+              <td className="py-2.5 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionA ?? '0'}</td>
+              <td className="py-2.5 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionB ?? '0'}</td>
+              <td className="py-2.5 px-2 text-center font-mono text-gray-400 leading-none">{Math.round(sub.sbaScore)}</td>
+              <td className="py-2.5 px-2 text-center font-black text-gray-900 leading-none">{Math.round(sub.finalCompositeScore)}</td>
+              <td className={`py-2.5 px-2 text-center font-black leading-none ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
+              <td className="py-2.5 px-4 text-gray-500 italic uppercase leading-none">{sub.remark}</td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <div className="mt-6 flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
+        <div className="flex flex-col">
+          <span className="text-[8px] font-black text-gray-400 uppercase leading-none mb-1">Overall Efficiency</span>
+          <span className="text-lg font-black text-gray-900 leading-none">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
+        </div>
+        <div className="flex gap-4">
+          {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
+            <div key={g} className="flex flex-col items-center">
+              <span className="text-[7px] font-black text-gray-400 uppercase leading-none mb-1">{g}</span>
+              <span className={`text-[9px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-600' : 'text-gray-300'}`}>{gradeDistribution[g] || 0}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
 
-    <div className="mt-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-      <h4 className="text-[10px] font-black text-gray-400 uppercase mb-2 leading-none">Headteacher's Remarks</h4>
-      <p className="text-[11px] font-bold text-gray-700 uppercase leading-none">
-        {student.overallRemark || "Candidate has shown satisfactory progress across most disciplines. Continued focus on core areas is recommended for sustained excellence."}
-      </p>
+    <div className="mt-6 grid grid-cols-1 gap-4">
+      <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+        <h4 className="text-[9px] font-black text-gray-400 uppercase mb-2 leading-none">Instructional Feedback Shard</h4>
+        <p className="text-[10px] font-bold text-gray-700 uppercase leading-none italic">
+          {student.overallRemark || "Candidate demonstrates stable proficiency with consistent mastery in core disciplines."}
+        </p>
+      </div>
+      <div className="p-5 bg-indigo-50 rounded-2xl border border-indigo-100">
+        <h4 className="text-[9px] font-black text-indigo-400 uppercase mb-2 leading-none">Administrative Recommendation</h4>
+        <p className="text-[10px] font-bold text-indigo-900 uppercase leading-none">
+          PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS. COGNITIVE CALIBRATION REQUIRED.
+        </p>
+      </div>
     </div>
 
     <div className="mt-auto pt-8 flex justify-between items-end border-t border-gray-100">
       <div className="text-center">
+        <p className="text-[10px] font-black text-gray-900 uppercase mb-1 leading-none">{settings.headTeacherName}</p>
         <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
-        <span className="text-[9px] font-black text-gray-400 uppercase leading-none">Class Teacher Signature</span>
+        <span className="text-[8px] font-black text-gray-400 uppercase leading-none">Academy Director</span>
       </div>
       <div className="text-center">
-        <div className="text-[11px] font-black text-gray-900 uppercase mb-1 leading-none">{settings.headTeacherName}</div>
+        <p className="text-[10px] font-black text-red-600 uppercase mb-1 leading-none">{settings.nextTermBegin}</p>
         <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
-        <span className="text-[9px] font-black text-gray-400 uppercase leading-none">Headteacher Signature</span>
+        <span className="text-[8px] font-black text-gray-400 uppercase leading-none">Next Resumption</span>
       </div>
     </div>
   </div>
@@ -267,10 +305,16 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       <div>
         <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">{settings.examTitle}</p>
+        <div className="mt-4 space-y-1">
+          <p className="text-[8px] font-black text-gray-400 uppercase leading-none">TEL: {settings.schoolContact}</p>
+          <p className="text-[8px] font-black text-gray-400 uppercase leading-none">MAIL: {settings.schoolEmail}</p>
+          <p className="text-[8px] font-black text-gray-400 uppercase leading-none">WEB: {settings.schoolWebsite}</p>
+        </div>
       </div>
       <div className="text-right">
         <p className="text-[10px] font-black text-gray-900 uppercase leading-none">{settings.academicYear}</p>
         <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mt-1">{settings.termInfo}</p>
+        <p className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">NODE-0{student.id % 9}</p>
       </div>
     </div>
 
@@ -280,6 +324,7 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
         <span>ID: {student.indexNumber || student.id}</span>
         <span>Rank: {student.rank} / {totalEnrolled}</span>
         <span>Aggregate: {student.bestSixAggregate}</span>
+        <span>Cycle: {settings.activeMock}</span>
       </div>
     </div>
 
@@ -297,17 +342,26 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       </div>
     </div>
 
-    <div className="mt-12">
+    <div className="mt-12 space-y-4">
       <div className="border-l-4 border-gray-900 pl-6 py-2">
         <p className="text-xs font-bold text-gray-600 uppercase leading-none italic">
-          "{student.overallRemark || "Performance is consistent with expectations. Keep up the momentum."}"
+          "{student.overallRemark || "The candidate demonstrates a stable academic profile with consistent mastery in core disciplines."}"
         </p>
       </div>
+      <p className="text-[10px] font-bold text-gray-400 uppercase leading-none pl-7">
+        REC: PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS.
+      </p>
     </div>
 
     <div className="mt-auto pt-12 flex justify-between items-center">
-      <div className="text-[10px] font-black text-gray-300 uppercase leading-none">Official Academic Record</div>
-      <div className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1 leading-none">{settings.headTeacherName}</div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1 leading-none">{settings.headTeacherName}</span>
+        <span className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">Academy Director</span>
+      </div>
+      <div className="flex flex-col items-end">
+        <span className="text-[10px] font-black text-red-600 border-b-2 border-red-600 pb-1 leading-none">{settings.nextTermBegin}</span>
+        <span className="text-[8px] font-black text-gray-300 uppercase leading-none mt-1">Next Resumption</span>
+      </div>
     </div>
   </div>
 );
