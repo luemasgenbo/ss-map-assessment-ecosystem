@@ -369,6 +369,7 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
 const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSettingChange, onStudentUpdate, classAverageAggregate, totalEnrolled, isFacilitator, loggedInUser, readOnly = false }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [scale, setScale] = useState(1);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     const calculateScale = () => {
@@ -424,22 +425,38 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
 
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
-    const element = document.getElementById(`capture-area-${student.id}`);
+    // Use the hidden capture area which is NOT scaled to avoid reflow/shifting
+    const element = document.getElementById(`pdf-capture-area-${student.id}`);
     if (!element) return setIsGenerating(false);
+    
     const opt = { 
-      margin: 0, filename: `${student.name.replace(/\s+/g, '_')}_REPORT.pdf`, 
+      margin: 0, 
+      filename: `${student.name.replace(/\s+/g, '_')}_REPORT.pdf`, 
       image: { type: 'jpeg', quality: 1.0 }, 
-      html2canvas: { scale: 3, useCORS: true, letterRendering: true, windowWidth: 794 }, 
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        logging: false,
+        windowWidth: 794 // Force a standard width for the "virtual window"
+      }, 
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
     };
+    
     try {
         // @ts-ignore
         await window.html2pdf().set(opt).from(element).save();
-    } catch (e) { console.error(e); } finally { setIsGenerating(false); }
+        setShowPreview(false);
+    } catch (e) { 
+        console.error(e); 
+    } finally { 
+        setIsGenerating(false); 
+    }
   };
 
-  const renderTemplate = () => {
+  const renderTemplate = (isForPDF = false) => {
     const commonProps = { student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution };
+    // If it's for PDF, we might want to ensure certain styles are fixed
     switch (settings.reportTemplate) {
       case 'minimal':
         return <MinimalReport {...commonProps} />;
@@ -454,12 +471,63 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
   return (
     <div className="flex flex-col items-center mb-16 relative w-full px-2 font-sans">
        
+       {/* Hidden Capture Area for PDF Generation (No Scaling) */}
+       <div className="fixed top-[-10000px] left-[-10000px] pointer-events-none">
+          <div id={`pdf-capture-area-${student.id}`} style={{ width: '210mm', height: '297mm' }}>
+             {renderTemplate(true)}
+          </div>
+       </div>
+
+       {/* Print Preview Modal */}
+       {showPreview && (
+         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
+           <div className="bg-white rounded-[2.5rem] w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-white/20">
+             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+               <div>
+                 <h3 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Print Preview</h3>
+                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Verify layout before generating PDF</p>
+               </div>
+               <div className="flex gap-4">
+                 <button 
+                  onClick={() => setShowPreview(false)}
+                  className="px-6 py-2 rounded-full border-2 border-gray-200 text-gray-500 font-black uppercase text-xs hover:bg-gray-100 transition-colors"
+                 >
+                   Cancel
+                 </button>
+                 <button 
+                  onClick={handleDownloadPDF}
+                  disabled={isGenerating}
+                  className="px-8 py-2 rounded-full bg-red-600 text-white font-black uppercase text-xs shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all flex items-center gap-2"
+                 >
+                   {isGenerating ? (
+                     <>
+                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                       Generating...
+                     </>
+                   ) : (
+                     <>
+                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                       Confirm & Download
+                     </>
+                   )}
+                 </button>
+               </div>
+             </div>
+             <div className="flex-1 overflow-auto p-8 bg-gray-200 flex justify-center">
+               <div className="shadow-2xl origin-top scale-[0.8] lg:scale-100">
+                 {renderTemplate()}
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
+
        <div className="fixed bottom-24 right-6 flex flex-col gap-3 no-print z-[100]">
           <button title="Download NotePad (.txt)" onClick={handleDownloadTxt} className="w-14 h-14 rounded-full shadow-2xl flex items-center justify-center bg-slate-800 text-white active:scale-90 transition-all border-2 border-white/20">
              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           </button>
-          <button title="Download PDF" onClick={handleDownloadPDF} disabled={isGenerating} className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all ${isGenerating ? 'bg-gray-400' : 'bg-red-600 text-white'}`}>
-             {isGenerating ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>}
+          <button title="Print Preview & PDF" onClick={() => setShowPreview(true)} disabled={isGenerating} className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all ${isGenerating ? 'bg-gray-400' : 'bg-red-600 text-white'}`}>
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </button>
        </div>
 
