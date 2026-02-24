@@ -220,7 +220,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                     <div className="w-2 h-2 bg-slate-700 rounded-full" title="Draft"></div>
                  </div>
               </div>
-              <div className="space-y-3 max-h-[60vh] overflow-y-auto overflow-x-hidden no-scrollbar">
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar-v">
                  {subjects.map(sub => {
                    const isSelected = selectedSubject === sub;
                    const isDisabled = isFacilitator && activeFacilitator?.subject !== sub;
