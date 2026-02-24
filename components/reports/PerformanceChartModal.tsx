@@ -244,7 +244,7 @@ const PerformanceChartModal: React.FC<PerformanceChartModalProps> = ({ student, 
 
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-100 text-center shrink-0">
-          <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.5em]">United Baylor Academy — Longitudinal Analytics Engine v2.5</p>
+          <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.5em]">SS-MAP — Longitudinal Analytics Engine v2.5</p>
         </div>
       </div>
     </div>
