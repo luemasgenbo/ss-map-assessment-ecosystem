@@ -56,8 +56,8 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
         </div>
 
         {/* Identity Particulars - ALL EDITABLE */}
-        <div className="flex-1 space-y-1">
-          <h1 className={`${isLandscape ? 'text-4xl' : 'text-3xl'} font-black text-blue-950 tracking-tighter uppercase leading-none`}>
+        <div className="flex-1">
+          <h1 className={`${isLandscape ? 'text-4xl' : 'text-3xl'} font-black text-blue-950 tracking-tighter uppercase leading-[3px]`}>
             <EditableField 
                 value={settings.schoolName || "UNITED BAYLOR ACADEMY"} 
                 onChange={(v) => onSettingChange('schoolName', v.toUpperCase())} 
@@ -66,7 +66,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
                 placeholder="ACADEMY NAME"
             />
           </h1>
-          <div className="text-[16px] font-black text-blue-800 uppercase tracking-[0.4em] italic leading-none pt-1">
+          <div className="text-[16px] font-black text-blue-800 uppercase tracking-[0.4em] italic leading-[3px] pt-1">
             <EditableField 
                 value={settings.schoolMotto || "EXCELLENCE IN KNOWLEDGE AND CHARACTER"} 
                 onChange={(v) => onSettingChange('schoolMotto', v.toUpperCase())} 
@@ -75,7 +75,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
                 placeholder="ACADEMY MOTTO"
             />
           </div>
-          <div className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] pt-2">
+          <div className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] pt-1 leading-[3px]">
             <EditableField 
                 value={settings.schoolAddress || "ACCRA DIGITAL CENTRE, GHANA"} 
                 onChange={(v) => onSettingChange('schoolAddress', v.toUpperCase())} 
@@ -98,12 +98,12 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
             placeholder="REPORT TITLE"
            />
          </h2>
-         {subtitle && <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.5em] mt-3">{subtitle}</p>}
+         {subtitle && <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.5em] mt-1 leading-[3px]">{subtitle}</p>}
       </div>
 
       {/* Connectivity Cluster - Particulars Focus */}
       {!hideConnectivity && (
-        <div className="flex justify-center flex-wrap gap-x-10 gap-y-1 pt-3 border-t border-slate-100 no-print">
+        <div className="flex justify-center flex-wrap gap-x-10 gap-y-0 pt-3 border-t border-slate-100 no-print">
           <div className="flex gap-1 items-center px-1">
             <span className="text-slate-400 text-[6px] leading-none uppercase font-black">TEL:</span>
             <EditableField 
