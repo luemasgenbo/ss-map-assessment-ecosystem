@@ -16,6 +16,302 @@ interface ReportCardProps {
   readOnly?: boolean;
 }
 
+const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution }) => (
+  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0">
+    <div className="shrink-0 mb-4">
+      <ReportBrandingHeader 
+        settings={settings} 
+        onSettingChange={onSettingChange} 
+        reportTitle={settings.examTitle}
+        subtitle="OFFICIAL ACADEMIC ATTAINMENT RECORD"
+        isLandscape={false}
+        readOnly={readOnly}
+      />
+    </div>
+
+    {/* PUPIL & LOGISTICS MATRIX - High Contrast & 6px Shards */}
+    <div className="grid grid-cols-2 gap-4 mb-4 shrink-0">
+      <div className="border-[1.5px] border-blue-900 rounded-2xl overflow-hidden bg-blue-300">
+        <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-4 py-1.5 uppercase tracking-widest flex items-center justify-between">
+          <span>Logistics Node</span>
+          <span className="font-mono">NODE-0{student.id % 9}</span>
+        </div>
+        <div className="divide-y divide-blue-400">
+          {[
+            {l:'Series Cycle',k:'activeMock',v:settings.activeMock},
+            {l:'Current Term',k:'termInfo',v:settings.termInfo},
+            {l:'Academic Yr',k:'academicYear',v:settings.academicYear},
+            {l:'Authority',k:'headTeacherName',v:settings.headTeacherName},
+          ].map((item, i) => (
+            <div key={i} className="flex h-4 items-center px-4 gap-2">
+              <span className="text-[6px] leading-none font-black text-blue-950 uppercase w-[50px] shrink-0 border-r border-blue-400">{item.l}</span>
+              <div className="text-[6px] leading-none font-black text-blue-900 uppercase truncate flex-1">
+                <EditableField 
+                  value={item.v} 
+                  onChange={(val) => onSettingChange(item.k as keyof GlobalSettings, val.toUpperCase())}
+                  className="text-[6px] leading-none"
+                  disabled={readOnly}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="border-[1.5px] border-blue-900 rounded-2xl overflow-hidden bg-indigo-300">
+        <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-4 py-1.5 uppercase tracking-widest flex items-center justify-between">
+          <span>Candidate Particulars</span>
+          <span>VERIFIED</span>
+        </div>
+        <div className="divide-y divide-indigo-400">
+          {[
+            {l:'Full Name',v:student.name},
+            {l:'Attendance',v:`${student.attendance} / ${settings.attendanceTotal}`},
+            {l:'Mock Rank',v:`#${student.rank} OF ${totalEnrolled}`},
+            {l:'Best 6 Agg',v:student.bestSixAggregate}
+          ].map((item, i) => (
+            <div key={i} className="flex h-4 items-center px-4 gap-2">
+              <span className="text-[6px] leading-none font-black text-indigo-950 uppercase w-[50px] shrink-0 border-r border-indigo-400">{item.l}</span>
+              <span className="text-[6px] leading-none font-black uppercase truncate text-blue-950">{item.v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* RESULTS MATRIX - Header & Shards in 6px */}
+    <div className="mb-4 shrink-0">
+      <table className="w-full border-collapse border-[2px] border-blue-950 rounded-xl overflow-hidden">
+        <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest">
+          <tr className="h-6">
+            <th className="px-3 text-left">Academic Discipline</th>
+            <th className="px-1 text-center w-[30px]">Obj</th>
+            <th className="px-1 text-center w-[30px]">Thy</th>
+            <th className="px-1 text-center w-[40px] bg-blue-900">Sum</th>
+            <th className="px-1 text-center w-[30px]">SBA</th>
+            <th className="px-1 text-center w-[40px] bg-red-900">Cmp</th>
+            <th className="px-1 text-center w-[30px]">Grd</th>
+            <th className="px-3 text-left">Remark Shard</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {student.subjects.map((sub: any) => (
+            <tr key={sub.subject} className="even:bg-blue-100 font-bold h-4">
+              <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[6px] leading-none border-r border-gray-100">{sub.subject}</td>
+              <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
+              <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
+              <td className="text-center font-black bg-blue-200 text-blue-900 text-[6px] leading-none border-r border-blue-900/10">{(sub.sectionA || 0) + (sub.sectionB || 0)}</td>
+              <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{Math.round(sub.sbaScore)}</td>
+              <td className="text-center font-black bg-red-200 text-red-900 text-[6px] leading-none border-r border-red-900/10">{Math.round(sub.finalCompositeScore)}</td>
+              <td className={`text-center font-black text-[6px] leading-none border-r border-gray-100 ${sub.gradeValue >= 7 ? 'text-red-700' : 'text-blue-900'}`}>{sub.grade}</td>
+              <td className="px-3 text-[6px] leading-none uppercase text-slate-500 italic truncate max-w-[200px]">{sub.remark}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* PERFORMANCE ANALYSIS HEATMAP - 6px Components */}
+    <div className="mb-4 grid grid-cols-4 gap-3 shrink-0 h-[40px]">
+      <div className="col-span-1 bg-blue-950 text-white rounded-2xl flex flex-col items-center justify-center border-2 border-blue-900 shadow-xl h-full">
+        <span className="text-[6px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
+        <span className="text-[14px] font-black font-mono leading-none mt-1">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
+      </div>
+      <div className="col-span-3 border-2 border-blue-900 rounded-2xl flex items-center justify-around bg-blue-200 h-full px-6">
+        {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
+          <div key={g} className="flex flex-col items-center justify-center">
+            <span className="text-[6px] font-black text-slate-500 leading-none mb-1 uppercase tracking-tighter">{g}</span>
+            <span className={`text-[10px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-900' : 'text-slate-400'}`}>
+              {gradeDistribution[g] || 0}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* NRT ANALYTICAL APPENDICES - 6px Text */}
+    <div className="grid grid-cols-1 gap-3 mb-3 shrink-0">
+      <div className="bg-slate-900 text-white px-8 py-3 rounded-[2.5rem] relative h-[60px] overflow-hidden flex flex-col justify-center border-2 border-slate-800 shadow-inner">
+        <div className="absolute top-0 right-0 px-4 py-1 bg-blue-600 text-white text-[6px] leading-none font-black uppercase tracking-widest rounded-bl-2xl">Instructional Feedback Shard</div>
+        <p className="text-[6px] leading-none font-black text-blue-100 uppercase italic">
+          {student.overallRemark || 'The candidate demonstrates a stable academic profile with consistent mastery in core disciplines.'}
+        </p>
+      </div>
+      <div className="bg-indigo-200 border-2 border-indigo-300 px-8 py-3 rounded-[2.5rem] relative h-[60px] overflow-hidden flex flex-col justify-center shadow-inner border-b-4 border-b-blue-900/20">
+        <div className="absolute top-0 right-0 px-4 py-1 bg-indigo-900 text-white text-[6px] leading-none font-black uppercase tracking-widest rounded-bl-2xl">Administrative Recommendation</div>
+        <p className="text-[6px] leading-none font-bold text-indigo-950 uppercase">
+          PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS. COGNITIVE CALIBRATION REQUIRED.
+        </p>
+      </div>
+    </div>
+
+    {/* SIGNATURE NODES - 6px Text */}
+    <div className="flex justify-between items-end mt-auto pb-4 border-t border-slate-100 pt-4 shrink-0">
+      <div className="w-[30%] text-center border-t border-slate-950 pt-2">
+        <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-1">Academy Director</p>
+        <div className="font-black text-blue-950 text-[6px] leading-none uppercase truncate">
+          <EditableField 
+            value={settings.headTeacherName} 
+            onChange={(v) => onSettingChange('headTeacherName', v.toUpperCase())}
+            className="text-[6px] leading-none font-black"
+            disabled={readOnly}
+          />
+        </div>
+      </div>
+      <div className="w-[30%] text-center border-t border-slate-950 pt-2">
+        <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-1">Next Resumption</p>
+        <div className="font-black text-red-700 text-[6px] leading-none uppercase">
+          <EditableField 
+            value={settings.nextTermBegin} 
+            onChange={(v) => onSettingChange('nextTermBegin', v)}
+            className="text-[6px] leading-none font-black"
+            disabled={readOnly}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, totalEnrolled, readOnly }) => (
+  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
+    <div className="shrink-0 mb-8">
+      <ReportBrandingHeader 
+        settings={settings} 
+        onSettingChange={onSettingChange} 
+        reportTitle={settings.examTitle}
+        subtitle="ACADEMIC PERFORMANCE REPORT"
+        isLandscape={false}
+        readOnly={readOnly}
+        hideMetadataStrip={true}
+      />
+    </div>
+
+    <div className="grid grid-cols-2 gap-8 mb-8 border-y-2 border-gray-100 py-6">
+      <div className="space-y-3">
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[10px] font-bold text-gray-400 uppercase">Student Name</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase">{student.name}</span>
+        </div>
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[10px] font-bold text-gray-400 uppercase">Index Number</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase">{student.indexNumber || student.id}</span>
+        </div>
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[10px] font-bold text-gray-400 uppercase">Academic Year</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase">{settings.academicYear}</span>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[10px] font-bold text-gray-400 uppercase">Term / Series</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase">{settings.termInfo} - {settings.activeMock}</span>
+        </div>
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[10px] font-bold text-gray-400 uppercase">Class Position</span>
+          <span className="text-[10px] font-black text-blue-600 uppercase">Rank {student.rank} of {totalEnrolled}</span>
+        </div>
+        <div className="flex justify-between border-b border-gray-50 pb-1">
+          <span className="text-[10px] font-bold text-gray-400 uppercase">Attendance</span>
+          <span className="text-[10px] font-black text-gray-900 uppercase">{student.attendance} / {settings.attendanceTotal}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="flex-1">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-gray-50 text-[10px] font-black text-gray-500 uppercase border-b-2 border-gray-200">
+            <th className="py-4 px-4 text-left">Subject</th>
+            <th className="py-4 px-2 text-center">Score</th>
+            <th className="py-4 px-2 text-center">Grade</th>
+            <th className="py-4 px-4 text-left">Remarks</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {student.subjects.map((sub: any) => (
+            <tr key={sub.subject} className="text-[10px]">
+              <td className="py-3 px-4 font-bold text-gray-800 uppercase">{sub.subject}</td>
+              <td className="py-3 px-2 text-center font-mono font-bold text-gray-600">{Math.round(sub.finalCompositeScore)}</td>
+              <td className={`py-3 px-2 text-center font-black ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-blue-700'}`}>{sub.grade}</td>
+              <td className="py-3 px-4 text-gray-500 italic uppercase">{sub.remark}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div className="mt-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+      <h4 className="text-[10px] font-black text-gray-400 uppercase mb-2">Headteacher's Remarks</h4>
+      <p className="text-[11px] font-bold text-gray-700 uppercase leading-relaxed">
+        {student.overallRemark || "Candidate has shown satisfactory progress across most disciplines. Continued focus on core areas is recommended for sustained excellence."}
+      </p>
+    </div>
+
+    <div className="mt-auto pt-8 flex justify-between items-end border-t border-gray-100">
+      <div className="text-center">
+        <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
+        <span className="text-[9px] font-black text-gray-400 uppercase">Class Teacher Signature</span>
+      </div>
+      <div className="text-center">
+        <div className="text-[11px] font-black text-gray-900 uppercase mb-1">{settings.headTeacherName}</div>
+        <div className="w-48 border-b-2 border-gray-900 mb-2"></div>
+        <span className="text-[9px] font-black text-gray-400 uppercase">Headteacher Signature</span>
+      </div>
+    </div>
+  </div>
+);
+
+const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
+  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
+    <div className="flex justify-between items-start mb-12">
+      <div>
+        <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">{settings.schoolName}</h1>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{settings.examTitle}</p>
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] font-black text-gray-900 uppercase">{settings.academicYear}</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase">{settings.termInfo}</p>
+      </div>
+    </div>
+
+    <div className="mb-12">
+      <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2">{student.name}</h2>
+      <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+        <span>ID: {student.indexNumber || student.id}</span>
+        <span>Rank: {student.rank} / {totalEnrolled}</span>
+        <span>Aggregate: {student.bestSixAggregate}</span>
+      </div>
+    </div>
+
+    <div className="flex-1">
+      <div className="grid grid-cols-1 gap-1">
+        {student.subjects.map((sub: any) => (
+          <div key={sub.subject} className="flex justify-between items-center py-2 border-b border-gray-50">
+            <span className="text-xs font-bold text-gray-800 uppercase">{sub.subject}</span>
+            <div className="flex gap-8 items-center">
+              <span className="text-xs font-mono text-gray-400">{Math.round(sub.finalCompositeScore)}</span>
+              <span className={`text-sm font-black w-8 text-right ${sub.gradeValue >= 7 ? 'text-red-500' : 'text-gray-900'}`}>{sub.grade}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="mt-12">
+      <div className="border-l-4 border-gray-900 pl-6 py-2">
+        <p className="text-xs font-bold text-gray-600 uppercase leading-relaxed italic">
+          "{student.overallRemark || "Performance is consistent with expectations. Keep up the momentum."}"
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-auto pt-12 flex justify-between items-center">
+      <div className="text-[10px] font-black text-gray-300 uppercase">Official Academic Record</div>
+      <div className="text-[10px] font-black text-gray-900 uppercase border-b-2 border-gray-900 pb-1">{settings.headTeacherName}</div>
+    </div>
+  </div>
+);
+
 const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSettingChange, onStudentUpdate, classAverageAggregate, totalEnrolled, isFacilitator, loggedInUser, readOnly = false }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [scale, setScale] = useState(1);
@@ -88,6 +384,19 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
     } catch (e) { console.error(e); } finally { setIsGenerating(false); }
   };
 
+  const renderTemplate = () => {
+    const commonProps = { student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution };
+    switch (settings.reportTemplate) {
+      case 'minimal':
+        return <MinimalReport {...commonProps} />;
+      case 'prestige':
+        return <PrestigeReport {...commonProps} />;
+      case 'standard':
+      default:
+        return <StandardReport {...commonProps} />;
+    }
+  };
+
   return (
     <div className="flex flex-col items-center mb-16 relative w-full px-2 font-sans">
        
@@ -101,159 +410,8 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
        </div>
 
        <div className="overflow-x-auto w-full flex justify-center py-2 bg-gray-200 rounded-[2rem] shadow-inner no-scrollbar" style={{ minHeight: `calc(297mm * ${scale})` }}>
-         <div id={`capture-area-${student.id}`} className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0" style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}>
-            
-            <div className="shrink-0 mb-4">
-               <ReportBrandingHeader 
-                  settings={settings} 
-                  onSettingChange={onSettingChange} 
-                  reportTitle={settings.examTitle}
-                  subtitle="OFFICIAL ACADEMIC ATTAINMENT RECORD"
-                  isLandscape={false}
-                  readOnly={readOnly}
-               />
-            </div>
-
-            {/* PUPIL & LOGISTICS MATRIX - High Contrast & 6px Shards */}
-            <div className="grid grid-cols-2 gap-4 mb-4 shrink-0">
-               <div className="border-[1.5px] border-blue-900 rounded-2xl overflow-hidden bg-blue-300">
-                  <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-4 py-1.5 uppercase tracking-widest flex items-center justify-between">
-                     <span>Logistics Node</span>
-                     <span className="font-mono">NODE-0{student.id % 9}</span>
-                  </div>
-                  <div className="divide-y divide-blue-400">
-                     {[
-                        {l:'Series Cycle',k:'activeMock',v:settings.activeMock},
-                        {l:'Current Term',k:'termInfo',v:settings.termInfo},
-                        {l:'Academic Yr',k:'academicYear',v:settings.academicYear},
-                        {l:'Authority',k:'headTeacherName',v:settings.headTeacherName},
-                     ].map((item, i) => (
-                        <div key={i} className="flex h-4 items-center px-4 gap-2">
-                           <span className="text-[6px] leading-none font-black text-blue-950 uppercase w-[50px] shrink-0 border-r border-blue-400">{item.l}</span>
-                           <div className="text-[6px] leading-none font-black text-blue-900 uppercase truncate flex-1">
-                              <EditableField 
-                                value={item.v} 
-                                onChange={(val) => onSettingChange(item.k as keyof GlobalSettings, val.toUpperCase())}
-                                className="text-[6px] leading-none"
-                                disabled={readOnly}
-                              />
-                           </div>
-                        </div>
-                     ))}
-                  </div>
-               </div>
-               <div className="border-[1.5px] border-blue-900 rounded-2xl overflow-hidden bg-indigo-300">
-                  <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-4 py-1.5 uppercase tracking-widest flex items-center justify-between">
-                     <span>Candidate Particulars</span>
-                     <span>VERIFIED</span>
-                  </div>
-                  <div className="divide-y divide-indigo-400">
-                     {[
-                        {l:'Full Name',v:student.name},
-                        {l:'Attendance',v:`${student.attendance} / ${settings.attendanceTotal}`},
-                        {l:'Mock Rank',v:`#${student.rank} OF ${totalEnrolled}`},
-                        {l:'Best 6 Agg',v:student.bestSixAggregate}
-                     ].map((item, i) => (
-                        <div key={i} className="flex h-4 items-center px-4 gap-2">
-                           <span className="text-[6px] leading-none font-black text-indigo-950 uppercase w-[50px] shrink-0 border-r border-indigo-400">{item.l}</span>
-                           <span className="text-[6px] leading-none font-black uppercase truncate text-blue-950">{item.v}</span>
-                        </div>
-                     ))}
-                  </div>
-               </div>
-            </div>
-
-            {/* RESULTS MATRIX - Header & Shards in 6px */}
-            <div className="mb-4 shrink-0">
-               <table className="w-full border-collapse border-[2px] border-blue-950 rounded-xl overflow-hidden">
-                  <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest">
-                    <tr className="h-6">
-                      <th className="px-3 text-left">Academic Discipline</th>
-                      <th className="px-1 text-center w-[30px]">Obj</th>
-                      <th className="px-1 text-center w-[30px]">Thy</th>
-                      <th className="px-1 text-center w-[40px] bg-blue-900">Sum</th>
-                      <th className="px-1 text-center w-[30px]">SBA</th>
-                      <th className="px-1 text-center w-[40px] bg-red-900">Cmp</th>
-                      <th className="px-1 text-center w-[30px]">Grd</th>
-                      <th className="px-3 text-left">Remark Shard</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                     {student.subjects.map(sub => (
-                       <tr key={sub.subject} className="even:bg-blue-100 font-bold h-4">
-                         <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[6px] leading-none border-r border-gray-100">{sub.subject}</td>
-                         <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
-                         <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
-                         <td className="text-center font-black bg-blue-200 text-blue-900 text-[6px] leading-none border-r border-blue-900/10">{(sub.sectionA || 0) + (sub.sectionB || 0)}</td>
-                         <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{Math.round(sub.sbaScore)}</td>
-                         <td className="text-center font-black bg-red-200 text-red-900 text-[6px] leading-none border-r border-red-900/10">{Math.round(sub.finalCompositeScore)}</td>
-                         <td className={`text-center font-black text-[6px] leading-none border-r border-gray-100 ${sub.gradeValue >= 7 ? 'text-red-700' : 'text-blue-900'}`}>{sub.grade}</td>
-                         <td className="px-3 text-[6px] leading-none uppercase text-slate-500 italic truncate max-w-[200px]">{sub.remark}</td>
-                       </tr>
-                     ))}
-                  </tbody>
-               </table>
-            </div>
-
-            {/* PERFORMANCE ANALYSIS HEATMAP - 6px Components */}
-            <div className="mb-4 grid grid-cols-4 gap-3 shrink-0 h-[40px]">
-               <div className="col-span-1 bg-blue-950 text-white rounded-2xl flex flex-col items-center justify-center border-2 border-blue-900 shadow-xl h-full">
-                  <span className="text-[6px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
-                  <span className="text-[14px] font-black font-mono leading-none mt-1">{((student.subjects.filter(s=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
-               </div>
-               <div className="col-span-3 border-2 border-blue-900 rounded-2xl flex items-center justify-around bg-blue-200 h-full px-6">
-                  {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
-                    <div key={g} className="flex flex-col items-center justify-center">
-                       <span className="text-[6px] font-black text-slate-500 leading-none mb-1 uppercase tracking-tighter">{g}</span>
-                       <span className={`text-[10px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-900' : 'text-slate-400'}`}>
-                          {gradeDistribution[g] || 0}
-                       </span>
-                    </div>
-                  ))}
-               </div>
-            </div>
-
-            {/* NRT ANALYTICAL APPENDICES - 6px Text */}
-            <div className="grid grid-cols-1 gap-3 mb-3 shrink-0">
-               <div className="bg-slate-900 text-white px-8 py-3 rounded-[2.5rem] relative h-[60px] overflow-hidden flex flex-col justify-center border-2 border-slate-800 shadow-inner">
-                  <div className="absolute top-0 right-0 px-4 py-1 bg-blue-600 text-white text-[6px] leading-none font-black uppercase tracking-widest rounded-bl-2xl">Instructional Feedback Shard</div>
-                  <p className="text-[6px] leading-none font-black text-blue-100 uppercase italic">
-                    {student.overallRemark || 'The candidate demonstrates a stable academic profile with consistent mastery in core disciplines.'}
-                  </p>
-               </div>
-               <div className="bg-indigo-200 border-2 border-indigo-300 px-8 py-3 rounded-[2.5rem] relative h-[60px] overflow-hidden flex flex-col justify-center shadow-inner border-b-4 border-b-blue-900/20">
-                  <div className="absolute top-0 right-0 px-4 py-1 bg-indigo-900 text-white text-[6px] leading-none font-black uppercase tracking-widest rounded-bl-2xl">Administrative Recommendation</div>
-                  <p className="text-[6px] leading-none font-bold text-indigo-950 uppercase">
-                     PROMOTION OF INTENSIVE REMEDIAL CLUSTERS IN IDENTIFIED WEAK STRANDS. COGNITIVE CALIBRATION REQUIRED.
-                  </p>
-               </div>
-            </div>
-
-            {/* SIGNATURE NODES - 6px Text */}
-            <div className="flex justify-between items-end mt-auto pb-4 border-t border-slate-100 pt-4 shrink-0">
-               <div className="w-[30%] text-center border-t border-slate-950 pt-2">
-                  <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-1">Academy Director</p>
-                  <div className="font-black text-blue-950 text-[6px] leading-none uppercase truncate">
-                    <EditableField 
-                      value={settings.headTeacherName} 
-                      onChange={(v) => onSettingChange('headTeacherName', v.toUpperCase())}
-                      className="text-[6px] leading-none font-black"
-                      disabled={readOnly}
-                    />
-                  </div>
-               </div>
-               <div className="w-[30%] text-center border-t border-slate-950 pt-2">
-                  <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-1">Next Resumption</p>
-                  <div className="font-black text-red-700 text-[6px] leading-none uppercase">
-                    <EditableField 
-                      value={settings.nextTermBegin} 
-                      onChange={(v) => onSettingChange('nextTermBegin', v)}
-                      className="text-[6px] leading-none font-black"
-                      disabled={readOnly}
-                    />
-                  </div>
-               </div>
-            </div>
+         <div id={`capture-area-${student.id}`} style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}>
+            {renderTemplate()}
          </div>
        </div>
     </div>

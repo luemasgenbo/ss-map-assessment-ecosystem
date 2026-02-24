@@ -90,9 +90,9 @@ const GradingConfigPortal: React.FC<GradingConfigPortalProps> = ({ settings, onS
         <div className="p-6">
            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { id: 'standard', label: 'Standard Academy', desc: 'Classic blue-red high-contrast layout' },
-                { id: 'minimal', label: 'Modern Minimal', desc: 'Clean white-space with badge UI' },
-                { id: 'prestige', label: 'Executive Prestige', desc: 'Serif fonts and centered prestige layout' }
+                { id: 'standard', label: 'Standard Academy', desc: 'Professional academic layout with balanced detail' },
+                { id: 'minimal', label: 'Modern Minimal', desc: 'Ultra-clean, high-whitespace essential record' },
+                { id: 'prestige', label: 'Executive Prestige', desc: 'High-contrast technical matrix with performance heatmap' }
               ].map(tpl => (
                 <button 
                    key={tpl.id}

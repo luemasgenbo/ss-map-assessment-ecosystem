@@ -242,6 +242,19 @@ const FacilitatorPortal: React.FC<FacilitatorPortalProps> = ({
                       {subjects.map(s => <option key={s} value={s} className="text-slate-900">{s}</option>)}
                    </select>
                  </div>
+                 <div className="space-y-1">
+                   <label className="text-[8px] font-black text-slate-500 uppercase ml-2 tracking-widest">Leadership Status</label>
+                   <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 h-[54px]">
+                      <button 
+                        type="button"
+                        onClick={() => setNewStaff({...newStaff, isTeamLead: !newStaff.isTeamLead})}
+                        className={`w-10 h-5 rounded-full p-1 transition-colors ${newStaff.isTeamLead ? 'bg-blue-600' : 'bg-white/20'}`}
+                      >
+                        <div className={`bg-white w-3 h-3 rounded-full transition-transform ${newStaff.isTeamLead ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                      </button>
+                      <span className="text-[10px] font-black uppercase text-slate-400">Designate as Team Leader</span>
+                   </div>
+                 </div>
                  <button type="submit" disabled={isEnrolling} className="md:col-span-2 lg:col-span-3 bg-blue-600 hover:bg-blue-500 text-white py-6 rounded-3xl font-black text-[11px] uppercase shadow-2xl transition-all active:scale-95 tracking-widest">
                     {isEnrolling ? "SYNCING..." : editingEmail ? "Save specialist Shard" : "Execute faculty Handshake"}
                  </button>
