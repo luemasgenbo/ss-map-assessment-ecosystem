@@ -424,9 +424,12 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
   const handlePrint = (e: React.MouseEvent) => {
     const container = (e.currentTarget as HTMLElement).closest('.report-card-container');
     if (container) {
+      const oldTitle = document.title;
+      document.title = ""; // Hide browser header title
       container.classList.add('is-printing');
       window.print();
       container.classList.remove('is-printing');
+      document.title = oldTitle;
     }
   };
 
