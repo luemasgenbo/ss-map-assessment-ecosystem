@@ -43,6 +43,35 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
   const [isNavVisible, setIsNavVisible] = useState(false);
   const objScrollRef = useRef<HTMLDivElement>(null);
 
+  const markIndicatorAsCovered = useCallback((subject: string, indicatorCode: string) => {
+    if (!indicatorCode || !settings.resourcePortal) return;
+    
+    const currentPortal = { ...settings.resourcePortal };
+    const mockData = { ...currentPortal[settings.activeMock] };
+    const subjectData = { ...mockData[subject] };
+    
+    if (!subjectData.indicators) return;
+    
+    let changed = false;
+    const nextIndicators = subjectData.indicators.map(ind => {
+      if (ind.indicatorCode === indicatorCode && !ind.isCovered) {
+        changed = true;
+        return { ...ind, isCovered: true, coveredAt: new Date().toISOString() };
+      }
+      return ind;
+    });
+
+    if (changed) {
+      onSettingChange('resourcePortal', {
+        ...currentPortal,
+        [settings.activeMock]: {
+          ...mockData,
+          [subject]: { ...subjectData, indicators: nextIndicators }
+        }
+      });
+    }
+  }, [settings, onSettingChange]);
+
   const fetchIdentityAndHistory = useCallback(async () => {
     try {
       const studentIdStr = studentId.toString();
@@ -137,6 +166,11 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
       
       if (wasCorrect && !isNowCorrect) setSessionScore(prev => Math.max(0, prev - 1));
       else if (!wasCorrect && isNowCorrect) setSessionScore(prev => prev + 1);
+
+      // Mark curriculum coverage
+      if (activeSet?.subject && q.indicatorCode) {
+        markIndicatorAsCovered(activeSet.subject, q.indicatorCode);
+      }
     }
 
     // Metering logic - only charge on first selection

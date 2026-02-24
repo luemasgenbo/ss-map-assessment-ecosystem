@@ -25,10 +25,54 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
   // Modal State for Curriculum Connector
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<QuestionIndicatorMapping> | null>(null);
+  const [activePlanYear, setActivePlanYear] = useState<7 | 8 | 9>(7);
+  const [activePlanTerm, setActivePlanTerm] = useState<1 | 2 | 3>(1);
+
+  const activeScheme = useMemo(() => {
+    return activeResource.revisionPlan?.schemes.find(s => s.basicYear === activePlanYear && s.term === activePlanTerm) || { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
+  }, [activeResource.revisionPlan, activePlanYear, activePlanTerm]);
+
+  const updateSchemeWeek = (weekNum: number, field: keyof SchemeOfWeek, value: any) => {
+    const currentPlan = activeResource.revisionPlan || { schemes: [] };
+    const nextSchemes = [...currentPlan.schemes];
+    const schemeIdx = nextSchemes.findIndex(s => s.basicYear === activePlanYear && s.term === activePlanTerm);
+    
+    let targetScheme = schemeIdx >= 0 ? nextSchemes[schemeIdx] : { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
+    const nextWeeks = [...targetScheme.weeks];
+    const weekIdx = nextWeeks.findIndex(w => w.week === weekNum);
+
+    if (weekIdx >= 0) {
+      nextWeeks[weekIdx] = { ...nextWeeks[weekIdx], [field]: value };
+    } else {
+      nextWeeks.push({ week: weekNum, strand: '', subStrand: '', indicator: '', indicatorCode: '', [field]: value });
+    }
+
+    targetScheme = { ...targetScheme, weeks: nextWeeks };
+    if (schemeIdx >= 0) {
+      nextSchemes[schemeIdx] = targetScheme;
+    } else {
+      nextSchemes.push(targetScheme);
+    }
+
+    updateResourceField('revisionPlan', { schemes: nextSchemes });
+  };
 
   const activeResource: MockResource = useMemo(() => {
     return settings.resourcePortal?.[settings.activeMock]?.[selectedSubject] || { indicators: [], questionUrl: '', schemeUrl: '' };
   }, [settings.resourcePortal, settings.activeMock, selectedSubject]);
+
+  const getTargetTerms = (mockName: string) => {
+    const match = mockName.match(/\d+/);
+    if (!match) return [];
+    const num = parseInt(match[0]);
+    if (num === 10) return [1, 2, 3];
+    if ([1, 4, 7].includes(num)) return [1];
+    if ([2, 5, 8].includes(num)) return [2];
+    if ([3, 6, 9].includes(num)) return [3];
+    return [];
+  };
+
+  const targetTerms = getTargetTerms(settings.activeMock);
 
   const updateResourceField = (field: keyof MockResource, value: any) => {
     const currentPortal = settings.resourcePortal || {};
@@ -43,6 +87,55 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
       }
     });
   };
+
+  const handleSyncFromScheme = () => {
+    if (!activeResource.revisionPlan) {
+      alert("No revision plan detected. Please build the scheme of learning first.");
+      return;
+    }
+
+    const relevantSchemes = activeResource.revisionPlan.schemes.filter(s => targetTerms.includes(s.term));
+    const newIndicators: QuestionIndicatorMapping[] = [];
+
+    relevantSchemes.forEach(scheme => {
+      scheme.weeks.forEach(week => {
+        newIndicators.push({
+          id: `SCH-${scheme.basicYear}-${scheme.term}-${week.week}-${Date.now()}`,
+          section: 'A', // Default to A, can be changed later
+          questionRef: week.week.toString(),
+          strand: week.strand,
+          subStrand: week.subStrand,
+          indicatorCode: week.indicatorCode,
+          indicator: week.indicator,
+          weight: 1,
+          sourceTerm: scheme.term,
+          sourceYear: scheme.basicYear
+        });
+      });
+    });
+
+    if (newIndicators.length > 0) {
+      updateResourceField('indicators', [...activeResource.indicators, ...newIndicators]);
+      alert(`Successfully synced ${newIndicators.length} indicators from Term ${targetTerms.join(', ')} schemes.`);
+    } else {
+      alert("No matching weeks found in the scheme for the target terms.");
+    }
+  };
+
+  const coverageStats = useMemo(() => {
+    const indicators = activeResource.indicators || [];
+    const totalIndicators = indicators.length;
+    
+    if (totalIndicators > 0) {
+      const covered = indicators.filter(i => i.isCovered).length;
+      const percentage = (covered / totalIndicators) * 100;
+      return { total: totalIndicators, covered, percentage, mode: 'CONNECTOR' };
+    }
+
+    // Fallback: Count indicators in the Revision Plan schemes
+    const planIndicators = activeResource.revisionPlan?.schemes.reduce((acc, s) => acc + s.weeks.length, 0) || 0;
+    return { total: planIndicators, covered: 0, percentage: 0, mode: 'PLAN_ONLY' };
+  }, [activeResource.indicators, activeResource.revisionPlan]);
 
   const handleOpenEditor = (item?: QuestionIndicatorMapping, section?: 'A' | 'B') => {
     if (item) {
@@ -292,6 +385,111 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                          className="flex-1 bg-transparent px-4 py-3 text-xs font-mono outline-none" 
                        />
                        <button className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[9px] uppercase shadow-lg hover:bg-black transition-all">Upload Scheme</button>
+                    </div>
+                 </div>
+              </div>
+
+              {/* REVISION STRATEGY & CURRICULUM COVERAGE */}
+              <div className="bg-blue-950 rounded-[3rem] p-10 text-white space-y-10 shadow-2xl relative overflow-hidden">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-bl-full blur-3xl"></div>
+                 
+                 <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
+                    <div className="space-y-2">
+                       <h4 className="text-xl font-black uppercase tracking-tighter">Revision Strategy & Coverage</h4>
+                       <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">Integrated 3-Year Curriculum Shard</p>
+                    </div>
+                    <div className="flex items-center gap-6 bg-white/5 p-4 rounded-3xl border border-white/10">
+                       <div className="text-center">
+                          <span className="text-[8px] font-black text-blue-300 uppercase block mb-1">Coverage Ratio</span>
+                          <p className="text-2xl font-black font-mono">{coverageStats.percentage.toFixed(1)}%</p>
+                       </div>
+                       <div className="w-px h-10 bg-white/10"></div>
+                       <div className="text-center">
+                          <span className="text-[8px] font-black text-blue-300 uppercase block mb-1">Indicators Covered</span>
+                          <p className="text-2xl font-black font-mono">{coverageStats.covered} / {coverageStats.total}</p>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="space-y-6">
+                    <div className="flex flex-wrap gap-4">
+                       <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
+                          {[7, 8, 9].map(year => (
+                             <button 
+                               key={year}
+                               onClick={() => setActivePlanYear(year as any)}
+                               className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activePlanYear === year ? 'bg-blue-600 text-white shadow-lg' : 'text-blue-300 hover:bg-white/5'}`}
+                             >
+                               Basic {year}
+                             </button>
+                          ))}
+                       </div>
+                       <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
+                          {[1, 2, 3].map(term => (
+                             <button 
+                               key={term}
+                               onClick={() => setActivePlanTerm(term as any)}
+                               className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activePlanTerm === term ? 'bg-indigo-600 text-white shadow-lg' : 'text-indigo-300 hover:bg-white/5'}`}
+                             >
+                               Term {term}
+                             </button>
+                          ))}
+                       </div>
+                    </div>
+
+                    <div className="bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden">
+                       <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                          <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Scheme of Learning — Weekly Breakdown</span>
+                          <button onClick={handleSyncFromScheme} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-black text-[9px] uppercase shadow-lg transition-all">Sync to Connector</button>
+                       </div>
+                       <div className="max-h-[400px] overflow-y-auto custom-scrollbar-v p-6 space-y-4">
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(week => {
+                             const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '' };
+                             return (
+                                <div key={week} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all">
+                                   <div className="md:col-span-1 text-center">
+                                      <span className="text-[10px] font-black text-blue-500">W{week}</span>
+                                   </div>
+                                   <div className="md:col-span-2">
+                                      <input 
+                                        type="text" 
+                                        placeholder="Strand"
+                                        value={weekData.strand}
+                                        onChange={e => updateSchemeWeek(week, 'strand', e.target.value.toUpperCase())}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
+                                      />
+                                   </div>
+                                   <div className="md:col-span-2">
+                                      <input 
+                                        type="text" 
+                                        placeholder="Sub-Strand"
+                                        value={weekData.subStrand}
+                                        onChange={e => updateSchemeWeek(week, 'subStrand', e.target.value.toUpperCase())}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
+                                      />
+                                   </div>
+                                   <div className="md:col-span-2">
+                                      <input 
+                                        type="text" 
+                                        placeholder="Code"
+                                        value={weekData.indicatorCode}
+                                        onChange={e => updateSchemeWeek(week, 'indicatorCode', e.target.value.toUpperCase())}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-mono font-black text-blue-400 outline-none focus:border-blue-500"
+                                      />
+                                   </div>
+                                   <div className="md:col-span-5">
+                                      <input 
+                                        type="text" 
+                                        placeholder="Instructional Indicator"
+                                        value={weekData.indicator}
+                                        onChange={e => updateSchemeWeek(week, 'indicator', e.target.value.toUpperCase())}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-slate-300 outline-none focus:border-blue-500"
+                                      />
+                                   </div>
+                                </div>
+                             );
+                          })}
+                       </div>
                     </div>
                  </div>
               </div>

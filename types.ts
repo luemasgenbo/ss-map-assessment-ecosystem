@@ -336,6 +336,25 @@ export interface MockResource {
   schemeUrl?: string;
   generalReport?: string;
   serializedPacks?: { A: string, B: string, C: string, D: string };
+  revisionPlan?: RevisionPlan;
+}
+
+export interface SchemeOfWeek {
+  week: number;
+  strand: string;
+  subStrand: string;
+  indicator: string;
+  indicatorCode: string;
+}
+
+export interface TermScheme {
+  term: 1 | 2 | 3;
+  basicYear: 7 | 8 | 9;
+  weeks: SchemeOfWeek[];
+}
+
+export interface RevisionPlan {
+  schemes: TermScheme[];
 }
 
 export interface QuestionIndicatorMapping {
@@ -347,6 +366,10 @@ export interface QuestionIndicatorMapping {
   indicatorCode: string;
   indicator: string;
   weight: number;
+  isCovered?: boolean;
+  coveredAt?: string;
+  sourceTerm?: 1 | 2 | 3;
+  sourceYear?: 7 | 8 | 9;
 }
 
 export interface PaymentParticulars {
