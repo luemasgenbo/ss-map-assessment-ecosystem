@@ -370,6 +370,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
   const [isGenerating, setIsGenerating] = useState(false);
   const [scale, setScale] = useState(1);
   const [showPreview, setShowPreview] = useState(false);
+  const [calibration, setCalibration] = useState({ x: 0, y: 0, zoom: 1.0 });
 
   useEffect(() => {
     const calculateScale = () => {
@@ -426,7 +427,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     // Use the hidden capture area which is NOT scaled to avoid reflow/shifting
-    const element = document.getElementById(`pdf-capture-area-${student.id}`);
+    const element = document.getElementById(`pdf-capture-wrapper-${student.id}`);
     if (!element) return setIsGenerating(false);
     
     const opt = { 
@@ -438,7 +439,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
         useCORS: true, 
         letterRendering: true,
         logging: false,
-        windowWidth: 794 // Force a standard width for the "virtual window"
+        windowWidth: 794 
       }, 
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
     };
@@ -471,51 +472,148 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
   return (
     <div className="flex flex-col items-center mb-16 relative w-full px-2 font-sans">
        
-       {/* Hidden Capture Area for PDF Generation (No Scaling) */}
+       {/* Hidden Capture Area for PDF Generation (Calibrated) */}
        <div className="fixed top-[-10000px] left-[-10000px] pointer-events-none">
-          <div id={`pdf-capture-area-${student.id}`} style={{ width: '210mm', height: '297mm' }}>
-             {renderTemplate(true)}
+          <div 
+            id={`pdf-capture-wrapper-${student.id}`} 
+            className="bg-white"
+            style={{ width: '210mm', height: '297mm', position: 'relative', overflow: 'hidden' }}
+          >
+            <div 
+              style={{ 
+                position: 'absolute',
+                top: `${calibration.y}px`,
+                left: `${calibration.x}px`,
+                transform: `scale(${calibration.zoom})`,
+                transformOrigin: 'top left',
+                width: '210mm'
+              }}
+            >
+               {renderTemplate(true)}
+            </div>
           </div>
        </div>
 
        {/* Print Preview Modal */}
        {showPreview && (
-         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
-           <div className="bg-white rounded-[2.5rem] w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-white/20">
-             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-               <div>
-                 <h3 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Print Preview</h3>
-                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Verify layout before generating PDF</p>
+         <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
+           <div className="bg-white rounded-[3rem] w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden shadow-2xl border border-white/20">
+             
+             {/* Header */}
+             <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+               <div className="flex items-center gap-6">
+                 <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                 </div>
+                 <div>
+                   <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Alignment Calibration</h3>
+                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Nudge the report to perfectly center it on the A4 page</p>
+                 </div>
                </div>
+               
                <div className="flex gap-4">
                  <button 
                   onClick={() => setShowPreview(false)}
-                  className="px-6 py-2 rounded-full border-2 border-gray-200 text-gray-500 font-black uppercase text-xs hover:bg-gray-100 transition-colors"
+                  className="px-8 py-3 rounded-full border-2 border-gray-200 text-gray-500 font-black uppercase text-xs hover:bg-gray-100 transition-colors"
                  >
-                   Cancel
+                   Discard
                  </button>
                  <button 
                   onClick={handleDownloadPDF}
                   disabled={isGenerating}
-                  className="px-8 py-2 rounded-full bg-red-600 text-white font-black uppercase text-xs shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all flex items-center gap-2"
+                  className="px-10 py-3 rounded-full bg-blue-900 text-white font-black uppercase text-xs shadow-xl shadow-blue-900/20 hover:bg-blue-950 transition-all flex items-center gap-3 active:scale-95"
                  >
                    {isGenerating ? (
                      <>
                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                       Generating...
+                       Processing...
                      </>
                    ) : (
                      <>
-                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                       Confirm & Download
+                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                       Finalize & Print
                      </>
                    )}
                  </button>
                </div>
              </div>
-             <div className="flex-1 overflow-auto p-8 bg-gray-200 flex justify-center">
-               <div className="shadow-2xl origin-top scale-[0.8] lg:scale-100">
-                 {renderTemplate()}
+
+             <div className="flex-1 flex overflow-hidden bg-gray-200">
+               {/* Calibration Controls */}
+               <div className="w-80 bg-white border-r border-gray-100 p-8 flex flex-col gap-8 shrink-0">
+                 
+                 <div>
+                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Position Calibration</label>
+                   <div className="grid grid-cols-3 gap-2 max-w-[150px] mx-auto">
+                     <div />
+                     <button onClick={() => setCalibration(c => ({...c, y: c.y - 2}))} className="w-12 h-12 rounded-xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-90">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m18 15-6-6-6 6"/></svg>
+                     </button>
+                     <div />
+                     <button onClick={() => setCalibration(c => ({...c, x: c.x - 2}))} className="w-12 h-12 rounded-xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-90">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m15 18-6-6 6-6"/></svg>
+                     </button>
+                     <button onClick={() => setCalibration({x:0, y:0, zoom:1.0})} className="w-12 h-12 rounded-xl bg-blue-900 text-white flex items-center justify-center shadow-lg active:scale-90">
+                       <span className="text-[10px] font-black">RESET</span>
+                     </button>
+                     <button onClick={() => setCalibration(c => ({...c, x: c.x + 2}))} className="w-12 h-12 rounded-xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-90">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
+                     </button>
+                     <div />
+                     <button onClick={() => setCalibration(c => ({...c, y: c.y + 2}))} className="w-12 h-12 rounded-xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-90">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m6 9 6 6 6-6"/></svg>
+                     </button>
+                     <div />
+                   </div>
+                   <div className="mt-4 text-center">
+                     <span className="text-[10px] font-mono font-bold text-gray-400">X: {calibration.x}px | Y: {calibration.y}px</span>
+                   </div>
+                 </div>
+
+                 <div>
+                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Zoom Calibration</label>
+                   <div className="flex items-center gap-4">
+                     <button onClick={() => setCalibration(c => ({...c, zoom: Math.max(0.5, c.zoom - 0.01)}))} className="flex-1 h-12 rounded-xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-95">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                     </button>
+                     <span className="w-16 text-center font-mono font-black text-blue-900">{(calibration.zoom * 100).toFixed(0)}%</span>
+                     <button onClick={() => setCalibration(c => ({...c, zoom: Math.min(1.5, c.zoom + 0.01)}))} className="flex-1 h-12 rounded-xl bg-gray-50 border-2 border-gray-100 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-95">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                     </button>
+                   </div>
+                 </div>
+
+                 <div className="mt-auto p-6 bg-blue-50 rounded-3xl border border-blue-100">
+                    <p className="text-[10px] font-bold text-blue-800 leading-relaxed uppercase">
+                      Tip: Use the arrows to shift the report if it appears misaligned in the final PDF. The zoom control helps if the report is cut off at the edges.
+                    </p>
+                 </div>
+               </div>
+
+               {/* Preview Area */}
+               <div className="flex-1 overflow-auto p-12 flex justify-center items-start relative">
+                 <div className="sticky top-0 left-0 right-0 z-10 flex justify-center pointer-events-none">
+                    <div className="bg-red-500/10 border border-red-500/20 px-4 py-1 rounded-full text-[8px] font-black text-red-600 uppercase tracking-widest backdrop-blur-sm">
+                      A4 Page Boundary (210mm x 297mm)
+                    </div>
+                 </div>
+                 <div 
+                  className="bg-white shadow-[0_0_100px_rgba(0,0,0,0.2)] relative shrink-0"
+                  style={{ width: '210mm', height: '297mm', overflow: 'hidden' }}
+                 >
+                   <div 
+                    style={{ 
+                      position: 'absolute',
+                      top: `${calibration.y}px`,
+                      left: `${calibration.x}px`,
+                      transform: `scale(${calibration.zoom})`,
+                      transformOrigin: 'top left',
+                      width: '210mm'
+                    }}
+                   >
+                     {renderTemplate()}
+                   </div>
+                 </div>
                </div>
              </div>
            </div>
