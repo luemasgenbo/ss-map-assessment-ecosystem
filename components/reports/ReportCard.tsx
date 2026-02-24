@@ -16,7 +16,21 @@ interface ReportCardProps {
   readOnly?: boolean;
 }
 
-const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution }) => (
+const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution, classAverageAggregate }) => {
+  const attendanceRate = (student.attendance / settings.attendanceTotal) * 100;
+  const isAboveAverage = student.bestSixAggregate < classAverageAggregate;
+  
+  const conductRemark = attendanceRate > 90 
+    ? "Candidate maintains exemplary discipline and consistent presence."
+    : attendanceRate > 75 
+    ? "Satisfactory attendance; however, improved consistency is encouraged for optimal performance."
+    : "Irregular attendance pattern observed. Discipline calibration and parental intervention required.";
+
+  const academicRemark = `Student aggregate of ${student.bestSixAggregate} vs class average of ${classAverageAggregate.toFixed(1)}. ${isAboveAverage ? 'Performing above peer average with measurable growth.' : 'Requires intensive academic focus to meet peer benchmarks.'} Growth matrix indicates ${student.bestSixAggregate < 12 ? 'high-velocity mastery' : 'steady progression'}. Recommendation: ${student.bestSixAggregate < 15 ? 'Enrichment in advanced strands.' : 'Remedial support in core disciplines.'}`;
+
+  const adminRemark = `Intervention Method: ${student.bestSixAggregate > 20 ? 'Mandatory after-school clinic for identified weak strands.' : 'Peer-to-peer collaborative learning clusters.'} Remedial Action: Targeted practice in ${student.subjects[0]?.subject || 'core areas'} to bridge identified gaps.`;
+
+  return (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0">
     {/* HEADER AREA - 20% */}
     <div className="h-[20%] flex flex-col justify-center shrink-0 border-b-2 border-blue-900/10 mb-2">
@@ -35,7 +49,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
       <div className="grid grid-cols-2 gap-4 mb-2">
         <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-blue-50">
-          <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-3 py-1 uppercase tracking-widest flex items-center justify-between">
+          <div className="bg-blue-950 text-white text-[8px] leading-none font-black px-3 py-1.5 uppercase tracking-widest flex items-center justify-between">
             <span>Logistics Node</span>
             <span className="font-mono">NODE-0{student.id % 9}</span>
           </div>
@@ -45,13 +59,13 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
               {l:'Current Term',k:'termInfo',v:settings.termInfo},
               {l:'Academic Yr',k:'academicYear',v:settings.academicYear},
             ].map((item, i) => (
-              <div key={i} className="flex h-3 items-center px-3 gap-2">
-                <span className="text-[6px] leading-none font-black text-blue-950 uppercase w-[50px] shrink-0 border-r border-blue-200">{item.l}</span>
-                <div className="text-[6px] leading-none font-black text-blue-900 uppercase truncate flex-1">
+              <div key={i} className="flex h-4 items-center px-3 gap-2">
+                <span className="text-[8px] leading-none font-black text-blue-950 uppercase w-[60px] shrink-0 border-r border-blue-200">{item.l}</span>
+                <div className="text-[8px] leading-none font-black text-blue-900 uppercase truncate flex-1">
                   <EditableField 
                     value={item.v} 
                     onChange={(val) => onSettingChange(item.k as keyof GlobalSettings, val.toUpperCase())}
-                    className="text-[6px] leading-none"
+                    className="text-[8px] leading-none"
                     disabled={readOnly}
                   />
                 </div>
@@ -60,7 +74,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
           </div>
         </div>
         <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-indigo-50">
-          <div className="bg-blue-950 text-white text-[6px] leading-none font-black px-3 py-1 uppercase tracking-widest flex items-center justify-between">
+          <div className="bg-blue-950 text-white text-[8px] leading-none font-black px-3 py-1.5 uppercase tracking-widest flex items-center justify-between">
             <span>Candidate Particulars</span>
             <span>VERIFIED</span>
           </div>
@@ -70,9 +84,9 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
               {l:'Attendance',v:`${student.attendance} / ${settings.attendanceTotal}`},
               {l:'Mock Rank',v:`#${student.rank} OF ${totalEnrolled}`},
             ].map((item, i) => (
-              <div key={i} className="flex h-3 items-center px-3 gap-2">
-                <span className="text-[6px] leading-none font-black text-indigo-950 uppercase w-[50px] shrink-0 border-r border-indigo-200">{item.l}</span>
-                <span className="text-[6px] leading-none font-black uppercase truncate text-blue-950">{item.v}</span>
+              <div key={i} className="flex h-4 items-center px-3 gap-2">
+                <span className="text-[8px] leading-none font-black text-indigo-950 uppercase w-[60px] shrink-0 border-r border-indigo-200">{item.l}</span>
+                <span className="text-[8px] leading-none font-black uppercase truncate text-blue-950">{item.v}</span>
               </div>
             ))}
           </div>
@@ -81,15 +95,15 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
 
       <div className="flex-1 border-[2px] border-blue-950 rounded-xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
-          <thead className="bg-blue-950 text-white uppercase text-[6px] leading-none font-black tracking-widest sticky top-0">
-            <tr className="h-6">
+          <thead className="bg-blue-950 text-white uppercase text-[10px] leading-none font-black tracking-widest sticky top-0">
+            <tr className="h-8">
               <th className="px-3 text-left">Academic Discipline</th>
-              <th className="px-1 text-center w-[30px]">Obj</th>
-              <th className="px-1 text-center w-[30px]">Thy</th>
-              <th className="px-1 text-center w-[40px] bg-blue-900">Sum</th>
-              <th className="px-1 text-center w-[30px]">SBA</th>
-              <th className="px-1 text-center w-[40px] bg-red-900">Cmp</th>
-              <th className="px-1 text-center w-[30px]">Grd</th>
+              <th className="px-1 text-center w-[40px]">Obj</th>
+              <th className="px-1 text-center w-[40px]">Thy</th>
+              <th className="px-1 text-center w-[50px] bg-blue-900">Sum</th>
+              <th className="px-1 text-center w-[40px]">SBA</th>
+              <th className="px-1 text-center w-[50px] bg-red-900">Cmp</th>
+              <th className="px-1 text-center w-[40px]">Grd</th>
               <th className="px-3 text-left">Remark Shard</th>
             </tr>
           </thead>
@@ -102,15 +116,15 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
               else rowColor = "bg-red-50";
 
               return (
-                <tr key={sub.subject} className={`${rowColor} font-bold h-6 border-b border-gray-100`}>
-                  <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[6px] leading-none border-r border-gray-100">{sub.subject}</td>
-                  <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
-                  <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
-                  <td className="text-center font-black bg-blue-100/50 text-blue-900 text-[6px] leading-none border-r border-blue-950/10">{(sub.sectionA || 0) + (sub.sectionB || 0)}</td>
-                  <td className="text-center font-mono text-gray-500 text-[6px] leading-none border-r border-gray-100">{Math.round(sub.sbaScore)}</td>
-                  <td className="text-center font-black bg-red-100/50 text-red-900 text-[6px] leading-none border-r border-red-950/10">{Math.round(sub.finalCompositeScore)}</td>
-                  <td className={`text-center font-black text-[6px] leading-none border-r border-gray-100 ${sub.gradeValue >= 7 ? 'text-red-700' : 'text-blue-900'}`}>{sub.grade}</td>
-                  <td className="px-3 text-[6px] leading-none uppercase text-slate-500 italic truncate max-w-[200px]">{sub.remark}</td>
+                <tr key={sub.subject} className={`${rowColor} font-bold h-8 border-b border-gray-100`}>
+                  <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[10px] leading-none border-r border-gray-100">{sub.subject}</td>
+                  <td className="text-center font-mono text-gray-500 text-[10px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
+                  <td className="text-center font-mono text-gray-500 text-[10px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
+                  <td className="text-center font-black bg-blue-100/50 text-blue-900 text-[10px] leading-none border-r border-blue-950/10">{(sub.sectionA || 0) + (sub.sectionB || 0)}</td>
+                  <td className="text-center font-mono text-gray-500 text-[10px] leading-none border-r border-gray-100">{Math.round(sub.sbaScore)}</td>
+                  <td className="text-center font-black bg-red-100/50 text-red-900 text-[10px] leading-none border-r border-red-950/10">{Math.round(sub.finalCompositeScore)}</td>
+                  <td className={`text-center font-black text-[10px] leading-none border-r border-gray-100 ${sub.gradeValue >= 7 ? 'text-red-700' : 'text-blue-900'}`}>{sub.grade}</td>
+                  <td className="px-3 text-[10px] leading-none uppercase text-slate-500 italic truncate max-w-[200px]">{sub.remark}</td>
                 </tr>
               );
             })}
@@ -118,16 +132,16 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
         </table>
         
         {/* PERFORMANCE ANALYSIS HEATMAP - Integrated into Grid Area */}
-        <div className="mt-auto p-4 bg-slate-50 border-t border-blue-950/10 grid grid-cols-4 gap-3 h-[50px] shrink-0">
+        <div className="mt-auto p-4 bg-slate-50 border-t border-blue-950/10 grid grid-cols-4 gap-3 h-[60px] shrink-0">
           <div className="col-span-1 bg-blue-950 text-white rounded-xl flex flex-col items-center justify-center border border-blue-900 shadow-lg h-full">
-            <span className="text-[6px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
-            <span className="text-[12px] font-black font-mono leading-none mt-1">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
+            <span className="text-[8px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
+            <span className="text-[14px] font-black font-mono leading-none mt-1">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
           </div>
           <div className="col-span-3 border border-blue-900 rounded-xl flex items-center justify-around bg-white h-full px-4">
             {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
               <div key={g} className="flex flex-col items-center justify-center">
-                <span className="text-[6px] font-black text-slate-400 leading-none mb-0.5 uppercase tracking-tighter">{g}</span>
-                <span className={`text-[8px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-900' : 'text-slate-300'}`}>
+                <span className="text-[8px] font-black text-slate-400 leading-none mb-0.5 uppercase tracking-tighter">{g}</span>
+                <span className={`text-[10px] font-black leading-none ${gradeDistribution[g] ? 'text-blue-900' : 'text-slate-300'}`}>
                   {gradeDistribution[g] || 0}
                 </span>
               </div>
@@ -141,26 +155,26 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
     <div className="h-[40%] flex flex-col shrink-0 pt-2 gap-2">
       <div className="grid grid-cols-3 gap-2 flex-1">
         {/* CONDUCT & ATTENDANCE */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex flex-col justify-center">
-          <span className="text-[6px] font-black text-slate-400 uppercase tracking-widest mb-1">Conduct & Attendance</span>
-          <p className="text-[6px] leading-tight font-bold text-slate-700 uppercase italic">
-            {student.conductRemark || 'Candidate maintains exemplary discipline and consistent presence.'}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-center">
+          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Conduct & Attendance</span>
+          <p className="text-[9px] leading-tight font-bold text-slate-700 uppercase italic">
+            {conductRemark}
           </p>
         </div>
         
         {/* ACADEMIC RECOMMENDATION (STRENGTH/WEAKNESS) */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-2 flex flex-col justify-center">
-          <span className="text-[6px] font-black text-indigo-400 uppercase tracking-widest mb-1">Academic Recommendation</span>
-          <p className="text-[6px] leading-tight font-bold text-indigo-900 uppercase">
-            <span className="text-emerald-700">STR:</span> CONSISTENT MASTERY. <span className="text-red-700">WEAK:</span> {student.weaknessAnalysis || 'IDENTIFIED STRANDS REQUIRE CALIBRATION.'}
+        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 flex flex-col justify-center">
+          <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">Academic Recommendation</span>
+          <p className="text-[9px] leading-tight font-bold text-indigo-900 uppercase">
+            {academicRemark}
           </p>
         </div>
 
         {/* ADMINISTRATIVE FEEDBACK */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-2 flex flex-col justify-center">
-          <span className="text-[6px] font-black text-blue-400 uppercase tracking-widest mb-1">Administrative Feedback</span>
-          <p className="text-[6px] leading-tight font-bold text-blue-900 uppercase">
-            {student.overallRemark || 'PROMOTION TO NEXT LEVEL APPROVED. CONTINUE EXCELLENCE.'}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex flex-col justify-center">
+          <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest mb-1">Administrative Feedback</span>
+          <p className="text-[9px] leading-tight font-bold text-blue-900 uppercase">
+            {adminRemark}
           </p>
         </div>
       </div>
@@ -168,23 +182,23 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
       {/* AUTHORIZATIONS - MUST REMAIN ON SHEET ONE */}
       <div className="flex justify-between items-end border-t border-slate-100 pt-2 shrink-0">
         <div className="w-[30%] text-center border-t border-slate-950 pt-1">
-          <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-0.5">Academy Director</p>
-          <div className="font-black text-blue-950 text-[6px] leading-none uppercase truncate">
+          <p className="text-[8px] leading-none font-black uppercase text-slate-400 tracking-widest mb-0.5">Academy Director</p>
+          <div className="font-black text-blue-950 text-[8px] leading-none uppercase truncate">
             <EditableField 
               value={settings.headTeacherName} 
               onChange={(v) => onSettingChange('headTeacherName', v.toUpperCase())}
-              className="text-[6px] leading-none font-black"
+              className="text-[8px] leading-none font-black"
               disabled={readOnly}
             />
           </div>
         </div>
         <div className="w-[30%] text-center border-t border-slate-950 pt-1">
-          <p className="text-[6px] leading-none font-black uppercase text-slate-400 tracking-widest mb-0.5">Next Resumption</p>
-          <div className="font-black text-red-700 text-[6px] leading-none uppercase">
+          <p className="text-[8px] leading-none font-black uppercase text-slate-400 tracking-widest mb-0.5">Next Resumption</p>
+          <div className="font-black text-red-700 text-[8px] leading-none uppercase">
             <EditableField 
               value={settings.nextTermBegin} 
               onChange={(v) => onSettingChange('nextTermBegin', v)}
-              className="text-[6px] leading-none font-black"
+              className="text-[8px] leading-none font-black"
               disabled={readOnly}
             />
           </div>
@@ -193,8 +207,23 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
     </div>
   </div>
 );
+};
 
-const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution }) => (
+const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution, classAverageAggregate }) => {
+  const attendanceRate = (student.attendance / settings.attendanceTotal) * 100;
+  const isAboveAverage = student.bestSixAggregate < classAverageAggregate;
+  
+  const conductRemark = attendanceRate > 90 
+    ? "Candidate maintains exemplary discipline and consistent presence."
+    : attendanceRate > 75 
+    ? "Satisfactory attendance; however, improved consistency is encouraged for optimal performance."
+    : "Irregular attendance pattern observed. Discipline calibration and parental intervention required.";
+
+  const academicRemark = `Student aggregate of ${student.bestSixAggregate} vs class average of ${classAverageAggregate.toFixed(1)}. ${isAboveAverage ? 'Performing above peer average with measurable growth.' : 'Requires intensive academic focus to meet peer benchmarks.'} Growth matrix indicates ${student.bestSixAggregate < 12 ? 'high-velocity mastery' : 'steady progression'}. Recommendation: ${student.bestSixAggregate < 15 ? 'Enrichment in advanced strands.' : 'Remedial support in core disciplines.'}`;
+
+  const adminRemark = `Intervention Method: ${student.bestSixAggregate > 20 ? 'Mandatory after-school clinic for identified weak strands.' : 'Peer-to-peer collaborative learning clusters.'} Remedial Action: Targeted practice in ${student.subjects[0]?.subject || 'core areas'} to bridge identified gaps.`;
+
+  return (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
     {/* HEADER AREA - 20% */}
     <div className="h-[20%] flex flex-col justify-center shrink-0 border-b-2 border-gray-100 mb-4">
@@ -210,9 +239,9 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     </div>
 
     {/* GRID BOXES AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 py-4">
+    <div className="h-[40%] flex flex-col shrink-0 py-2">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
-      <div className="grid grid-cols-2 gap-8 mb-4 border-y border-gray-100 py-2">
+      <div className="grid grid-cols-2 gap-8 mb-2 border-y border-gray-100 py-1">
         <div className="space-y-0.5">
           <div className="flex justify-between border-b border-gray-50">
             <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
@@ -271,7 +300,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
           </tbody>
         </table>
 
-        <div className="mt-auto flex items-center justify-between bg-gray-50 p-6 border-t border-gray-100">
+        <div className="mt-auto flex items-center justify-between bg-gray-50 p-4 border-t border-gray-100">
           <div className="flex flex-col">
             <span className="text-[8px] font-black text-gray-400 uppercase leading-none mb-1">Overall Efficiency</span>
             <span className="text-xl font-black text-gray-900 leading-none">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
@@ -294,19 +323,19 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
         <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col justify-center">
           <h4 className="text-[8px] font-black text-gray-400 uppercase mb-1 leading-none">Conduct & Attendance</h4>
           <p className="text-[9px] font-bold text-gray-700 uppercase leading-tight italic">
-            {student.conductRemark || "Exemplary discipline observed."}
+            {conductRemark}
           </p>
         </div>
         <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col justify-center">
           <h4 className="text-[8px] font-black text-indigo-400 uppercase mb-1 leading-none">Academic Recommendation</h4>
           <p className="text-[9px] font-bold text-indigo-900 uppercase leading-tight">
-            STR: CONSISTENT. WEAK: {student.weaknessAnalysis || 'NONE IDENTIFIED.'}
+            {academicRemark}
           </p>
         </div>
         <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col justify-center">
           <h4 className="text-[8px] font-black text-blue-400 uppercase mb-1 leading-none">Administrative Feedback</h4>
           <p className="text-[9px] font-bold text-blue-900 uppercase leading-tight">
-            {student.overallRemark || "PROMOTED TO NEXT STAGE."}
+            {adminRemark}
           </p>
         </div>
       </div>
@@ -326,6 +355,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     </div>
   </div>
 );
+};
 
 const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
@@ -464,7 +494,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ student, stats, settings, onSet
   };
 
   const renderTemplate = () => {
-    const commonProps = { student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution };
+    const commonProps = { student, stats, settings, onSettingChange, totalEnrolled, readOnly, gradeDistribution, classAverageAggregate };
     // If it's for PDF, we might want to ensure certain styles are fixed
     switch (settings.reportTemplate) {
       case 'minimal':
