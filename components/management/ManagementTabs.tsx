@@ -35,7 +35,7 @@ const ManagementTabs: React.FC<ManagementTabsProps> = ({ activeTab, setActiveTab
   });
 
   return (
-    <div className="flex border-b border-gray-100 bg-gray-50 overflow-x-auto no-scrollbar sticky top-0 z-30 shadow-sm">
+    <div className="flex border-b border-gray-100 bg-gray-50 overflow-x-auto custom-scrollbar-h sticky top-0 z-30 shadow-sm pb-1">
       {tabs.map(tab => (
         <button 
           key={tab.id} 
