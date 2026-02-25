@@ -176,7 +176,7 @@ const PupilDashboard: React.FC<PupilDashboardProps> = ({
 
           <div className="p-4 md:p-8 max-w-7xl mx-auto w-full animate-in slide-in-from-bottom-12 duration-1000">
              {activeSubTab === 'report' && <ReportCard student={student} stats={stats} settings={settings} onSettingChange={onSettingChange} classAverageAggregate={classAverageAggregate} totalEnrolled={totalEnrolled} readOnly={true} />}
-             {activeSubTab === 'curriculum' && <PupilCurriculumInsight student={student} schoolId={settings.schoolNumber} />}
+             {activeSubTab === 'curriculum' && <PupilCurriculumInsight student={student} schoolId={settings.schoolNumber} settings={settings} />}
              {activeSubTab === 'practice' && <PupilPracticeHub schoolId={settings.schoolNumber} studentId={student.id} studentName={student.name} settings={settings} onSettingChange={onSettingChange} />}
              {activeSubTab === 'merit' && <PupilMeritView student={student} settings={settings} />}
              {activeSubTab === 'bece' && <PupilBeceLedger student={student} />}

@@ -412,8 +412,12 @@ const PupilPracticeHub: React.FC<PupilPracticeHubProps> = ({ schoolId, studentId
                                     disabled={isPaused}
                                     value={answers[q.id] || ''} 
                                     onChange={(e) => { 
-                                       setAnswers(prev => ({ ...prev, [q.id]: e.target.value })); 
-                                       setSubmittedQs(prev => ({ ...prev, [q.id]: !!e.target.value.trim() })); 
+                                       const val = e.target.value;
+                                       setAnswers(prev => ({ ...prev, [q.id]: val })); 
+                                       setSubmittedQs(prev => ({ ...prev, [q.id]: !!val.trim() })); 
+                                       if (activeSet?.subject && q.indicatorCode && val.trim()) {
+                                         markIndicatorAsCovered(activeSet.subject, q.indicatorCode);
+                                       }
                                     }} 
                                     className="w-full min-h-[250px] p-8 bg-slate-50/50 border border-gray-100 rounded-2xl font-bold text-slate-800 text-xs outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-inner placeholder:text-slate-200 uppercase" 
                                     placeholder="ANALYSIS TERMINAL ACTIVE..." 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { GlobalSettings, MockResource, QuestionIndicatorMapping } from '../../types';
+import { GlobalSettings, MockResource, QuestionIndicatorMapping, SchemeOfWeek } from '../../types';
 import { SUBJECT_LIST } from '../../constants';
 import ReportBrandingHeader from '../shared/ReportBrandingHeader';
 
@@ -27,6 +27,10 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
   const [editingItem, setEditingItem] = useState<Partial<QuestionIndicatorMapping> | null>(null);
   const [activePlanYear, setActivePlanYear] = useState<7 | 8 | 9>(7);
   const [activePlanTerm, setActivePlanTerm] = useState<1 | 2 | 3>(1);
+
+  const activeResource: MockResource = useMemo(() => {
+    return settings.resourcePortal?.[settings.activeMock]?.[selectedSubject] || { indicators: [], questionUrl: '', schemeUrl: '' };
+  }, [settings.resourcePortal, settings.activeMock, selectedSubject]);
 
   const activeScheme = useMemo(() => {
     return activeResource.revisionPlan?.schemes.find(s => s.basicYear === activePlanYear && s.term === activePlanTerm) || { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
@@ -56,10 +60,6 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
 
     updateResourceField('revisionPlan', { schemes: nextSchemes });
   };
-
-  const activeResource: MockResource = useMemo(() => {
-    return settings.resourcePortal?.[settings.activeMock]?.[selectedSubject] || { indicators: [], questionUrl: '', schemeUrl: '' };
-  }, [settings.resourcePortal, settings.activeMock, selectedSubject]);
 
   const getTargetTerms = (mockName: string) => {
     const match = mockName.match(/\d+/);

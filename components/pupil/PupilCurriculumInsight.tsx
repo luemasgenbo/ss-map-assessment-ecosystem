@@ -1,39 +1,58 @@
 
-import React, { useState, useEffect } from 'react';
-import { ProcessedStudent, ScopeCoverage, TopicMastery } from '../../types';
-import { supabase } from '../../supabaseClient';
+import React, { useState, useMemo } from 'react';
+import { ProcessedStudent, GlobalSettings, QuestionIndicatorMapping } from '../../types';
 
 interface PupilCurriculumInsightProps {
   student: ProcessedStudent;
   schoolId: string;
+  settings: GlobalSettings;
 }
 
-const PupilCurriculumInsight: React.FC<PupilCurriculumInsightProps> = ({ student, schoolId }) => {
-  const [coverage, setCoverage] = useState<ScopeCoverage[]>([]);
-  const [pushedMetadata, setPushedMetadata] = useState<{ pushedBy: string, timestamp: string } | null>(null);
+const PupilCurriculumInsight: React.FC<PupilCurriculumInsightProps> = ({ student, schoolId, settings }) => {
   const [selectedSubject, setSelectedSubject] = useState('Mathematics');
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchCoverage = async () => {
-      setIsLoading(true);
-      const hubId = schoolId;
-      const subKey = selectedSubject.replace(/\s+/g, '');
-      const { data } = await supabase.from('uba_persistence').select('payload').eq('id', `coverage_handshake_${hubId}_${subKey}`).maybeSingle();
-      
-      if (data?.payload) {
-        setCoverage(data.payload.map || []);
-        setPushedMetadata({ pushedBy: data.payload.pushedBy, timestamp: data.payload.timestamp });
-      } else {
-        setCoverage([]);
-        setPushedMetadata(null);
-      }
-      setIsLoading(false);
-    };
-    fetchCoverage();
-  }, [schoolId, selectedSubject]);
+  const subjects = useMemo(() => student.subjects.map(s => s.subject), [student.subjects]);
 
-  const subjects = student.subjects.map(s => s.subject);
+  const coverageData = useMemo(() => {
+    const mockData = settings.resourcePortal?.[settings.activeMock]?.[selectedSubject];
+    if (!mockData) return [];
+
+    if (mockData.indicators && mockData.indicators.length > 0) {
+      return mockData.indicators.map(ind => ({
+        strand: ind.strand,
+        subStrand: ind.subStrand,
+        indicator: ind.indicator,
+        isCovered: ind.isCovered || false,
+        coveredDate: ind.coveredAt
+      }));
+    }
+
+    // Fallback: Use Revision Plan schemes
+    if (mockData.revisionPlan) {
+      const allWeeks: any[] = [];
+      mockData.revisionPlan.schemes.forEach(scheme => {
+        scheme.weeks.forEach(week => {
+          allWeeks.push({
+            strand: week.strand,
+            subStrand: week.subStrand,
+            indicator: week.indicator,
+            isCovered: false, // Plan only mode has no coverage tracking yet
+            coveredDate: undefined
+          });
+        });
+      });
+      return allWeeks;
+    }
+
+    return [];
+  }, [settings.resourcePortal, settings.activeMock, selectedSubject]);
+
+  const stats = useMemo(() => {
+    const total = coverageData.length;
+    const covered = coverageData.filter(c => c.isCovered).length;
+    const percentage = total > 0 ? (covered / total) * 100 : 0;
+    return { total, covered, percentage };
+  }, [coverageData]);
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
@@ -44,12 +63,10 @@ const PupilCurriculumInsight: React.FC<PupilCurriculumInsightProps> = ({ student
            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.4em]">Official Implementation Handshake</p>
         </div>
         <div className="relative flex items-center gap-4">
-           {pushedMetadata && (
-             <div className="hidden lg:flex flex-col text-right">
-                <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Handshaked By</span>
-                <span className="text-[9px] font-black text-emerald-600 uppercase">{pushedMetadata.pushedBy}</span>
-             </div>
-           )}
+           <div className="hidden lg:flex flex-col text-right">
+              <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Coverage Ratio</span>
+              <span className="text-[9px] font-black text-emerald-600 uppercase">{stats.percentage.toFixed(1)}%</span>
+           </div>
            <select 
               value={selectedSubject} 
               onChange={e => setSelectedSubject(e.target.value)}
@@ -60,14 +77,9 @@ const PupilCurriculumInsight: React.FC<PupilCurriculumInsightProps> = ({ student
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="py-40 flex flex-col items-center justify-center gap-6">
-           <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-           <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.4em]">Retrieving Syllabus Handshake...</p>
-        </div>
-      ) : coverage.length > 0 ? (
+      {coverageData.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {coverage.map((c, i) => {
+          {coverageData.map((c, i) => {
             const myMastery = student.masteryMap?.find(m => m.indicator === c.indicator);
             const masteryRate = myMastery?.averageScore || 0;
             const isMastered = myMastery?.status === 'MASTERED';
@@ -108,8 +120,8 @@ const PupilCurriculumInsight: React.FC<PupilCurriculumInsightProps> = ({ student
         <div className="bg-white py-48 rounded-[4rem] text-center opacity-30 flex flex-col items-center gap-10 border-4 border-dashed border-gray-100 shadow-inner">
            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>
            <div className="space-y-2">
-              <p className="text-slate-900 font-black uppercase text-sm tracking-[0.6em]">No curriculum Handshake detected</p>
-              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Facilitator has not yet pushed the scope shards for {selectedSubject}.</p>
+              <p className="text-slate-900 font-black uppercase text-sm tracking-[0.6em]">No curriculum Shards detected</p>
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Facilitator has not yet pushed the revision plan or connector for {selectedSubject}.</p>
            </div>
         </div>
       )}
