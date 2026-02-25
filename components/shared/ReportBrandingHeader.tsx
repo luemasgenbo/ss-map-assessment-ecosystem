@@ -24,11 +24,11 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
   hideConnectivity = false
 }) => {
   return (
-    <div className="text-center relative border-b-[6px] border-double border-blue-950 pb-4 mb-4 w-full font-sans animate-in fade-in duration-1000">
+    <div className="text-center relative border-b-[6px] border-double border-blue-950 pb-2 mb-2 w-full font-sans animate-in fade-in duration-1000">
       
       {/* Micro-Metadata Identity Strip: 6px Precision Shards */}
       {!hideMetadataStrip && (
-        <div className="w-full text-[6px] leading-none tracking-tighter text-slate-900 uppercase text-center mb-4 space-x-2 flex flex-wrap justify-center font-black">
+        <div className="w-full text-[6px] leading-none tracking-tighter text-slate-900 uppercase text-center mb-2 space-x-2 flex flex-wrap justify-center font-black">
           <span>D</span>
           <span className="text-blue-600">|</span>
           <span>DSA</span>
@@ -88,7 +88,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
       </div>
 
       {/* Official Report Identification */}
-      <div className="mt-4 mb-3">
+      <div className="mt-2 mb-1">
          <h2 className="text-xl font-black text-red-700 uppercase tracking-[0.4em] bg-red-50 py-3 border-y-2 border-red-200">
            <EditableField 
             value={reportTitle} 
@@ -103,7 +103,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
 
       {/* Connectivity Cluster - Particulars Focus */}
       {!hideConnectivity && (
-        <div className="flex justify-center flex-wrap gap-x-10 gap-y-0 pt-3 border-t border-slate-100 no-print">
+        <div className="flex justify-center flex-wrap gap-x-10 gap-y-0 pt-1 border-t border-slate-100 no-print">
           <div className="flex gap-1 items-center px-1">
             <span className="text-slate-400 text-[6px] leading-none uppercase font-black">TEL:</span>
             <EditableField 
