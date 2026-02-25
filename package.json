@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
-    "preview": "vite preview",
-    "test": "npm run lint"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@google/genai": "^1.41.0",
