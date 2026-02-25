@@ -32,8 +32,8 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
 
   return (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0">
-    {/* HEADER AREA - 15% */}
-    <div className="h-[15%] flex flex-col justify-center shrink-0 border-b-2 border-blue-900/10 mb-2">
+    {/* HEADER AREA - 12% */}
+    <div className="h-[12%] flex flex-col justify-center shrink-0 border-b-2 border-blue-900/10 mb-2">
       <ReportBrandingHeader 
         settings={settings} 
         onSettingChange={onSettingChange} 
@@ -44,8 +44,8 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
       />
     </div>
 
-    {/* GRID BOXES AREA - 43% */}
-    <div className="h-[43%] flex flex-col shrink-0 py-2 overflow-hidden">
+    {/* GRID BOXES AREA - 46% */}
+    <div className="h-[46%] flex flex-col shrink-0 py-2 overflow-hidden">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
       <div className="grid grid-cols-2 gap-4 mb-2">
         <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-blue-50">
@@ -225,8 +225,8 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
 
   return (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
-    {/* HEADER AREA - 15% */}
-    <div className="h-[15%] flex flex-col justify-center shrink-0 border-b-2 border-gray-100 mb-4">
+    {/* HEADER AREA - 12% */}
+    <div className="h-[12%] flex flex-col justify-center shrink-0 border-b-2 border-gray-100 mb-4">
       <ReportBrandingHeader 
         settings={settings} 
         onSettingChange={onSettingChange} 
@@ -238,8 +238,8 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
       />
     </div>
 
-    {/* GRID BOXES AREA - 43% */}
-    <div className="h-[43%] flex flex-col shrink-0 py-2 overflow-hidden">
+    {/* GRID BOXES AREA - 46% */}
+    <div className="h-[46%] flex flex-col shrink-0 py-2 overflow-hidden">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
       <div className="grid grid-cols-2 gap-8 mb-2 border-y border-gray-100 py-1">
         <div className="space-y-0.5">
@@ -359,8 +359,8 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
 
 const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
-    {/* HEADER AREA - 15% */}
-    <div className="h-[15%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-8">
+    {/* HEADER AREA - 12% */}
+    <div className="h-[12%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-8">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>

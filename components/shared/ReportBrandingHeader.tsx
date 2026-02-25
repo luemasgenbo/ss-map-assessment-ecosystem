@@ -24,7 +24,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
   hideConnectivity = false
 }) => {
   return (
-    <div className="text-center relative border-b-[6px] border-double border-blue-950 pb-2 mb-2 w-full font-sans animate-in fade-in duration-1000">
+    <div className="text-center relative border-b-[4px] border-double border-blue-950 pb-1 mb-1 w-full font-sans animate-in fade-in duration-1000">
       
       {/* Micro-Metadata Identity Strip: 6px Precision Shards */}
       {!hideMetadataStrip && (
@@ -43,13 +43,13 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4">
         {/* Academy Seal */}
-        <div className="w-24 h-24 flex items-center justify-center shrink-0">
+        <div className="w-16 h-16 flex items-center justify-center shrink-0">
           {settings.schoolLogo ? (
-            <img src={settings.schoolLogo} alt="Academy Seal" className="max-w-full max-h-full object-contain shadow-2xl rounded-3xl" />
+            <img src={settings.schoolLogo} alt="Academy Seal" className="max-w-full max-h-full object-contain shadow-2xl rounded-2xl" />
           ) : (
-            <div className="w-20 h-20 bg-blue-900 text-white rounded-[1.8rem] flex items-center justify-center font-black text-4xl shadow-2xl border-[3px] border-white">
+            <div className="w-14 h-14 bg-blue-900 text-white rounded-[1.2rem] flex items-center justify-center font-black text-2xl shadow-2xl border-[2px] border-white">
               {settings.schoolName?.substring(0,1) || "U"}
             </div>
           )}
@@ -57,7 +57,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
 
         {/* Identity Particulars - ALL EDITABLE */}
         <div className="flex-1">
-          <h1 className={`${isLandscape ? 'text-4xl' : 'text-3xl'} font-black text-blue-950 tracking-tighter uppercase leading-none`}>
+          <h1 className={`${isLandscape ? 'text-3xl' : 'text-2xl'} font-black text-blue-950 tracking-tighter uppercase leading-none`}>
             <EditableField 
                 value={settings.schoolName || "UNITED BAYLOR ACADEMY"} 
                 onChange={(v) => onSettingChange('schoolName', v.toUpperCase())} 
@@ -66,7 +66,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
                 placeholder="ACADEMY NAME"
             />
           </h1>
-          <div className="text-[16px] font-black text-blue-800 uppercase tracking-[0.4em] italic leading-none pt-1">
+          <div className="text-[12px] font-black text-blue-800 uppercase tracking-[0.4em] italic leading-none pt-1">
             <EditableField 
                 value={settings.schoolMotto || "EXCELLENCE IN KNOWLEDGE AND CHARACTER"} 
                 onChange={(v) => onSettingChange('schoolMotto', v.toUpperCase())} 
@@ -75,7 +75,7 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
                 placeholder="ACADEMY MOTTO"
             />
           </div>
-          <div className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] pt-1 leading-none">
+          <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em] pt-0.5 leading-none">
             <EditableField 
                 value={settings.schoolAddress || "ACCRA DIGITAL CENTRE, GHANA"} 
                 onChange={(v) => onSettingChange('schoolAddress', v.toUpperCase())} 
@@ -88,8 +88,8 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
       </div>
 
       {/* Official Report Identification */}
-      <div className="mt-2 mb-1">
-         <h2 className="text-xl font-black text-red-700 uppercase tracking-[0.4em] bg-red-50 py-3 border-y-2 border-red-200">
+      <div className="mt-1 mb-0.5">
+         <h2 className="text-lg font-black text-red-700 uppercase tracking-[0.4em] bg-red-50 py-1.5 border-y-2 border-red-200">
            <EditableField 
             value={reportTitle} 
             onChange={(v) => onSettingChange('examTitle', v.toUpperCase())} 
@@ -103,33 +103,33 @@ const ReportBrandingHeader: React.FC<ReportBrandingHeaderProps> = ({
 
       {/* Connectivity Cluster - Particulars Focus */}
       {!hideConnectivity && (
-        <div className="flex justify-center flex-wrap gap-x-10 gap-y-0 pt-1 border-t border-slate-100 no-print">
+        <div className="flex justify-center flex-wrap gap-x-6 gap-y-0 border-t border-slate-100 no-print">
           <div className="flex gap-1 items-center px-1">
-            <span className="text-slate-400 text-[6px] leading-none uppercase font-black">TEL:</span>
+            <span className="text-slate-400 text-[5px] leading-none uppercase font-black">TEL:</span>
             <EditableField 
               value={settings.schoolContact} 
               onChange={(v) => onSettingChange('schoolContact', v)} 
-              className="font-black text-[10px] tracking-widest" 
+              className="font-black text-[8px] tracking-widest" 
               disabled={readOnly}
               placeholder="+233..."
             />
           </div>
           <div className="flex gap-1 items-center px-1">
-            <span className="text-slate-400 text-[6px] leading-none uppercase font-black">MAIL:</span>
+            <span className="text-slate-400 text-[5px] leading-none uppercase font-black">MAIL:</span>
             <EditableField 
               value={settings.schoolEmail} 
               onChange={(v) => onSettingChange('schoolEmail', v.toLowerCase())} 
-              className="font-black text-[10px] tracking-widest" 
+              className="font-black text-[8px] tracking-widest" 
               disabled={readOnly}
               placeholder="MAIL@ACADEMY.EDU"
             />
           </div>
           <div className="flex gap-1 items-center px-1">
-            <span className="text-slate-400 text-[6px] leading-none uppercase font-black">WEB:</span>
+            <span className="text-slate-400 text-[5px] leading-none uppercase font-black">WEB:</span>
             <EditableField 
               value={settings.schoolWebsite || "WWW.UNITEDBAYLOR.EDU"} 
               onChange={(v) => onSettingChange('schoolWebsite', v.toLowerCase())} 
-              className="font-black text-[10px] tracking-widest" 
+              className="font-black text-[8px] tracking-widest" 
               disabled={readOnly}
               placeholder="WWW.ACADEMY.EDU"
             />
