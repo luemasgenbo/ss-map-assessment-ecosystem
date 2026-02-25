@@ -31,9 +31,9 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
   const adminRemark = `Intervention Method: ${student.bestSixAggregate > 20 ? 'Mandatory after-school clinic for identified weak strands.' : 'Peer-to-peer collaborative learning clusters.'} Remedial Action: Targeted practice in ${student.subjects[0]?.subject || 'core areas'} to bridge identified gaps.`;
 
   return (
-  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0">
-    {/* HEADER AREA - 20% */}
-    <div className="h-[20%] flex flex-col justify-center shrink-0 border-b-2 border-blue-900/10 mb-2">
+  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-8 box-border font-sans overflow-hidden border border-gray-200 flex-shrink-0">
+    {/* HEADER AREA - 18% */}
+    <div className="h-[18%] flex flex-col justify-center shrink-0 border-b-2 border-blue-900/10 mb-2">
       <ReportBrandingHeader 
         settings={settings} 
         onSettingChange={onSettingChange} 
@@ -45,7 +45,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
     </div>
 
     {/* GRID BOXES AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 py-2">
+    <div className="h-[40%] flex flex-col shrink-0 py-2 overflow-hidden">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
       <div className="grid grid-cols-2 gap-4 mb-2">
         <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-blue-50">
@@ -152,7 +152,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
     </div>
 
     {/* OTHERS & SPACING AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 pt-2 gap-2">
+    <div className="h-[40%] flex flex-col shrink-0 pt-2 gap-2 overflow-hidden">
       <div className="grid grid-cols-3 gap-2 flex-1">
         {/* CONDUCT & ATTENDANCE */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-center">
@@ -224,9 +224,9 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
   const adminRemark = `Intervention Method: ${student.bestSixAggregate > 20 ? 'Mandatory after-school clinic for identified weak strands.' : 'Peer-to-peer collaborative learning clusters.'} Remedial Action: Targeted practice in ${student.subjects[0]?.subject || 'core areas'} to bridge identified gaps.`;
 
   return (
-  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
-    {/* HEADER AREA - 20% */}
-    <div className="h-[20%] flex flex-col justify-center shrink-0 border-b-2 border-gray-100 mb-4">
+  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-12 box-border font-sans overflow-hidden border border-gray-300 flex-shrink-0">
+    {/* HEADER AREA - 18% */}
+    <div className="h-[18%] flex flex-col justify-center shrink-0 border-b-2 border-gray-100 mb-4">
       <ReportBrandingHeader 
         settings={settings} 
         onSettingChange={onSettingChange} 
@@ -239,7 +239,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     </div>
 
     {/* GRID BOXES AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 py-2">
+    <div className="h-[40%] flex flex-col shrink-0 py-2 overflow-hidden">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
       <div className="grid grid-cols-2 gap-8 mb-2 border-y border-gray-100 py-1">
         <div className="space-y-0.5">
@@ -318,7 +318,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     </div>
 
     {/* OTHERS & SPACING AREA - 40% */}
-    <div className="h-[40%] flex flex-col shrink-0 pt-4 gap-4">
+    <div className="h-[40%] flex flex-col shrink-0 pt-4 gap-4 overflow-hidden">
       <div className="grid grid-cols-3 gap-4 flex-1">
         <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col justify-center">
           <h4 className="text-[8px] font-black text-gray-400 uppercase mb-1 leading-none">Conduct & Attendance</h4>
@@ -358,9 +358,9 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
 };
 
 const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
-  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
-    {/* HEADER AREA - 20% */}
-    <div className="h-[20%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-8">
+  <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
+    {/* HEADER AREA - 18% */}
+    <div className="h-[18%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-8">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>
