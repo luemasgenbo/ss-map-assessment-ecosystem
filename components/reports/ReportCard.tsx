@@ -96,7 +96,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
       <div className="flex-1 border-[2px] border-blue-950 rounded-xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
           <thead className="bg-blue-950 text-white uppercase text-[10px] leading-none font-black tracking-widest sticky top-0">
-            <tr className="h-8">
+            <tr className="h-7">
               <th className="px-3 text-left">Academic Discipline</th>
               <th className="px-1 text-center w-[40px]">Obj</th>
               <th className="px-1 text-center w-[40px]">Thy</th>
@@ -116,7 +116,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
               else rowColor = "bg-red-50";
 
               return (
-                <tr key={sub.subject} className={`${rowColor} font-bold h-8 border-b border-gray-100`}>
+                <tr key={sub.subject} className={`${rowColor} font-bold h-7 border-b border-gray-100`}>
                   <td className="px-3 text-blue-950 uppercase truncate max-w-[150px] text-[10px] leading-none border-r border-gray-100">{sub.subject}</td>
                   <td className="text-center font-mono text-gray-500 text-[10px] leading-none border-r border-gray-100">{sub.sectionA ?? '0'}</td>
                   <td className="text-center font-mono text-gray-500 text-[10px] leading-none border-r border-gray-100">{sub.sectionB ?? '0'}</td>
@@ -132,7 +132,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
         </table>
         
         {/* PERFORMANCE ANALYSIS HEATMAP - Integrated into Grid Area */}
-        <div className="mt-auto p-4 bg-slate-50 border-t border-blue-950/10 grid grid-cols-4 gap-3 h-[60px] shrink-0">
+        <div className="mt-auto p-2 bg-slate-50 border-t border-blue-950/10 grid grid-cols-4 gap-3 h-[45px] shrink-0">
           <div className="col-span-1 bg-blue-950 text-white rounded-xl flex flex-col items-center justify-center border border-blue-900 shadow-lg h-full">
             <span className="text-[8px] font-black uppercase tracking-widest opacity-60 leading-none">Overall Efficiency</span>
             <span className="text-[14px] font-black font-mono leading-none mt-1">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
@@ -275,7 +275,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
       <div className="flex-1 border-2 border-gray-100 rounded-2xl overflow-hidden flex flex-col">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-50 text-[9px] font-black text-gray-500 uppercase border-b-2 border-gray-200 h-8">
+            <tr className="bg-gray-50 text-[9px] font-black text-gray-500 uppercase border-b-2 border-gray-200 h-7">
               <th className="py-1 px-4 text-left leading-none">Discipline</th>
               <th className="py-1 px-2 text-center leading-none">Obj</th>
               <th className="py-1 px-2 text-center leading-none">Thy</th>
@@ -287,7 +287,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
           </thead>
           <tbody className="divide-y divide-gray-50">
             {student.subjects.map((sub: any) => (
-              <tr key={sub.subject} className="text-[9px] h-8">
+              <tr key={sub.subject} className="text-[9px] h-7">
                 <td className="py-0 px-4 font-bold text-gray-800 uppercase leading-none">{sub.subject}</td>
                 <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionA ?? '0'}</td>
                 <td className="py-0 px-2 text-center font-mono text-gray-400 leading-none">{sub.sectionB ?? '0'}</td>
@@ -300,10 +300,10 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
           </tbody>
         </table>
 
-        <div className="mt-auto flex items-center justify-between bg-gray-50 p-4 border-t border-gray-100">
+        <div className="mt-auto flex items-center justify-between bg-gray-50 p-2 border-t border-gray-100">
           <div className="flex flex-col">
             <span className="text-[8px] font-black text-gray-400 uppercase leading-none mb-1">Overall Efficiency</span>
-            <span className="text-xl font-black text-gray-900 leading-none">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
+            <span className="text-lg font-black text-gray-900 leading-none">{((student.subjects.filter((s: any)=>s.gradeValue <= 6).length / student.subjects.length)*100).toFixed(0)}%</span>
           </div>
           <div className="flex gap-6">
             {['A1','B2','B3','C4','C5','C6','D7','E8','F9'].map(g => (
@@ -360,7 +360,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
 const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
   <div className="bg-white w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:border-none flex flex-col p-16 box-border font-sans overflow-hidden border-4 border-gray-100 flex-shrink-0">
     {/* HEADER AREA - 12% */}
-    <div className="h-[12%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-8">
+    <div className="h-[12%] flex flex-col justify-center shrink-0 border-b border-gray-100 mb-4">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">{settings.schoolName}</h1>
@@ -378,9 +378,9 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       </div>
     </div>
 
-    {/* GRID BOXES AREA - 38% */}
-    <div className="h-[38%] flex flex-col shrink-0">
-      <div className="mb-8">
+    {/* GRID BOXES AREA - 44% */}
+    <div className="h-[44%] flex flex-col shrink-0">
+      <div className="mb-4">
         <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2 leading-none">{student.name}</h2>
         <div className="flex gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
           <span>ID: {student.indexNumber || student.id}</span>
@@ -404,8 +404,8 @@ const MinimalReport: React.FC<any> = ({ student, settings, totalEnrolled }) => (
       </div>
     </div>
 
-    {/* OTHERS & SPACING AREA - 38% */}
-    <div className="h-[38%] flex flex-col shrink-0 pt-8">
+    {/* OTHERS & SPACING AREA - 34% */}
+    <div className="h-[34%] flex flex-col shrink-0 pt-8">
       <div className="border-l-4 border-gray-900 pl-6 py-2 mb-4">
         <p className="text-xs font-bold text-gray-600 uppercase leading-none italic">
           "{student.overallRemark || "The candidate demonstrates a stable academic profile."}"
