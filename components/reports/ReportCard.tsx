@@ -47,7 +47,7 @@ const PrestigeReport: React.FC<any> = ({ student, stats, settings, onSettingChan
     {/* GRID BOXES AREA - 44% */}
     <div className="h-[44%] flex flex-col shrink-0 py-2 overflow-hidden">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
-      <div className="grid grid-cols-2 gap-4 mb-2">
+      <div className="grid grid-cols-2 gap-4 mb-2 mt-[2px]">
         <div className="border-[1.5px] border-blue-900 rounded-xl overflow-hidden bg-blue-50">
           <div className="bg-blue-950 text-white text-[8px] leading-none font-black px-3 py-1.5 uppercase tracking-widest flex items-center justify-between">
             <span>Logistics Node</span>
@@ -241,7 +241,7 @@ const StandardReport: React.FC<any> = ({ student, settings, onSettingChange, tot
     {/* GRID BOXES AREA - 44% */}
     <div className="h-[44%] flex flex-col shrink-0 py-2 overflow-hidden">
       {/* CANDIDATE PARTICULARS - Moved to Grid Area */}
-      <div className="grid grid-cols-2 gap-8 mb-2 border-y border-gray-100 py-1">
+      <div className="grid grid-cols-2 gap-8 mb-2 border-y border-gray-100 py-1 mt-[2px]">
         <div className="space-y-0.5">
           <div className="flex justify-between border-b border-gray-50">
             <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Student Name</span>
