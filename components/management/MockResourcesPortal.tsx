@@ -61,6 +61,77 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
     updateResourceField('revisionPlan', { schemes: nextSchemes });
   };
 
+  const handleDownloadSchemeCSV = () => {
+    const headers = ['Week', 'Strand', 'Sub-Strand', 'Indicator Code', 'Instructional Indicator'];
+    const rows = Array.from({ length: 12 }, (_, i) => {
+      const week = i + 1;
+      const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '' };
+      return [
+        weekData.week,
+        `"${(weekData.strand || '').replace(/"/g, '""')}"`,
+        `"${(weekData.subStrand || '').replace(/"/g, '""')}"`,
+        `"${(weekData.indicatorCode || '').replace(/"/g, '""')}"`,
+        `"${(weekData.indicator || '').replace(/"/g, '""')}"`
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `scheme_${selectedSubject}_B${activePlanYear}_T${activePlanTerm}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleUploadSchemeCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      if (lines.length <= 1) return;
+
+      // Skip header
+      const dataLines = lines.slice(1);
+      
+      const newWeeks: SchemeOfWeek[] = dataLines.map(line => {
+        // Simple CSV parser (doesn't handle all edge cases but should work for this)
+        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        const week = parseInt(parts[0]) || 0;
+        const strand = parts[1]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
+        const subStrand = parts[2]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
+        const indicatorCode = parts[3]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
+        const indicator = parts[4]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
+        
+        return { week, strand, subStrand, indicatorCode, indicator };
+      }).filter(w => w.week > 0 && w.week <= 12);
+
+      if (newWeeks.length > 0) {
+        const currentPlan = activeResource.revisionPlan || { schemes: [] };
+        const nextSchemes = [...currentPlan.schemes];
+        const schemeIdx = nextSchemes.findIndex(s => s.basicYear === activePlanYear && s.term === activePlanTerm);
+        
+        const targetScheme = { term: activePlanTerm, basicYear: activePlanYear, weeks: newWeeks };
+        if (schemeIdx >= 0) {
+          nextSchemes[schemeIdx] = targetScheme;
+        } else {
+          nextSchemes.push(targetScheme);
+        }
+
+        updateResourceField('revisionPlan', { schemes: nextSchemes });
+        alert(`Successfully imported ${newWeeks.length} weeks for Basic ${activePlanYear} Term ${activePlanTerm}.`);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
+
   const getTargetTerms = (mockName: string) => {
     const match = mockName.match(/\d+/);
     if (!match) return [];
@@ -440,7 +511,18 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                     <div className="bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden">
                        <div className="p-6 border-b border-white/10 flex justify-between items-center">
                           <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Scheme of Learning — Weekly Breakdown</span>
-                          <button onClick={handleSyncFromScheme} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-black text-[9px] uppercase shadow-lg transition-all">Sync to Connector</button>
+                          <div className="flex gap-2">
+                             <button onClick={handleDownloadSchemeCSV} className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase shadow-lg transition-all flex items-center gap-2">
+                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                               Download CSV
+                             </button>
+                             <label className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase shadow-lg transition-all flex items-center gap-2 cursor-pointer">
+                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                               Upload CSV
+                               <input type="file" accept=".csv" onChange={handleUploadSchemeCSV} className="hidden" />
+                             </label>
+                             <button onClick={handleSyncFromScheme} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-black text-[9px] uppercase shadow-lg transition-all">Sync to Connector</button>
+                          </div>
                        </div>
                        <div className="max-h-[400px] overflow-y-auto custom-scrollbar-v p-6 space-y-4">
                           {Array.from({ length: 12 }, (_, i) => i + 1).map(week => {
