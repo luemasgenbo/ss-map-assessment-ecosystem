@@ -210,29 +210,76 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
       return;
     }
 
-    const relevantSchemes = activeResource.revisionPlan.schemes.filter(s => targetTerms.includes(s.term));
-    const newIndicators: QuestionIndicatorMapping[] = [];
+    const mockNumMatch = settings.activeMock.match(/\d+/);
+    const mockNum = mockNumMatch ? parseInt(mockNumMatch[0]) : 0;
+    
+    let newIndicators: QuestionIndicatorMapping[] = [];
 
-    relevantSchemes.forEach(scheme => {
-      scheme.weeks.forEach(week => {
+    if (mockNum === 10) {
+      // Mock 10: All Terms (34% T1, 36% T2, 30% T3)
+      const t1Schemes = activeResource.revisionPlan.schemes.filter(s => s.term === 1);
+      const t2Schemes = activeResource.revisionPlan.schemes.filter(s => s.term === 2);
+      const t3Schemes = activeResource.revisionPlan.schemes.filter(s => s.term === 3);
+
+      const t1Weeks = t1Schemes.flatMap(s => s.weeks.map(w => ({ ...w, basicYear: s.basicYear, term: s.term })));
+      const t2Weeks = t2Schemes.flatMap(s => s.weeks.map(w => ({ ...w, basicYear: s.basicYear, term: s.term })));
+      const t3Weeks = t3Schemes.flatMap(s => s.weeks.map(w => ({ ...w, basicYear: s.basicYear, term: s.term })));
+
+      // For Mock 10, we sample based on percentages
+      // Total target is roughly 45 items (40 obj + 5 theory)
+      const targetTotal = 45;
+      const t1Count = Math.round(targetTotal * 0.34);
+      const t2Count = Math.round(targetTotal * 0.36);
+      const t3Count = Math.max(0, targetTotal - t1Count - t2Count);
+
+      const sample = (weeks: any[], count: number) => {
+        const shuffled = [...weeks].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+      };
+
+      const selectedWeeks = [
+        ...sample(t1Weeks, t1Count),
+        ...sample(t2Weeks, t2Count),
+        ...sample(t3Weeks, t3Count)
+      ];
+
+      selectedWeeks.forEach((week, idx) => {
         newIndicators.push({
-          id: `SCH-${scheme.basicYear}-${scheme.term}-${week.week}-${Date.now()}`,
-          section: 'A', // Default to A, can be changed later
-          questionRef: week.week.toString(),
+          id: `SCH-M10-${week.basicYear}-${week.term}-${week.week}-${idx}-${Date.now()}`,
+          section: idx < 40 ? 'A' : 'B',
+          questionRef: (idx < 40 ? idx + 1 : idx - 39).toString(),
           strand: week.strand,
           subStrand: week.subStrand,
           indicatorCode: week.indicatorCode,
           indicator: week.indicator,
-          weight: 1,
-          sourceTerm: scheme.term,
-          sourceYear: scheme.basicYear
+          weight: idx < 40 ? 1 : 10,
+          sourceTerm: week.term as 1 | 2 | 3,
+          sourceYear: week.basicYear as 7 | 8 | 9
         });
       });
-    });
+    } else {
+      const relevantSchemes = activeResource.revisionPlan.schemes.filter(s => targetTerms.includes(s.term));
+      relevantSchemes.forEach(scheme => {
+        scheme.weeks.forEach(week => {
+          newIndicators.push({
+            id: `SCH-${scheme.basicYear}-${scheme.term}-${week.id || week.week}-${Date.now()}`,
+            section: 'A', 
+            questionRef: week.week.toString(),
+            strand: week.strand,
+            subStrand: week.subStrand,
+            indicatorCode: week.indicatorCode,
+            indicator: week.indicator,
+            weight: 1,
+            sourceTerm: scheme.term,
+            sourceYear: scheme.basicYear
+          });
+        });
+      });
+    }
 
     if (newIndicators.length > 0) {
       updateResourceField('indicators', [...activeResource.indicators, ...newIndicators]);
-      alert(`Successfully synced ${newIndicators.length} indicators from Term ${targetTerms.join(', ')} schemes.`);
+      alert(`Successfully synced ${newIndicators.length} indicators based on ${settings.activeMock} mapping rules.`);
     } else {
       alert("No matching weeks found in the scheme for the target terms.");
     }

@@ -61,6 +61,21 @@ const SubjectQuestionsBank: React.FC<SubjectQuestionsBankProps> = ({ activeFacil
           facilitatorName: q.facilitator_email || 'NETWORK_SHARD'
         }));
         setMasterBank(mappedQs);
+
+        // SYLLABUS MAPPING FRAMEWORK: Suggest default questions
+        const portal = settings.resourcePortal || {};
+        const mockData = portal[settings.activeMock] || {};
+        const subjectResource = mockData[selectedSubject];
+        
+        if (subjectResource && subjectResource.indicators.length > 0) {
+          const targetIndicatorCodes = new Set(subjectResource.indicators.map(i => i.indicatorCode));
+          const suggested = mappedQs.filter(q => q.indicatorCode && targetIndicatorCodes.has(q.indicatorCode));
+          
+          if (suggested.length > 0) {
+            setBasket(suggested);
+          }
+        }
+
         // Reset filters when subject changes
         setFStrand('ALL');
         setFSubStrand('ALL');
@@ -71,7 +86,7 @@ const SubjectQuestionsBank: React.FC<SubjectQuestionsBankProps> = ({ activeFacil
     } finally {
       setIsLoading(false);
     }
-  }, [selectedSubject]);
+  }, [selectedSubject, settings.activeMock, settings.resourcePortal]);
 
   useEffect(() => { fetchBank(); }, [fetchBank]);
 
