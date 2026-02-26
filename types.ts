@@ -337,6 +337,7 @@ export interface MockResource {
   generalReport?: string;
   serializedPacks?: { A: string, B: string, C: string, D: string };
   revisionPlan?: RevisionPlan;
+  questionBank?: MasterQuestion[];
 }
 
 export interface SchemeOfWeek {
@@ -368,6 +369,7 @@ export interface QuestionIndicatorMapping {
   indicatorCode: string;
   indicator: string;
   weight: number;
+  masteryLevel?: 'LOW' | 'INTERMEDIATE' | 'HIGH';
   isCovered?: boolean;
   coveredAt?: string;
   sourceTerm?: 1 | 2 | 3;

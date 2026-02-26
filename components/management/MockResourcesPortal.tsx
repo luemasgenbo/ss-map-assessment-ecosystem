@@ -373,7 +373,8 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
       subStrand: 'CORE',
       indicatorCode: `B9.1.1.1.${i + 1}`,
       indicator: `Assessment of instructional node ${i + 1}`,
-      weight: 1
+      weight: 1,
+      masteryLevel: i % 3 === 0 ? 'LOW' : i % 3 === 1 ? 'INTERMEDIATE' : 'HIGH'
     }));
     updateResourceField('indicators', [...activeResource.indicators, ...newIndicators]);
   };
@@ -387,7 +388,8 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
       subStrand: 'APPLICATION',
       indicatorCode: `B9.2.1.1.${i + 1}`,
       indicator: `Theoretical analysis of shard ${i + 1}`,
-      weight: 10
+      weight: 10,
+      masteryLevel: i % 2 === 0 ? 'LOW' : 'INTERMEDIATE'
     }));
     updateResourceField('indicators', [...activeResource.indicators, ...newIndicators]);
   };
@@ -396,6 +398,97 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
     if (window.confirm("CRITICAL: Purge entire syllabus mapping framework for this subject?")) {
       updateResourceField('indicators', []);
     }
+  };
+
+  const handleGenerateSuggestions = () => {
+    const indicators = activeResource.indicators || [];
+    if (indicators.length === 0) {
+      alert("No indicators mapped. Please build the framework first.");
+      return;
+    }
+
+    const low = indicators.filter(i => i.masteryLevel === 'LOW');
+    const mid = indicators.filter(i => i.masteryLevel === 'INTERMEDIATE' || !i.masteryLevel);
+    const high = indicators.filter(i => i.masteryLevel === 'HIGH');
+
+    const suggested: QuestionIndicatorMapping[] = [];
+    const targetCount = 20;
+
+    const pick = (pool: QuestionIndicatorMapping[], count: number) => {
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    };
+
+    suggested.push(...pick(low, Math.floor(targetCount * 0.6)));
+    suggested.push(...pick(mid, Math.floor(targetCount * 0.3)));
+    suggested.push(...pick(high, Math.floor(targetCount * 0.1)));
+
+    const newQuestions = suggested.map((ind, i) => ({
+      id: `QB-${Date.now()}-${i}`,
+      originalIndex: i + 1,
+      type: ind.section === 'A' ? 'OBJECTIVE' : 'THEORY',
+      subject: selectedSubject,
+      strand: ind.strand,
+      subStrand: ind.subStrand,
+      indicator: ind.indicator,
+      indicatorCode: ind.indicatorCode,
+      questionText: `Suggested question for ${ind.indicatorCode}`,
+      instruction: 'Answer the following question based on the indicator.',
+      correctKey: 'A',
+      answerScheme: 'Sample marking scheme',
+      weight: ind.weight,
+      blooms: 'Understanding',
+      parts: [],
+      section: ind.section
+    }));
+
+    updateResourceField('questionBank', [...(activeResource.questionBank || []), ...newQuestions]);
+    alert(`Generated ${newQuestions.length} suggestions based on mastery levels (60% Low, 30% Mid, 10% High).`);
+  };
+
+  const handleGenerateClusteredTheory = () => {
+    const indicators = activeResource.indicators.filter(i => i.section === 'B');
+    if (indicators.length < 5) {
+      alert("Not enough Section B indicators to cluster. Please add more.");
+      return;
+    }
+
+    const seriesCount = 5;
+    const clusterSize = 3;
+    const newQuestions: any[] = [];
+
+    for (let s = 0; s < seriesCount; s++) {
+      const cluster = [...indicators].sort(() => 0.5 - Math.random()).slice(0, clusterSize);
+      
+      newQuestions.push({
+        id: `QB-SERIES-${Date.now()}-${s}`,
+        originalIndex: s + 1,
+        type: 'THEORY',
+        subject: selectedSubject,
+        strand: 'CLUSTERED SERIES',
+        subStrand: `Series ${s + 1}`,
+        indicator: cluster.map(c => c.indicator).join(' | '),
+        indicatorCode: cluster.map(c => c.indicatorCode).join(', '),
+        questionText: `Clustered Theory Series ${s + 1}`,
+        instruction: 'Synthesize the following indicators into a comprehensive response.',
+        correctKey: '',
+        answerScheme: 'Multi-indicator marking scheme',
+        weight: cluster.reduce((sum, c) => sum + c.weight, 0),
+        blooms: 'Synthesis',
+        parts: cluster.map((c, ci) => ({
+          partLabel: String.fromCharCode(97 + ci),
+          text: `Evaluate: ${c.indicator}`,
+          possibleAnswers: '',
+          markingScheme: `Marking for ${c.indicatorCode}`,
+          weight: c.weight,
+          blooms: 'Analysis'
+        })),
+        section: 'B'
+      });
+    }
+
+    updateResourceField('questionBank', [...(activeResource.questionBank || []), ...newQuestions]);
+    alert(`Generated ${seriesCount} clustered theory series.`);
   };
 
   return (
