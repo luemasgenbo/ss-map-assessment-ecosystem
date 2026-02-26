@@ -345,6 +345,7 @@ export interface SchemeOfWeek {
   subStrand: string;
   indicator: string;
   indicatorCode: string;
+  additions?: string;
 }
 
 export interface TermScheme {

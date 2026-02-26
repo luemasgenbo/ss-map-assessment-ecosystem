@@ -62,16 +62,17 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
   };
 
   const handleDownloadSchemeCSV = () => {
-    const headers = ['Week', 'Strand', 'Sub-Strand', 'Indicator Code', 'Instructional Indicator'];
-    const rows = Array.from({ length: 12 }, (_, i) => {
+    const headers = ['Week', 'Strand', 'Sub-Strand', 'Indicator Code', 'Instructional Indicator', 'Additions'];
+    const rows = Array.from({ length: 16 }, (_, i) => {
       const week = i + 1;
-      const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '' };
+      const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '', additions: '' };
       return [
         weekData.week,
         `"${(weekData.strand || '').replace(/"/g, '""')}"`,
         `"${(weekData.subStrand || '').replace(/"/g, '""')}"`,
         `"${(weekData.indicatorCode || '').replace(/"/g, '""')}"`,
-        `"${(weekData.indicator || '').replace(/"/g, '""')}"`
+        `"${(weekData.indicator || '').replace(/"/g, '""')}"`,
+        `"${(weekData.additions || '').replace(/"/g, '""')}"`
       ].join(',');
     });
 
@@ -108,9 +109,10 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
         const subStrand = parts[2]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
         const indicatorCode = parts[3]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
         const indicator = parts[4]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
+        const additions = parts[5]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
         
-        return { week, strand, subStrand, indicatorCode, indicator };
-      }).filter(w => w.week > 0 && w.week <= 12);
+        return { week, strand, subStrand, indicatorCode, indicator, additions };
+      }).filter(w => w.week > 0 && w.week <= 16);
 
       if (newWeeks.length > 0) {
         const currentPlan = activeResource.revisionPlan || { schemes: [] };
@@ -525,8 +527,8 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                           </div>
                        </div>
                        <div className="max-h-[400px] overflow-y-auto custom-scrollbar-v p-6 space-y-4">
-                          {Array.from({ length: 12 }, (_, i) => i + 1).map(week => {
-                             const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '' };
+                          {Array.from({ length: 16 }, (_, i) => i + 1).map(week => {
+                             const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '', additions: '' };
                              return (
                                 <div key={week} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all">
                                    <div className="md:col-span-1 text-center">
@@ -550,7 +552,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
                                       />
                                    </div>
-                                   <div className="md:col-span-2">
+                                   <div className="md:col-span-1">
                                       <input 
                                         type="text" 
                                         placeholder="Code"
@@ -559,13 +561,22 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-mono font-black text-blue-400 outline-none focus:border-blue-500"
                                       />
                                    </div>
-                                   <div className="md:col-span-5">
+                                   <div className="md:col-span-3">
                                       <input 
                                         type="text" 
                                         placeholder="Instructional Indicator"
                                         value={weekData.indicator}
                                         onChange={e => updateSchemeWeek(week, 'indicator', e.target.value.toUpperCase())}
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-slate-300 outline-none focus:border-blue-500"
+                                      />
+                                   </div>
+                                   <div className="md:col-span-3">
+                                      <input 
+                                        type="text" 
+                                        placeholder="Additions / Notes"
+                                        value={weekData.additions || ''}
+                                        onChange={e => updateSchemeWeek(week, 'additions', e.target.value.toUpperCase())}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-emerald-400 outline-none focus:border-emerald-500"
                                       />
                                    </div>
                                 </div>
