@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { GlobalSettings, MockResource, QuestionIndicatorMapping, SchemeOfWeek } from '../../types';
 import { SUBJECT_LIST } from '../../constants';
 import ReportBrandingHeader from '../shared/ReportBrandingHeader';
@@ -20,7 +20,20 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
   activeFacilitator,
   onSave
 }) => {
-  const [selectedSubject, setSelectedSubject] = useState(activeFacilitator?.subject || subjects[0]);
+  const filteredSubjects = useMemo(() => {
+    if (isFacilitator && activeFacilitator?.subject) {
+      return subjects.filter(s => s === activeFacilitator.subject);
+    }
+    return subjects;
+  }, [subjects, isFacilitator, activeFacilitator]);
+
+  const [selectedSubject, setSelectedSubject] = useState(activeFacilitator?.subject || filteredSubjects[0]);
+  
+  useEffect(() => {
+    if (isFacilitator && activeFacilitator?.subject) {
+      setSelectedSubject(activeFacilitator.subject);
+    }
+  }, [isFacilitator, activeFacilitator]);
   
   // Modal State for Curriculum Connector
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -477,7 +490,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                  </div>
               </div>
               <div className="space-y-3 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar-v">
-                 {subjects.map(sub => {
+                 {filteredSubjects.map(sub => {
                    const isSelected = selectedSubject === sub;
                    const isDisabled = isFacilitator && activeFacilitator?.subject !== sub;
                    return (

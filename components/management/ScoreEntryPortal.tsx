@@ -17,7 +17,14 @@ interface ScoreEntryPortalProps {
 const ScoreEntryPortal: React.FC<ScoreEntryPortalProps> = ({ 
   students, setStudents, settings, onSettingChange, subjects, onSave, activeFacilitator 
 }) => {
-  const [selectedSubject, setSelectedSubject] = useState(activeFacilitator?.subject || subjects[0] || "English Language");
+  const filteredSubjects = useMemo(() => {
+    if (activeFacilitator?.subject) {
+      return subjects.filter(s => s === activeFacilitator.subject);
+    }
+    return subjects;
+  }, [subjects, activeFacilitator]);
+
+  const [selectedSubject, setSelectedSubject] = useState(activeFacilitator?.subject || filteredSubjects[0] || "English Language");
   const [searchTerm, setSearchTerm] = useState('');
   const [isMirroring, setIsMirroring] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
@@ -284,7 +291,7 @@ const ScoreEntryPortal: React.FC<ScoreEntryPortalProps> = ({
              </div>
 
              <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} disabled={!!activeFacilitator?.subject} className="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase text-blue-400 outline-none">
-               {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+               {filteredSubjects.map(s => <option key={s} value={s}>{s}</option>)}
              </select>
           </div>
         </div>

@@ -13,9 +13,22 @@ interface CurriculumCoveragePortalProps {
 }
 
 const CurriculumCoveragePortal: React.FC<CurriculumCoveragePortalProps> = ({ settings, students, subjects, isFacilitator, activeFacilitator, onSave }) => {
+  const filteredSubjects = useMemo(() => {
+    if (isFacilitator && activeFacilitator?.subject) {
+      return subjects.filter(s => s === activeFacilitator.subject);
+    }
+    return subjects;
+  }, [subjects, isFacilitator, activeFacilitator]);
+
   const [coverageMap, setCoverageMap] = useState<ScopeCoverage[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState(isFacilitator ? activeFacilitator?.subject || subjects[0] : subjects[0]);
+  const [selectedSubject, setSelectedSubject] = useState(activeFacilitator?.subject || filteredSubjects[0]);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+  useEffect(() => {
+    if (isFacilitator && activeFacilitator?.subject) {
+      setSelectedSubject(activeFacilitator.subject);
+    }
+  }, [isFacilitator, activeFacilitator]);
 
   // 1. DYNAMIC SYLLABUS: Aggregated from all Mock Resources for this subject
   // This automatically fetches strands/sub-strands defined in the Resource Hub
@@ -137,7 +150,7 @@ const CurriculumCoveragePortal: React.FC<CurriculumCoveragePortalProps> = ({ set
                 onChange={e => setSelectedSubject(e.target.value)}
                 className="bg-white/10 border border-white/20 rounded-2xl px-6 py-3 text-xs font-black uppercase outline-none text-white disabled:opacity-50"
               >
-                {subjects.map(s => <option key={s} value={s} className="text-slate-900">{s}</option>)}
+                {filteredSubjects.map(s => <option key={s} value={s} className="text-slate-900">{s}</option>)}
               </select>
               <button 
                 onClick={handleBroadcastToPupils}

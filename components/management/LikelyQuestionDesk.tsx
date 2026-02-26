@@ -17,8 +17,15 @@ const GH_LANGS = ["TWI (AKUAPEM)", "TWI (ASANTE)", "FANTE", "GA", "EWE", "DANGME
 const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({ 
   activeFacilitator, subjects = [], facilitators = {}, settings, isAdmin
 }) => {
+  const filteredSubjects = useMemo(() => {
+    if (!isAdmin && activeFacilitator?.subject) {
+      return subjects.filter(s => s === activeFacilitator.subject);
+    }
+    return subjects;
+  }, [subjects, activeFacilitator, isAdmin]);
+
   const [questions, setQuestions] = useState<MasterQuestion[]>([]);
-  const initialSubject = activeFacilitator?.subject || activeFacilitator?.taughtSubject || subjects[0] || 'English Language';
+  const initialSubject = activeFacilitator?.subject || activeFacilitator?.taughtSubject || filteredSubjects[0] || 'English Language';
   const [targetSubject, setTargetSubject] = useState(initialSubject);
   const [targetFacilitatorEmail, setTargetFacilitatorEmail] = useState(activeFacilitator?.email || '');
   
@@ -264,7 +271,7 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                     <div className="space-y-1">
                        <label className="text-[8px] font-black text-indigo-400 uppercase ml-2">Target Discipline</label>
                        <select value={targetSubject} onChange={e=>setTargetSubject(e.target.value)} className="w-full bg-white border border-indigo-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none">
-                          {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                          {filteredSubjects.map(s => <option key={s} value={s}>{s}</option>)}
                        </select>
                     </div>
                  </div>
