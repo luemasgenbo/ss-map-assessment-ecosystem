@@ -404,8 +404,8 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
       {/* CURRICULUM CONNECTOR POP-OUT EDITOR */}
       {isEditorOpen && editingItem && (
         <div className="fixed inset-0 z-[600] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
-           <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-              <div className="bg-slate-950 p-10 text-white flex justify-between items-center">
+           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+              <div className="bg-slate-950 p-6 text-white flex justify-between items-center">
                  <div className="space-y-1">
                     <h3 className="text-xl font-black uppercase tracking-tighter">Indicator Shard Editor</h3>
                     <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">Curriculum Connector Node</p>
@@ -415,15 +415,15 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                  </div>
               </div>
 
-              <div className="p-10 space-y-8">
-                 <div className="grid grid-cols-2 gap-6">
+              <div className="p-6 space-y-4">
+                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Q# Reference Pointer</label>
                        <input 
                          type="text" 
                          value={editingItem.questionRef} 
                          onChange={e => setEditingItem({...editingItem, questionRef: e.target.value})}
-                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-black text-blue-900 outline-none focus:ring-4 focus:ring-blue-500/10"
+                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-black text-blue-900 outline-none focus:ring-4 focus:ring-blue-500/10"
                        />
                     </div>
                     <div className="space-y-1">
@@ -432,19 +432,19 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                          type="number" 
                          value={editingItem.weight} 
                          onChange={e => setEditingItem({...editingItem, weight: parseInt(e.target.value) || 0})}
-                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-black text-blue-900 outline-none focus:ring-4 focus:ring-blue-500/10"
+                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-black text-blue-900 outline-none focus:ring-4 focus:ring-blue-500/10"
                        />
                     </div>
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Strand Name</label>
                        <input 
                          type="text" 
                          value={editingItem.strand} 
                          onChange={e => setEditingItem({...editingItem, strand: e.target.value.toUpperCase()})}
-                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-black text-blue-900 outline-none uppercase"
+                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-black text-blue-900 outline-none uppercase"
                        />
                     </div>
                     <div className="space-y-1">
@@ -453,7 +453,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                          type="text" 
                          value={editingItem.subStrand} 
                          onChange={e => setEditingItem({...editingItem, subStrand: e.target.value.toUpperCase()})}
-                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-black text-blue-900 outline-none uppercase"
+                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-black text-blue-900 outline-none uppercase"
                        />
                     </div>
                  </div>
@@ -464,7 +464,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                       type="text" 
                       value={editingItem.indicatorCode} 
                       onChange={e => setEditingItem({...editingItem, indicatorCode: e.target.value.toUpperCase()})}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-mono font-black text-blue-600 outline-none"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-mono font-black text-blue-600 outline-none"
                       placeholder="B9.1.1.1.1"
                     />
                  </div>
@@ -474,14 +474,14 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                     <textarea 
                       value={editingItem.indicator} 
                       onChange={e => setEditingItem({...editingItem, indicator: e.target.value.toUpperCase()})}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-4 text-xs font-bold text-slate-700 outline-none resize-none min-h-[100px]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none resize-none min-h-[80px]"
                       placeholder="DESCRIBE THE MEASURABLE OUTCOME..."
                     />
                  </div>
 
-                 <div className="pt-4 flex gap-4">
-                    <button onClick={() => setIsEditorOpen(false)} className="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-black text-[10px] uppercase">Cancel</button>
-                    <button onClick={handleSaveIndicator} className="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase shadow-xl active:scale-95 transition-all">Save Mapping Node</button>
+                 <div className="pt-2 flex gap-4">
+                    <button onClick={() => setIsEditorOpen(false)} className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-2xl font-black text-[10px] uppercase">Cancel</button>
+                    <button onClick={handleSaveIndicator} className="flex-1 bg-blue-900 text-white py-3 rounded-2xl font-black text-[10px] uppercase shadow-xl active:scale-95 transition-all">Save Mapping Node</button>
                  </div>
               </div>
            </div>
