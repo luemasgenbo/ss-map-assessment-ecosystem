@@ -56,6 +56,16 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [viewTheoryAns, setViewTheoryAns] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 40;
+
+  const paginatedQuestions = useMemo(() => {
+    const sorted = [...questions].reverse();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return sorted.slice(startIndex, startIndex + itemsPerPage);
+  }, [questions, currentPage]);
+
+  const totalPages = Math.ceil(questions.length / itemsPerPage);
 
   useEffect(() => {
     const sub = activeFacilitator?.subject || activeFacilitator?.taughtSubject;
@@ -421,8 +431,8 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Recent Ingestions</h4>
                <span className="text-[9px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full">{questions.length} Captured</span>
             </div>
-            <div className="flex-1 overflow-y-auto p-8 space-y-6 max-h-[800px] no-scrollbar">
-                {questions.length > 0 ? [...questions].reverse().map((q, i) => (
+            <div className="flex-1 overflow-y-auto p-8 space-y-6 max-h-[800px] custom-scrollbar-v">
+                {paginatedQuestions.length > 0 ? paginatedQuestions.map((q) => (
                   <div key={q.id} className="bg-slate-950 border border-white/5 p-6 rounded-3xl space-y-4 group transition-all hover:border-blue-500/30">
                      <div className="flex justify-between items-start">
                         <div className="space-y-1 flex-1">
@@ -457,6 +467,45 @@ const LikelyQuestionDesk: React.FC<LikelyQuestionDeskProps> = ({
                  </div>
                )}
             </div>
+
+            {totalPages > 1 && (
+              <div className="p-8 border-t border-white/5 bg-slate-950/50 space-y-4">
+                 <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                       <button 
+                         disabled={currentPage === 1}
+                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                         className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white disabled:opacity-20 transition-all hover:bg-white/10"
+                       >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="15 18 9 12 15 6"/></svg>
+                       </button>
+                       <button 
+                         disabled={currentPage === totalPages}
+                         onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                         className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white disabled:opacity-20 transition-all hover:bg-white/10"
+                       >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="9 18 15 12 9 6"/></svg>
+                       </button>
+                    </div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Page {currentPage} of {totalPages}</span>
+                 </div>
+                 
+                 <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/5">
+                    <label className="text-[8px] font-black text-blue-400 uppercase tracking-widest whitespace-nowrap">Jump To</label>
+                    <input 
+                       type="number"
+                       min="1"
+                       max={totalPages}
+                       value={currentPage}
+                       onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (val >= 1 && val <= totalPages) setCurrentPage(val);
+                       }}
+                       className="flex-1 bg-transparent border-none text-white font-black text-xs outline-none focus:ring-0"
+                    />
+                 </div>
+              </div>
+            )}
          </div>
       </div>
 
