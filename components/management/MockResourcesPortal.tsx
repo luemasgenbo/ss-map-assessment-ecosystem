@@ -45,6 +45,21 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
     return settings.resourcePortal?.[settings.activeMock]?.[selectedSubject] || { indicators: [], questionUrl: '', schemeUrl: '' };
   }, [settings.resourcePortal, settings.activeMock, selectedSubject]);
 
+  const [indicatorPage, setIndicatorPage] = useState(1);
+  const indicatorsPerPage = 40;
+
+  const paginatedIndicators = useMemo(() => {
+    const list = activeResource.indicators || [];
+    const startIndex = (indicatorPage - 1) * indicatorsPerPage;
+    return list.slice(startIndex, startIndex + indicatorsPerPage);
+  }, [activeResource.indicators, indicatorPage]);
+
+  const totalIndicatorPages = Math.ceil((activeResource.indicators?.length || 0) / indicatorsPerPage);
+
+  useEffect(() => {
+    setIndicatorPage(1);
+  }, [selectedSubject]);
+
   const activeScheme = useMemo(() => {
     return activeResource.revisionPlan?.schemes.find(s => s.basicYear === activePlanYear && s.term === activePlanTerm) || { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
   }, [activeResource.revisionPlan, activePlanYear, activePlanTerm]);
@@ -748,9 +763,9 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                     </div>
                  </div>
 
-                 <div className="overflow-x-auto rounded-[2.5rem] border border-gray-100 shadow-xl bg-white">
+                 <div className="overflow-x-auto rounded-[2.5rem] border border-gray-100 shadow-xl bg-white max-h-[600px] overflow-y-auto custom-scrollbar-v">
                     <table className="w-full text-left border-collapse">
-                       <thead className="bg-slate-950 text-slate-500 uppercase text-[7px] font-black tracking-widest border-b border-slate-900">
+                       <thead className="bg-slate-950 text-slate-500 uppercase text-[7px] font-black tracking-widest border-b border-slate-900 sticky top-0 z-10">
                           <tr className="h-14">
                              <th className="px-6 py-5 text-center w-12">Sec</th>
                              <th className="px-4 py-5 text-center w-12">Q# Ref</th>
@@ -763,7 +778,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                           </tr>
                        </thead>
                        <tbody className="divide-y divide-gray-50">
-                          {activeResource.indicators.length > 0 ? activeResource.indicators.map((ind, idx) => (
+                          {paginatedIndicators.length > 0 ? paginatedIndicators.map((ind) => (
                              <tr key={ind.id} className="hover:bg-blue-50/50 transition-colors h-14 group">
                                 <td className="px-6 text-center font-black"><span className={`px-2 py-0.5 rounded text-[8px] text-white ${ind.section === 'A' ? 'bg-blue-500' : 'bg-indigo-500'}`}>{ind.section}</span></td>
                                 <td className="px-4 text-center font-black text-slate-500 text-[10px]">#{ind.questionRef}</td>
@@ -778,7 +793,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                       </button>
                                       <button onClick={() => {
-                                         const next = activeResource.indicators.filter((_, i) => i !== idx);
+                                         const next = activeResource.indicators.filter((i) => i.id !== ind.id);
                                          updateResourceField('indicators', next);
                                       }} className="text-slate-200 hover:text-red-500 p-1">
                                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -796,10 +811,48 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                           )}
                        </tbody>
                     </table>
-                 </div>
-              </div>
+                  </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-10 pt-8 border-t border-gray-50">
+                  {totalIndicatorPages > 1 && (
+                    <div className="flex items-center justify-between bg-slate-50 p-4 rounded-3xl border border-gray-100 mt-4">
+                       <div className="flex gap-2">
+                          <button 
+                            disabled={indicatorPage === 1}
+                            onClick={() => setIndicatorPage(prev => Math.max(1, prev - 1))}
+                            className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-slate-600 disabled:opacity-30 transition-all hover:bg-blue-50 hover:text-blue-600"
+                          >
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="15 18 9 12 15 6"/></svg>
+                          </button>
+                          <button 
+                            disabled={indicatorPage === totalIndicatorPages}
+                            onClick={() => setIndicatorPage(prev => Math.min(totalIndicatorPages, prev + 1))}
+                            className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-slate-600 disabled:opacity-30 transition-all hover:bg-blue-50 hover:text-blue-600"
+                          >
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="9 18 15 12 9 6"/></svg>
+                          </button>
+                       </div>
+                       <div className="flex items-center gap-4">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Page {indicatorPage} of {totalIndicatorPages}</span>
+                          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                             <label className="text-[8px] font-black text-blue-500 uppercase tracking-widest">Jump</label>
+                             <input 
+                                type="number"
+                                min="1"
+                                max={totalIndicatorPages}
+                                value={indicatorPage}
+                                onChange={(e) => {
+                                   const val = parseInt(e.target.value);
+                                   if (val >= 1 && val <= totalIndicatorPages) setIndicatorPage(val);
+                                }}
+                                className="w-10 bg-transparent border-none text-slate-900 font-black text-xs outline-none focus:ring-0 text-center"
+                             />
+                          </div>
+                       </div>
+                    </div>
+                  )}
+               </div>
+
+               <div className="flex flex-col sm:flex-row justify-between items-center gap-10 pt-8 border-t border-gray-50">
                  <div className="flex gap-10 items-center">
                     <div className="text-center">
                        <span className="text-[7px] font-black text-slate-400 uppercase block mb-1">Cohort Weight Mapped</span>
