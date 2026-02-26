@@ -143,19 +143,6 @@ export default function FacilitatorAccountHub({ activeFacilitator, settings, onS
   return (
     <div className="space-y-12 animate-in fade-in duration-700 pb-20 font-sans max-w-6xl mx-auto">
       
-      <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-gray-100 text-slate-900">
-         <ReportBrandingHeader 
-            settings={settings} 
-            onSettingChange={onSettingChange} 
-            reportTitle="INSTRUCTIONAL ASSET VAULT"
-            subtitle={`AUTHORIZED SPECIALIST NODE: ${activeFacilitator.name}`}
-            isLandscape={true}
-            readOnly={false}
-            hideMetadataStrip={true}
-            hideConnectivity={true}
-         />
-      </div>
-
       <section className="relative overflow-hidden group space-y-10">
          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full -mr-40 -mt-40 blur-[120px]"></div>
          
