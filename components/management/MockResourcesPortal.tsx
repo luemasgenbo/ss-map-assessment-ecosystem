@@ -36,20 +36,44 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
     return activeResource.revisionPlan?.schemes.find(s => s.basicYear === activePlanYear && s.term === activePlanTerm) || { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
   }, [activeResource.revisionPlan, activePlanYear, activePlanTerm]);
 
-  const updateSchemeWeek = (weekNum: number, field: keyof SchemeOfWeek, value: any) => {
+  const updateSchemeWeek = (entryId: string, field: keyof SchemeOfWeek, value: any) => {
     const currentPlan = activeResource.revisionPlan || { schemes: [] };
     const nextSchemes = [...currentPlan.schemes];
     const schemeIdx = nextSchemes.findIndex(s => s.basicYear === activePlanYear && s.term === activePlanTerm);
     
     let targetScheme = schemeIdx >= 0 ? nextSchemes[schemeIdx] : { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
     const nextWeeks = [...targetScheme.weeks];
-    const weekIdx = nextWeeks.findIndex(w => w.week === weekNum);
+    const entryIdx = nextWeeks.findIndex(w => w.id === entryId);
 
-    if (weekIdx >= 0) {
-      nextWeeks[weekIdx] = { ...nextWeeks[weekIdx], [field]: value };
-    } else {
-      nextWeeks.push({ week: weekNum, strand: '', subStrand: '', indicator: '', indicatorCode: '', [field]: value });
+    if (entryIdx >= 0) {
+      nextWeeks[entryIdx] = { ...nextWeeks[entryIdx], [field]: value };
+      targetScheme = { ...targetScheme, weeks: nextWeeks };
+      if (schemeIdx >= 0) {
+        nextSchemes[schemeIdx] = targetScheme;
+      } else {
+        nextSchemes.push(targetScheme);
+      }
+      updateResourceField('revisionPlan', { schemes: nextSchemes });
     }
+  };
+
+  const addSchemeEntry = (weekNum: number) => {
+    const currentPlan = activeResource.revisionPlan || { schemes: [] };
+    const nextSchemes = [...currentPlan.schemes];
+    const schemeIdx = nextSchemes.findIndex(s => s.basicYear === activePlanYear && s.term === activePlanTerm);
+    
+    let targetScheme = schemeIdx >= 0 ? nextSchemes[schemeIdx] : { term: activePlanTerm, basicYear: activePlanYear, weeks: [] };
+    const nextWeeks = [...targetScheme.weeks];
+    
+    nextWeeks.push({ 
+      id: `W${weekNum}-${Date.now()}`,
+      week: weekNum, 
+      strand: '', 
+      subStrand: '', 
+      indicator: '', 
+      indicatorCode: '', 
+      additions: '' 
+    });
 
     targetScheme = { ...targetScheme, weeks: nextWeeks };
     if (schemeIdx >= 0) {
@@ -61,19 +85,38 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
     updateResourceField('revisionPlan', { schemes: nextSchemes });
   };
 
+  const removeSchemeEntry = (entryId: string) => {
+    const currentPlan = activeResource.revisionPlan || { schemes: [] };
+    const nextSchemes = [...currentPlan.schemes];
+    const schemeIdx = nextSchemes.findIndex(s => s.basicYear === activePlanYear && s.term === activePlanTerm);
+    
+    if (schemeIdx < 0) return;
+
+    let targetScheme = nextSchemes[schemeIdx];
+    const nextWeeks = targetScheme.weeks.filter(w => w.id !== entryId);
+
+    targetScheme = { ...targetScheme, weeks: nextWeeks };
+    nextSchemes[schemeIdx] = targetScheme;
+
+    updateResourceField('revisionPlan', { schemes: nextSchemes });
+  };
+
   const handleDownloadSchemeCSV = () => {
     const headers = ['Week', 'Strand', 'Sub-Strand', 'Indicator Code', 'Instructional Indicator', 'Additions'];
-    const rows = Array.from({ length: 16 }, (_, i) => {
-      const week = i + 1;
-      const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '', additions: '' };
-      return [
+    const rows: string[] = [];
+    
+    // Sort weeks to ensure order in CSV
+    const sortedWeeks = [...activeScheme.weeks].sort((a, b) => a.week - b.week);
+    
+    sortedWeeks.forEach(weekData => {
+      rows.push([
         weekData.week,
         `"${(weekData.strand || '').replace(/"/g, '""')}"`,
         `"${(weekData.subStrand || '').replace(/"/g, '""')}"`,
         `"${(weekData.indicatorCode || '').replace(/"/g, '""')}"`,
         `"${(weekData.indicator || '').replace(/"/g, '""')}"`,
         `"${(weekData.additions || '').replace(/"/g, '""')}"`
-      ].join(',');
+      ].join(','));
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
@@ -111,7 +154,7 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
         const indicator = parts[4]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
         const additions = parts[5]?.replace(/^"|"$/g, '').replace(/""/g, '"') || '';
         
-        return { week, strand, subStrand, indicatorCode, indicator, additions };
+        return { id: `W${week}-${Date.now()}-${Math.random()}`, week, strand, subStrand, indicatorCode, indicator, additions };
       }).filter(w => w.week > 0 && w.week <= 16);
 
       if (newWeeks.length > 0) {
@@ -526,59 +569,90 @@ const MockResourcesPortal: React.FC<MockResourcesPortalProps> = ({
                              <button onClick={handleSyncFromScheme} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-black text-[9px] uppercase shadow-lg transition-all">Sync to Connector</button>
                           </div>
                        </div>
-                       <div className="max-h-[400px] overflow-y-auto custom-scrollbar-v p-6 space-y-4">
+                       <div className="max-h-[500px] overflow-y-auto custom-scrollbar-v p-6 space-y-8">
                           {Array.from({ length: 16 }, (_, i) => i + 1).map(week => {
-                             const weekData = activeScheme.weeks.find(w => w.week === week) || { week, strand: '', subStrand: '', indicator: '', indicatorCode: '', additions: '' };
+                             const weekEntries = activeScheme.weeks.filter(w => w.week === week);
+                             
                              return (
-                                <div key={week} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all">
-                                   <div className="md:col-span-1 text-center">
-                                      <span className="text-[10px] font-black text-blue-500">W{week}</span>
+                                <div key={week} className="space-y-3 border-b border-white/10 pb-6 last:border-0">
+                                   <div className="flex justify-between items-center px-2">
+                                      <span className="text-xs font-black text-blue-500 uppercase tracking-widest">Week {week}</span>
+                                      <button 
+                                        onClick={() => addSchemeEntry(week)}
+                                        className="text-[9px] font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-widest flex items-center gap-1 transition-colors"
+                                      >
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        Add Entry
+                                      </button>
                                    </div>
-                                   <div className="md:col-span-2">
-                                      <input 
-                                        type="text" 
-                                        placeholder="Strand"
-                                        value={weekData.strand}
-                                        onChange={e => updateSchemeWeek(week, 'strand', e.target.value.toUpperCase())}
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
-                                      />
-                                   </div>
-                                   <div className="md:col-span-2">
-                                      <input 
-                                        type="text" 
-                                        placeholder="Sub-Strand"
-                                        value={weekData.subStrand}
-                                        onChange={e => updateSchemeWeek(week, 'subStrand', e.target.value.toUpperCase())}
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
-                                      />
-                                   </div>
-                                   <div className="md:col-span-1">
-                                      <input 
-                                        type="text" 
-                                        placeholder="Code"
-                                        value={weekData.indicatorCode}
-                                        onChange={e => updateSchemeWeek(week, 'indicatorCode', e.target.value.toUpperCase())}
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-mono font-black text-blue-400 outline-none focus:border-blue-500"
-                                      />
-                                   </div>
-                                   <div className="md:col-span-3">
-                                      <input 
-                                        type="text" 
-                                        placeholder="Instructional Indicator"
-                                        value={weekData.indicator}
-                                        onChange={e => updateSchemeWeek(week, 'indicator', e.target.value.toUpperCase())}
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-slate-300 outline-none focus:border-blue-500"
-                                      />
-                                   </div>
-                                   <div className="md:col-span-3">
-                                      <input 
-                                        type="text" 
-                                        placeholder="Additions / Notes"
-                                        value={weekData.additions || ''}
-                                        onChange={e => updateSchemeWeek(week, 'additions', e.target.value.toUpperCase())}
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-emerald-400 outline-none focus:border-emerald-500"
-                                      />
-                                   </div>
+                                   
+                                   {weekEntries.length > 0 ? weekEntries.map((weekData, idx) => (
+                                      <div key={weekData.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all relative group">
+                                         <div className="md:col-span-2">
+                                            <input 
+                                              type="text" 
+                                              placeholder="Strand"
+                                              value={weekData.strand}
+                                              onChange={e => updateSchemeWeek(weekData.id, 'strand', e.target.value.toUpperCase())}
+                                              className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
+                                            />
+                                         </div>
+                                         <div className="md:col-span-2">
+                                            <input 
+                                              type="text" 
+                                              placeholder="Sub-Strand"
+                                              value={weekData.subStrand}
+                                              onChange={e => updateSchemeWeek(weekData.id, 'subStrand', e.target.value.toUpperCase())}
+                                              className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500"
+                                            />
+                                         </div>
+                                         <div className="md:col-span-2">
+                                            <input 
+                                              type="text" 
+                                              placeholder="Code"
+                                              value={weekData.indicatorCode}
+                                              onChange={e => updateSchemeWeek(weekData.id, 'indicatorCode', e.target.value.toUpperCase())}
+                                              className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-mono font-black text-blue-400 outline-none focus:border-blue-500"
+                                            />
+                                         </div>
+                                         <div className="md:col-span-3">
+                                            <input 
+                                              type="text" 
+                                              placeholder="Instructional Indicator"
+                                              value={weekData.indicator}
+                                              onChange={e => updateSchemeWeek(weekData.id, 'indicator', e.target.value.toUpperCase())}
+                                              className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-slate-300 outline-none focus:border-blue-500"
+                                            />
+                                         </div>
+                                         <div className="md:col-span-3">
+                                            <input 
+                                              type="text" 
+                                              placeholder="Additions / Notes"
+                                              value={weekData.additions || ''}
+                                              onChange={e => updateSchemeWeek(weekData.id, 'additions', e.target.value.toUpperCase())}
+                                              className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-emerald-400 outline-none focus:border-emerald-500"
+                                            />
+                                         </div>
+                                         
+                                         {/* Delete Entry Button */}
+                                         <button 
+                                           onClick={() => removeSchemeEntry(weekData.id)}
+                                           className="absolute -right-2 -top-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                           title="Remove Entry"
+                                         >
+                                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                         </button>
+                                      </div>
+                                   )) : (
+                                      <div className="bg-white/5 p-4 rounded-2xl border border-dashed border-white/10 flex justify-center items-center">
+                                         <button 
+                                           onClick={() => addSchemeEntry(week)}
+                                           className="text-[9px] font-black text-slate-500 hover:text-blue-400 uppercase tracking-widest transition-colors"
+                                         >
+                                           + Initialize Week {week} Entry
+                                         </button>
+                                      </div>
+                                   )}
                                 </div>
                              );
                           })}

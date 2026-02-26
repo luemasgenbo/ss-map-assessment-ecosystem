@@ -340,6 +340,7 @@ export interface MockResource {
 }
 
 export interface SchemeOfWeek {
+  id: string;
   week: number;
   strand: string;
   subStrand: string;
